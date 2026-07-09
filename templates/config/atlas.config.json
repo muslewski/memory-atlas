@@ -1,0 +1,18 @@
+{
+  "$schema": "./node_modules/memory-atlas/schema/atlas.config.schema.json",
+  "version": 1,
+  "enabled": true,
+  "vaultDir": "{{VAULT}}",
+  "modules": {
+    "flows": false,
+    "programs": false,
+    "vision": false,
+    "reference": false,
+    "archive": false,
+    "backlog": false,
+    "drafts": false
+  },
+  "retrieval": {
+    "excludeFromSearch": ["drafts/", "visuals/"]
+  }
+}
