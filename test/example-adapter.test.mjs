@@ -6,6 +6,7 @@ import path from 'node:path'
 import { after, describe, test } from 'node:test'
 import * as adapter from '../examples/with-agentic-sage/adapter.mjs'
 import { runInit } from '../lib/init.mjs'
+import { removeDirsWithRetry } from './helpers.mjs'
 
 const tmpDirs = []
 
@@ -57,8 +58,8 @@ sources: []
   fs.writeFileSync(path.join(vault, 'map', 'zones', `${slug}.md`), content)
 }
 
-after(() => {
-  for (const dir of tmpDirs) fs.rmSync(dir, { recursive: true, force: true })
+after(async () => {
+  await removeDirsWithRetry(tmpDirs)
 })
 
 describe('examples/with-agentic-sage/adapter.mjs — a living contract check against atlas init scaffolding', () => {

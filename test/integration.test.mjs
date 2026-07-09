@@ -7,6 +7,7 @@ import { after, describe, test } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { runStamp } from '../lib/stamp.mjs'
 import { runStatus } from '../lib/status.mjs'
+import { removeDirsWithRetry } from './helpers.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = path.dirname(__dirname)
@@ -127,8 +128,8 @@ function vaultPath(repo) {
   return path.join(repo, `${path.basename(repo)}-atlas`)
 }
 
-after(() => {
-  for (const dir of tmpDirs) fs.rmSync(dir, { recursive: true, force: true })
+after(async () => {
+  await removeDirsWithRetry(tmpDirs)
 })
 
 describe('atlas build — scaffold-to-index (Step 3 scaffold)', () => {

@@ -4,6 +4,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { after, describe, test } from 'node:test'
 import { findRepoRoot, findVaultDir } from '../lib/detect.mjs'
+import { removeDirsWithRetry } from './helpers.mjs'
 
 const tmpDirs = []
 
@@ -13,10 +14,8 @@ function mkTmp() {
   return dir
 }
 
-after(() => {
-  for (const dir of tmpDirs) {
-    fs.rmSync(dir, { recursive: true, force: true })
-  }
+after(async () => {
+  await removeDirsWithRetry(tmpDirs)
 })
 
 describe('findRepoRoot', () => {

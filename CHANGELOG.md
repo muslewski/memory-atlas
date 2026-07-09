@@ -37,3 +37,21 @@ This project has no stability guarantee across minor versions until 1.0
 - This repository's own dogfood vault (`atlas/`) and
   `docs/{ONRAMP,CONFIG,ADOPTION}.md`.
 - Zero runtime dependencies; Node >= 20.
+
+### Fixed
+
+- `npm pack`/`npm publish` could sweep the ctx-search adapter's runtime
+  artifacts (`adapters/.navidx.log`, `.navidx.lock`, `.navidx.stamp`) into
+  the published tarball if the adapter had ever run in the working copy.
+  Closed structurally with a nested `adapters/.npmignore`, rather than only
+  documented as a publish-from-a-clean-checkout caveat.
+- Test-suite cleanup hooks (`after()` in every `test/*.test.mjs`) could
+  throw a spurious ENOTEMPTY/EBUSY out of `fs.rmSync`, racing a just-exited
+  git child process's directory handle while `node:test` runs files in
+  parallel. All such hooks now go through a shared, retrying
+  `test/helpers.mjs` (bounded retries, only for transient error codes) —
+  mitigated, not provably eliminated; see `docs/LAUNCH-CHECKLIST.md`.
+- Removed the unused `TODO-owner` HTML-comment scaffolding (banner art,
+  badge swap) from `README.md`'s published source; the underlying owner
+  steps are now tracked in `docs/LAUNCH-CHECKLIST.md` instead of shipping
+  as an invisible TODO in the README itself.
