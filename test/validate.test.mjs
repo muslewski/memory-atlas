@@ -224,6 +224,29 @@ describe('validate — unmounted zones (SPEC.md verifiedAt amendment)', () => {
     assert.equal(attic.length, 1)
   })
 
+  test('unmounted zone whose globs match no tracked files: the glob-existence check must not run at all (the canonical tombstone case)', () => {
+    const z = zone({ status: 'unmounted', owns: { globs: ['src/deleted-module/**'] } })
+    const r = fakeResolvers({ glob: () => false }) // every glob "misses" — the canonical tombstone shape
+    const { errors, warnings, rows, attic } = validate([z], [], r)
+    assert.equal(errors.length, 0, 'an unmounted zone must be exempt from owns.globs existence too')
+    assert.equal(rows.length, 0)
+    assert.equal(attic.length, 1)
+    assert.equal(warnings.length, 0)
+  })
+
+  test('unmounted zone with unconfigured testids/tools/routes classes present: no warnings either — anchors are not evaluated at all', () => {
+    const z = zone({
+      status: 'unmounted',
+      owns: { globs: ['src/gone/**'], testids: ['x'], tools: ['y'], routes: ['/z'] },
+      invariants: [{ rule: 'no-op', enforcedBy: [] }],
+    })
+    const r = fakeResolvers({ glob: () => false })
+    const { errors, warnings, attic } = validate([z], [], r)
+    assert.equal(errors.length, 0)
+    assert.equal(warnings.length, 0)
+    assert.equal(attic.length, 1)
+  })
+
   test('unmounted flow/decision also land in attic via the graph param', () => {
     const flow = { id: 'checkout-flow', status: 'unmounted', summary: 'old flow' }
     const decision = { id: '2026-01-01-old-choice', status: 'unmounted', summary: 'superseded' }
@@ -320,5 +343,43 @@ describe('renderIndex', () => {
     assert.match(md, /## ⚠ Verification gaps\n\n_none_/)
     assert.match(md, /## ⚠ Graph coherence\n\n_none_/)
     assert.match(md, /## Attic \(unmounted\)\n\n_none_/)
+  })
+})
+
+describe('renderIndex — Verification gaps lists stale/seeded zones (SPEC.md §6 item 2)', () => {
+  function gapsSection(md) {
+    return md.slice(md.indexOf('## ⚠ Verification gaps'), md.indexOf('## ⚠ Graph coherence'))
+  }
+
+  test('a stale zone and a seeded zone both appear in Verification gaps, not just _none_', () => {
+    const md = renderIndex({
+      rows: [
+        { id: 'checkout', status: 'active', freshness: '⚠ stale', summary: 'x' },
+        { id: 'billing', status: 'seeded', freshness: 'seeded', summary: 'y' },
+        { id: 'auth', status: 'active', freshness: 'ok', summary: 'z' },
+      ],
+    })
+    const gaps = gapsSection(md)
+    assert.match(gaps, /checkout/, 'the stale zone must be listed')
+    assert.match(gaps, /billing/, 'the seeded zone must be listed')
+    assert.doesNotMatch(gaps, /_none_/)
+    assert.doesNotMatch(gaps, /auth/, 'a fresh ("ok") zone must not be listed as a gap')
+  })
+
+  test('non-graph warnings still appear alongside stale/seeded zone entries', () => {
+    const md = renderIndex({
+      rows: [{ id: 'checkout', status: 'active', freshness: '⚠ stale', summary: 'x' }],
+      warnings: ['zone checkout: invariant "x" has no enforcedBy → file tech-debt'],
+    })
+    const gaps = gapsSection(md)
+    assert.match(gaps, /checkout.*⚠ stale|⚠ stale.*checkout/s)
+    assert.match(gaps, /invariant "x" has no enforcedBy/)
+  })
+
+  test('_none_ only when genuinely clean: no stale/seeded rows and no warnings', () => {
+    const md = renderIndex({
+      rows: [{ id: 'auth', status: 'active', freshness: 'ok', summary: 'z' }],
+    })
+    assert.match(gapsSection(md), /_none_/)
   })
 })

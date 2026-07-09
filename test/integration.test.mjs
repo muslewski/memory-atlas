@@ -284,6 +284,56 @@ describe('atlas stamp / build — unmounted zone amendment (SPEC.md verifiedAt r
     assert.equal(build.code, 0)
     assert.match(build.stdout, /0 gap\(s\)\./)
   })
+
+  test('the canonical tombstone case: an unmounted zone whose owns.globs match no tracked files (the owned code was actually deleted) must not hard-error the glob-existence check', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src', 'legacy'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'legacy', 'index.js'), '// old\n')
+    commitAll(repo, 'init tree')
+    atlas(repo, ['init'])
+    const vault = vaultPath(repo)
+
+    // SPEC.md's "tombstone over delete" ritual: the zone goes unmounted
+    // *because* its owned code is gone, so owns.globs now matches nothing.
+    fs.rmSync(path.join(repo, 'src', 'legacy'), { recursive: true, force: true })
+    commitAll(repo, 'legacy: delete owned code')
+
+    writeZone(vault, 'legacy', '', { status: 'unmounted', verifiedAt: 'unverified' })
+
+    const build = atlas(repo, ['build'])
+    assert.equal(
+      build.code,
+      0,
+      'build must not hard-error on an unmounted zone whose globs match no tracked files',
+    )
+    assert.doesNotMatch(build.stderr, /matches no tracked files/)
+    assert.match(build.stdout, /0 gap\(s\)\./)
+    commitAll(repo, 'atlas: build index for tombstoned zone')
+
+    const check = atlas(repo, ['check'])
+    assert.equal(check.code, 0, 'check must exit 0 for the canonical tombstoned-zone case')
+  })
+})
+
+describe('atlas check --report — ledger coverage summary (Step 5)', () => {
+  test('--report prints the ledger coverage line; without it the line is absent', () => {
+    const repo = mkRepo()
+    execFileSync('git', ['commit', '--allow-empty', '-q', '-m', 'init'], { cwd: repo })
+    atlas(repo, ['init'])
+    commitAll(repo, 'atlas: init vault')
+
+    const build = atlas(repo, ['build'])
+    assert.equal(build.code, 0)
+    commitAll(repo, 'atlas: build index')
+
+    const withoutReport = atlas(repo, ['check'])
+    assert.equal(withoutReport.code, 0)
+    assert.doesNotMatch(withoutReport.stdout, /ledger: \d+\/\d+ clean/)
+
+    const withReport = atlas(repo, ['check', '--report'])
+    assert.equal(withReport.code, 0)
+    assert.match(withReport.stdout, /ledger: \d+\/\d+ clean \(\d+(\.\d+)?%\)/)
+  })
 })
 
 describe('atlas status — one line, tolerant, zero side effects', () => {
