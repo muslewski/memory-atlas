@@ -1,32 +1,11 @@
-<!-- TODO-owner: banner art not yet produced (image-generation task, owner-only).
-     Uncomment once assets/atlas-banner.avif + assets/atlas-banner.webp exist.
-     Prompt spec: wide banner, 3:1. A muscular titan seen from behind, holding
-     a glowing globe made of a code-repository world — file-tree continents,
-     branching river deltas as git branches, small labeled map regions
-     (zones). Style matched to the agentic-sage and token-oracle banners.
-     Title text: memory-atlas.
-
-<p align="center">
-  <picture>
-    <source srcset="./assets/atlas-banner.avif" type="image/avif">
-    <source srcset="./assets/atlas-banner.webp" type="image/webp">
-    <img src="./assets/atlas-banner.webp" alt="memory-atlas — carries what your fleet knows" width="900">
-  </picture>
-</p>
--->
-
 # memory-atlas
 
 *A per-repo knowledge atlas for agent fleets — verified architecture cards with an honest freshness signal.*
 
-![tests](https://img.shields.io/badge/tests-126%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-131%20passing-brightgreen)
 ![node](https://img.shields.io/badge/node-%3E%3D20-blue)
 ![license](https://img.shields.io/badge/license-MIT-blue)
 ![dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
-
-<!-- TODO-owner: swap the static badges above for live ones (CI status, npm
-     version) once the GitHub repo and CI workflow exist — see
-     docs/LAUNCH-CHECKLIST.md item 6. -->
 
 Most agent-memory tools persist what the agent *believed*. An Atlas records
 what was **verified** — and tells you when.

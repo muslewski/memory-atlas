@@ -4,6 +4,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { after, describe, test } from 'node:test'
 import { DEFAULTS, loadConfig } from '../lib/config.mjs'
+import { removeDirsWithRetry } from './helpers.mjs'
 
 const tmpDirs = []
 
@@ -22,8 +23,8 @@ function silentStderr() {
   return { stderr: { write: (s) => lines.push(s) }, lines }
 }
 
-after(() => {
-  for (const dir of tmpDirs) fs.rmSync(dir, { recursive: true, force: true })
+after(async () => {
+  await removeDirsWithRetry(tmpDirs)
 })
 
 describe('loadConfig', () => {

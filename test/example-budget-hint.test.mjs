@@ -5,6 +5,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { after, describe, test } from 'node:test'
 import { fileURLToPath } from 'node:url'
+import { removeDirsWithRetry } from './helpers.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = path.dirname(__dirname)
@@ -32,8 +33,8 @@ function run(args) {
   return result
 }
 
-after(() => {
-  for (const dir of tmpDirs) fs.rmSync(dir, { recursive: true, force: true })
+after(async () => {
+  await removeDirsWithRetry(tmpDirs)
 })
 
 describe('examples/with-token-oracle/budget-hint.mjs', () => {

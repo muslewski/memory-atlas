@@ -82,12 +82,28 @@ jobs:
 
 Save as `.github/workflows/ci.yml`.
 
-## 6. Bring badges live
+## 6. Bring badges live, and produce the banner art
 
 Swap the static placeholder badges in `README.md` (tests/node/license/deps)
 for the real ones now that CI and the repo exist: a GitHub Actions status
 badge for the workflow above, and — once step 7 is done — an npm version
 badge.
+
+Separately: `README.md` never had a banner — the art was never produced
+(an image-generation task, owner-only), and the HTML-comment scaffolding
+that once held the plan for it was removed from `README.md` so the
+published source doesn't ship a `TODO-owner` marker. Nothing was lost —
+the intent lives here now. If/when you want a banner:
+
+1. Generate `assets/atlas-banner.avif` + `assets/atlas-banner.webp`: wide
+   banner, 3:1. A muscular titan seen from behind, holding a glowing globe
+   made of a code-repository world — file-tree continents, branching river
+   deltas as git branches, small labeled map regions (zones). Style matched
+   to the agentic-sage and token-oracle banners. Title text: memory-atlas.
+2. Add a centered `<picture>` block back into `README.md`, above the
+   `# memory-atlas` heading, with `<source>` entries for the `.avif` and
+   `.webp` variants and an `<img>` fallback — same shape as the sibling
+   agentic-sage / token-oracle project banners.
 
 ## 7. Publish
 
@@ -101,24 +117,24 @@ first, and read the file list it prints. Then:
 npm publish
 ```
 
-**Known issue — publish from a clean checkout.** `adapters/.navidx.log` is a
-runtime artifact of the ctx-search adapter (see
-`adapters/ctx-search/README.md`). It is gitignored and absent from a clean
-checkout, but `package.json`'s `files` array includes the whole `adapters/`
-directory, so if that adapter has ever run in the working directory you
-publish from, `npm pack`/`npm publish` will sweep the log file into the
-tarball. This was verified directly: running `npm pack --dry-run` in a
-working copy where the file existed listed
-`adapters/.navidx.log` in the tarball contents. Before publishing, either:
-
-- publish from a fresh `git clone` (guarantees no local runtime artifacts
-  exist), or
-- run `git clean -xdn` first and confirm it lists nothing unexpected under
-  `adapters/`, or
-- add a `.npmignore` entry for `adapters/.navidx.log` / `adapters/*.log`.
-
-`npm pack --dry-run` again immediately before the real publish and re-check
-the file list either way.
+**Fixed — runtime artifacts can no longer leak into the tarball.**
+`adapters/.navidx.log` (and its siblings `.navidx.lock` / `.navidx.stamp`)
+are runtime artifacts of the ctx-search adapter (see
+`adapters/ctx-search/README.md`). They're gitignored and absent from a
+clean checkout, but `package.json`'s `files` array includes the whole
+`adapters/` directory, so a naive `npm pack` from a working copy where the
+adapter had ever run used to sweep the log file into the tarball —
+verified directly by creating the artifact and confirming `npm pack
+--dry-run` listed `adapters/.navidx.log`. This is now closed structurally:
+`adapters/.npmignore` (a nested, per-directory ignore file, committed to
+the repo) excludes `.navidx.*` from anything packed under `adapters/`,
+regardless of what's present in the working copy. Verified empirically —
+with `adapters/.navidx.log`, `.navidx.lock`, and `.navidx.stamp` all
+present, `npm pack --dry-run` no longer lists any of them, while every
+other file under `adapters/` (the adapter script itself, both README.md
+files) still ships. Publishing from a non-clean checkout is no longer a
+hazard for this specific artifact class; run `npm pack --dry-run` before
+publishing anyway, as general practice, not because of this issue.
 
 ## 8. Post-launch
 
@@ -133,20 +149,27 @@ the file list either way.
 
 ## Known pre-1.0 items (not fixed by this checklist, carried forward)
 
-These are real, currently-open issues. Neither is fixed here — both are
-out of scope for a docs-only launch pass, and are recorded so they aren't
-lost or accidentally implied to be resolved by "launch."
+This item is *mitigated*, not provably eliminated — recorded so it isn't
+overstated as "fixed" either.
 
-1. **The npm-pack artifact sweep above** (§7) — the underlying fix (either
-   an `.npmignore` or narrowing the `files` glob for `adapters/`) is a small,
-   real code change that hasn't been made; publishing-from-clean-checkout is
-   a process workaround, not a fix.
-2. **A flaky test-suite cleanup hook.** `node --test` has been observed,
-   more than once, to report a single spurious test failure that vanishes on
-   rerun. The suspected cause: `after()` hooks in the integration tests call
-   `fs.rmSync(dir, { recursive: true, force: true })` on temporary git
-   repositories while `node:test` runs test files in parallel, racing the
-   OS releasing a just-exited git child process's directory handle. This is
-   pre-existing, nobody owns a fix for it yet, and the README does not (and
-   must not) claim a rock-solid suite — it's 126 tests green on a normal
-   run, with this known, occasional flake.
+1. **A flaky test-suite cleanup hook — mitigated, not provably eliminated.**
+   `node --test` had been observed, more than once, to report a single
+   spurious test failure that vanished on rerun. Suspected cause: every
+   `after()` cleanup hook across `test/*.test.mjs` called
+   `fs.rmSync(dir, { recursive: true, force: true })` on a temporary git
+   repository while `node:test` runs test files in parallel, racing the OS
+   releasing a just-exited git child process's directory handle — throwing
+   ENOTEMPTY/EBUSY out of the cleanup hook. All such hooks (in
+   `config.test.mjs`, `detect.test.mjs`, `example-adapter.test.mjs`,
+   `example-budget-hint.test.mjs`, `init.test.mjs`, `integration.test.mjs`,
+   `ledger.test.mjs`, `routine.test.mjs`) now go through a shared
+   `test/helpers.mjs` (`removeDirWithRetry` / `removeDirsWithRetry`) that
+   retries up to 5 times with a short linear backoff, but *only* for
+   ENOTEMPTY / EBUSY / ENOENT — any other error still rethrows immediately,
+   so a genuine cleanup bug still surfaces. `test/helpers.test.mjs` proves
+   the retry/rethrow logic directly against simulated errors. The flake
+   itself was never reliably reproducible on demand (one prior run of 12
+   didn't hit it either), so 20 consecutive clean `node --test` runs after
+   this change is evidence the fix doesn't regress anything, not proof the
+   race is gone. The README does not (and must not) claim a rock-solid
+   suite beyond "currently green."

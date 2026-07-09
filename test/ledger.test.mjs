@@ -4,6 +4,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { after, describe, test } from 'node:test'
 import { lintLedger } from '../lib/ledger.mjs'
+import { removeDirsWithRetry } from './helpers.mjs'
 
 const tmpDirs = []
 
@@ -21,8 +22,8 @@ function write(vault, rel, content) {
   fs.writeFileSync(full, content)
 }
 
-after(() => {
-  for (const dir of tmpDirs) fs.rmSync(dir, { recursive: true, force: true })
+after(async () => {
+  await removeDirsWithRetry(tmpDirs)
 })
 
 describe('lintLedger', () => {
