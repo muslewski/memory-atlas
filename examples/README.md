@@ -1,0 +1,25 @@
+# Examples
+
+The Atlas is one of three deliberately independent sibling tools: a session
+judge (agentic-sage — the present), a token forecaster (token-oracle — the
+future), and the Atlas itself (a repository's memory — the past). They are
+designed to work well together **without being tied together**: separate
+projects, no shared code, coupling only via file contracts each already
+publishes on its own. These examples are the proof, entirely from the
+Atlas's side — neither sibling required any change to make them work.
+
+- **`solo/`** — the no-companions baseline. Everything below still applies
+  with zero siblings installed; this is what "just the Atlas" looks like.
+- **`with-agentic-sage/`** — an adapter that lets agentic-sage read an
+  Atlas vault for semantic zone names and `BACKLOG.md` drift detection.
+- **`with-token-oracle/`** — a read-only reader of token-oracle's forecast
+  snapshot, plus a routine that weighs it against a BACKLOG claim.
+
+Each example is deletable on its own without touching the others, or the
+core Atlas: `with-agentic-sage/` only matters if agentic-sage is installed,
+`with-token-oracle/` only matters if token-oracle is installed, and neither
+is required for `atlas init` / `build` / `check` / `stamp` / `status` /
+`routine` to work. Coupling only ever happens via a file contract each
+sibling already documents for its own reasons — a config key, a zone card's
+`owns.globs`, `BACKLOG.md`, a versioned JSON snapshot — never via imported
+code.
