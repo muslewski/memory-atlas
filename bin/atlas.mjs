@@ -4,11 +4,13 @@ import { spawnSync } from 'node:child_process'
 import fs, { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { loadConfig } from '../lib/config.mjs'
 import { findRepoRoot, findVaultDir } from '../lib/detect.mjs'
 import { runInit } from '../lib/init.mjs'
 import { lintLedger } from '../lib/ledger.mjs'
-import { loadConfig, loadVault } from '../lib/notes.mjs'
+import { loadVault } from '../lib/notes.mjs'
 import { makeResolvers } from '../lib/resolvers.mjs'
+import { runRoutine } from '../lib/routine.mjs'
 import { runStamp } from '../lib/stamp.mjs'
 import { runStatus } from '../lib/status.mjs'
 import { renderIndex, validate } from '../lib/validate.mjs'
@@ -27,11 +29,18 @@ Commands:
   atlas check [--strict] [--report] [--ledger-only]
                           Verify zone claims, the committed index, and the ledger
   atlas stamp <slug...>   Re-stamp verifiedAt for reviewed zones (no blanket re-stamp)
-  atlas status            One-line vault health summary (safe as a hook)
+  atlas status [--hook]   One-line vault health summary (safe as a hook). --hook marks
+                          a SessionStart-hook call site, honoring hooks.sessionStartStatus
+                          in atlas.config.json; a plain human/script call always prints.
+  atlas routine [name]    Print a maintenance-routine prompt (no name: list available)
 
 Options:
   --help, -h        Show this help
   --version, -v     Show the installed version
+
+A repo's atlas.config.json → \`enabled: false\` silences every command above
+(except \`init\`), printing nothing and exiting 0 — a kill switch for repos
+that vendored the convention but paused it.
 `
 
 /**
@@ -106,7 +115,6 @@ function runCheck(argv, opts) {
   const cwd = opts.cwd ?? process.cwd()
   const stdout = opts.stdout ?? process.stdout
   const stderr = opts.stderr ?? process.stderr
-  const strict = argv.includes('--strict')
   const ledgerOnly = argv.includes('--ledger-only')
   const report = argv.includes('--report')
 
@@ -114,11 +122,14 @@ function runCheck(argv, opts) {
   if (!located) return 1
   const { repoRoot, vaultDir } = located
   const config = loadConfig(repoRoot)
+  // config.check.strictFreshness lets a repo opt every `atlas check` into
+  // --strict (e.g. for CI) without every caller remembering the flag.
+  const strict = argv.includes('--strict') || config.check?.strictFreshness === true
 
   if (ledgerOnly) {
     const vault = loadVault(vaultDir, config)
     const zoneSlugs = new Set(vault.zones.map((z) => z.id))
-    const ledgerResult = lintLedger(vaultDir, { zoneSlugs })
+    const ledgerResult = lintLedger(vaultDir, { zoneSlugs, folders: config.folders })
     for (const v of ledgerResult.violations) stdout.write(`${v}\n`)
     stdout.write(
       `ledger: ${ledgerResult.clean}/${ledgerResult.total} clean (${ledgerResult.coverage}%)\n`,
@@ -153,7 +164,7 @@ function runCheck(argv, opts) {
   }
 
   const zoneSlugs = new Set(vault.zones.map((z) => z.id))
-  const ledgerResult = lintLedger(vaultDir, { zoneSlugs })
+  const ledgerResult = lintLedger(vaultDir, { zoneSlugs, folders: config.folders })
   for (const v of ledgerResult.violations) stderr.write(`${v}\n`)
   if (ledgerResult.violations.length > 0) ok = false
   if (report) {
@@ -182,6 +193,24 @@ const COMMANDS = {
   check: (args) => runCheck(args, { cwd: process.cwd() }),
   stamp: (args) => runStamp(args, { cwd: process.cwd() }),
   status: (args) => runStatus(args, { cwd: process.cwd() }),
+  routine: (args) => runRoutine(args, { cwd: process.cwd() }),
+}
+
+/**
+ * The `enabled: false` kill switch (SPEC.md/CONFIG.md): every subcommand
+ * except `init` prints nothing and exits 0 when a repo's atlas.config.json
+ * disables the convention. Silent by design — the stderr sink here only
+ * suppresses this probe's own config warnings; the command's own config
+ * load (when it proceeds) still reports them normally.
+ *
+ * @param {string} cwd
+ * @returns {boolean}
+ */
+function isKillSwitched(cwd) {
+  const repoRoot = findRepoRoot(cwd)
+  if (!repoRoot) return false
+  const config = loadConfig(repoRoot, { stderr: { write: () => {} } })
+  return config.enabled === false
 }
 
 function main(argv) {
@@ -202,6 +231,10 @@ function main(argv) {
   if (!handler) {
     process.stderr.write(`atlas: unknown command "${command}"\n\n${USAGE}`)
     return 1
+  }
+
+  if (command !== 'init' && isKillSwitched(process.cwd())) {
+    return 0
   }
 
   return handler(args.slice(1))

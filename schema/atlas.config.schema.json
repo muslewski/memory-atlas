@@ -1,0 +1,168 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/memory-atlas/memory-atlas/schema/atlas.config.schema.json",
+  "title": "atlas.config.json",
+  "description": "Configuration for a repository's Atlas — which folders map to which vault modules, which optional modules are enabled, which owns resolver classes are active, retrieval exclusions, and which lifecycle hooks are enabled. See docs/CONFIG.md for the full field-level writeup and recipes.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Editor-tooling pointer to this schema file, e.g. \"./node_modules/memory-atlas/schema/atlas.config.schema.json\". Ignored by the loader."
+    },
+    "version": {
+      "type": "integer",
+      "default": 1,
+      "description": "Config shape version. Bumps only on a breaking shape change; unrelated to the package's own semver."
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Master kill switch. false: every `atlas` subcommand except `init` prints nothing and exits 0, and adapter scripts (e.g. the ctx-search index refresher) exit immediately. Safe default behavior for a repo that vendored the convention but paused it."
+    },
+    "vaultDir": {
+      "type": ["string", "null"],
+      "default": null,
+      "description": "Repo-relative path to the vault directory, conventionally `<repo>-atlas`. Informational for companion tools — this CLI always discovers the vault by structure (a directory containing map/index.md or map/zones/), never by trusting this field blindly."
+    },
+    "folders": {
+      "type": "object",
+      "description": "Vault-relative paths (relative to vaultDir) for each note-type module. Remapping any entry is free — e.g. `\"ideas\": \"notes/sparks\"` — every loader resolves through this map.",
+      "additionalProperties": false,
+      "properties": {
+        "zones": { "type": "string", "default": "map/zones", "description": "Zone cards." },
+        "decisions": { "type": "string", "default": "map/decisions", "description": "Decision records (ADRs)." },
+        "flows": { "type": "string", "default": "map/flows", "description": "Cross-zone journey cards (module: flows)." },
+        "specs": { "type": "string", "default": "specs", "description": "Design docs (Ledger)." },
+        "plans": { "type": "string", "default": "plans", "description": "Implementation plans (Ledger)." },
+        "programs": { "type": "string", "default": "programs", "description": "Multi-session umbrellas (module: programs)." },
+        "ideas": { "type": "string", "default": "ideas", "description": "Brainstorm seeds." },
+        "techDebt": { "type": "string", "default": "tech-debt", "description": "Deferred-work notes." },
+        "vision": { "type": "string", "default": "vision", "description": "Product pillars (module: vision)." },
+        "reference": { "type": "string", "default": "reference", "description": "Long-form reference docs (module: reference)." },
+        "archive": { "type": "string", "default": "archive", "description": "Retired specs/plans (module: archive)." },
+        "drafts": { "type": "string", "default": "drafts", "description": "Human scratch space, excluded from agent retrieval by default (module: drafts)." },
+        "templates": { "type": "string", "default": "templates", "description": "Per-type note scaffolds; also where `atlas routine` looks for a vault's own routines/ subfolder." }
+      }
+    },
+    "modules": {
+      "type": "object",
+      "description": "Optional vault modules beyond the core skeleton. Each is created on first use or by an explicit `atlas init --modules` flag — an Atlas must not scaffold an optional module empty by default.",
+      "additionalProperties": false,
+      "properties": {
+        "flows": { "type": "boolean", "default": false },
+        "programs": { "type": "boolean", "default": false },
+        "vision": { "type": "boolean", "default": false },
+        "reference": { "type": "boolean", "default": false },
+        "archive": { "type": "boolean", "default": false },
+        "backlog": { "type": "boolean", "default": false },
+        "drafts": { "type": "boolean", "default": false }
+      }
+    },
+    "anchors": {
+      "type": "object",
+      "description": "Optional owns.* resolver classes beyond the always-on owns.globs. Each MUST be declared here before a verifier enforces it (SPEC.md §5).",
+      "additionalProperties": false,
+      "properties": {
+        "testids": {
+          "type": "object",
+          "description": "owns.testids — grep for a configured attribute under a configured root.",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": { "type": "boolean", "default": false },
+            "pattern": { "type": "string", "default": "data-testid=\"{id}\"", "description": "{id} is substituted with each testid." },
+            "root": { "type": "string", "default": "src", "description": "git pathspec to search under." }
+          }
+        },
+        "tools": {
+          "type": "object",
+          "description": "owns.tools — grep for the id under a configured registry root.",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": { "type": "boolean", "default": false },
+            "pattern": { "type": "string", "default": "'{id}'", "description": "{id} is substituted with each tool id." },
+            "root": { "type": "string", "default": "", "description": "git pathspec to search under; empty means the whole repository." }
+          }
+        },
+        "routes": {
+          "type": "object",
+          "description": "owns.routes — match against configured route-file globs (SOFT severity: unresolved routes warn, they don't hard-fail).",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": { "type": "boolean", "default": false },
+            "fileGlobs": { "type": "array", "items": { "type": "string" }, "default": [], "description": "git pathspecs matching route files." },
+            "stripPrefix": { "type": "string", "default": "", "description": "Literal prefix stripped from each matched file path before route comparison." },
+            "stripSuffix": { "type": "string", "default": "", "description": "Regex (as a string) stripped from the end of each matched file path." }
+          }
+        }
+      }
+    },
+    "check": {
+      "type": "object",
+      "description": "Options for `atlas check`.",
+      "additionalProperties": false,
+      "properties": {
+        "strictFreshness": {
+          "type": "boolean",
+          "default": false,
+          "description": "When true, `atlas check` behaves as if `--strict` were always passed: any stale zone fails the command. Lets a repo opt CI into blocking on staleness without every caller remembering the flag; local default usage stays non-blocking."
+        }
+      }
+    },
+    "retrieval": {
+      "type": "object",
+      "description": "Retrieval-adapter configuration (SPEC.md §7).",
+      "additionalProperties": false,
+      "properties": {
+        "engine": {
+          "type": "string",
+          "enum": ["ctx-search", "obsidian-skills", "grep", "none"],
+          "default": "ctx-search",
+          "description": "Which retrieval adapter this repo documents/uses. Informational in v0.1 — no engine is ever required."
+        },
+        "excludeFromSearch": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["drafts/", "visuals/"],
+          "description": "Vault-relative folder names (trailing slash) hidden from automatic agent-facing indexing/search/orientation sweeps. Hidden, not sealed — an agent explicitly asked to read a specific excluded file may still do so."
+        }
+      }
+    },
+    "skills": {
+      "type": "object",
+      "description": "Where this repo keeps its Atlas-navigation skills and which one is the entry ramp.",
+      "additionalProperties": false,
+      "properties": {
+        "dir": { "type": "string", "default": ".claude/skills", "description": "Repo-relative directory the navigation skills are copied into." },
+        "nav": { "type": "string", "default": "atlas-nav", "description": "Name of the entry-ramp navigation skill." }
+      }
+    },
+    "hooks": {
+      "type": "object",
+      "description": "Per-hook toggles (SPEC.md Interop — the SessionStart hook contract). Each SessionStart helper checks its own toggle and exits 0 silently when false.",
+      "additionalProperties": false,
+      "properties": {
+        "sessionStartStatus": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether `atlas status --hook` prints. A plain `atlas status` (no --hook) always prints, regardless of this toggle — it only governs the hook call site."
+        },
+        "sessionStartIndexRefresh": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the ctx-search adapter's SessionStart invocation (no flags) spawns its background reindex worker."
+        }
+      }
+    },
+    "routines": {
+      "type": "object",
+      "description": "Self-maintenance prompt templates (`atlas routine`). This package never schedules anything — routines are prompts the user runs by hand or schedules with their own tool.",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean", "default": false, "description": "Whether this repo has opted into scheduling routines externally; informational (this package never reads it to trigger anything itself)." },
+        "cadenceDays": { "type": "integer", "default": 7, "description": "Substituted into a routine template's {{CADENCE_DAYS}} placeholder." },
+        "tasks": { "type": "array", "items": { "type": "string" }, "default": ["gardening"], "description": "Which built-in/vault routine names this repo runs on its cadence." }
+      }
+    }
+  }
+}

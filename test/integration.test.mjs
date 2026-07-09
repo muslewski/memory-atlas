@@ -374,3 +374,144 @@ describe('atlas status — one line, tolerant, zero side effects', () => {
     )
   })
 })
+
+describe('config — folder remapping (Step 2)', () => {
+  test('a default config produces byte-identical map/index.md whether folders is implicit or spelled out explicitly', () => {
+    const repoImplicit = mkRepo()
+    fs.mkdirSync(path.join(repoImplicit, 'src', 'billing'), { recursive: true })
+    fs.writeFileSync(path.join(repoImplicit, 'src', 'billing', 'index.js'), '// v1\n')
+    commitAll(repoImplicit, 'init tree')
+    atlas(repoImplicit, ['init'])
+    const vaultImplicit = vaultPath(repoImplicit)
+    writeZone(vaultImplicit, 'billing', '', { status: 'active', verifiedAt: shaOf(repoImplicit) })
+    atlas(repoImplicit, ['build'])
+    const indexImplicit = fs.readFileSync(path.join(vaultImplicit, 'map', 'index.md'), 'utf8')
+
+    const repoExplicit = mkRepo()
+    fs.mkdirSync(path.join(repoExplicit, 'src', 'billing'), { recursive: true })
+    fs.writeFileSync(path.join(repoExplicit, 'src', 'billing', 'index.js'), '// v1\n')
+    commitAll(repoExplicit, 'init tree')
+    atlas(repoExplicit, ['init'])
+    const configPath = path.join(repoExplicit, 'atlas.config.json')
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'))
+    // Spell out every folders.* entry as its own default value, verbatim —
+    // an explicit no-op remap must never change generated output.
+    config.folders = {
+      zones: 'map/zones',
+      decisions: 'map/decisions',
+      flows: 'map/flows',
+      specs: 'specs',
+      plans: 'plans',
+      programs: 'programs',
+      ideas: 'ideas',
+      techDebt: 'tech-debt',
+      vision: 'vision',
+      reference: 'reference',
+      archive: 'archive',
+      drafts: 'drafts',
+      templates: 'templates',
+    }
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
+    const vaultExplicit = vaultPath(repoExplicit)
+    writeZone(vaultExplicit, 'billing', '', { status: 'active', verifiedAt: shaOf(repoExplicit) })
+    atlas(repoExplicit, ['build'])
+    const indexExplicit = fs.readFileSync(path.join(vaultExplicit, 'map', 'index.md'), 'utf8')
+
+    assert.equal(indexExplicit, indexImplicit)
+  })
+
+  test('remapping ideas/techDebt/specs/plans: additive init creates the remapped dirs; status and ledger read from them', () => {
+    const repo = mkRepo()
+    execFileSync('git', ['commit', '--allow-empty', '-q', '-m', 'init'], { cwd: repo })
+    atlas(repo, ['init'])
+
+    const configPath = path.join(repo, 'atlas.config.json')
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'))
+    config.folders.ideas = 'notes/sparks'
+    config.folders.techDebt = 'debt'
+    config.folders.specs = 'design-docs'
+    config.folders.plans = 'roadmap'
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
+
+    // Re-running init (additive mode, vault already exists) must create the
+    // REMAPPED directories, not the defaults.
+    const reinit = atlas(repo, ['init'])
+    assert.equal(reinit.code, 0)
+
+    const vault = vaultPath(repo)
+    assert.ok(fs.statSync(path.join(vault, 'notes', 'sparks')).isDirectory())
+    assert.ok(fs.statSync(path.join(vault, 'debt')).isDirectory())
+    assert.ok(fs.statSync(path.join(vault, 'design-docs')).isDirectory())
+    assert.ok(fs.statSync(path.join(vault, 'roadmap')).isDirectory())
+
+    fs.writeFileSync(
+      path.join(vault, 'debt', 'flaky-thing.md'),
+      '---\ntype: debt\nsummary: "flaky thing"\nstatus: open\n---\n',
+    )
+    fs.writeFileSync(
+      path.join(vault, 'design-docs', '2026-07-01-checkout.md'),
+      '---\ntype: spec\nsummary: "checkout design"\nstatus: draft\n---\n',
+    )
+    fs.writeFileSync(
+      path.join(vault, 'roadmap', '2026-07-02-checkout-plan.md'),
+      '---\ntype: plan\nsummary: "checkout plan"\nstatus: ready\n---\n',
+    )
+
+    const status = atlas(repo, ['status'])
+    assert.equal(status.code, 0)
+    assert.match(status.stdout, /1 specs · 1 plans · ⚠ 1 open debt/)
+
+    const ledgerOnly = atlas(repo, ['check', '--ledger-only'])
+    assert.equal(ledgerOnly.code, 0)
+    assert.match(ledgerOnly.stdout, /ledger: 2\/2 clean \(100(\.0)?%\)/)
+  })
+})
+
+describe('atlas — enabled kill switch + hooks.sessionStartStatus (Step 3)', () => {
+  test('enabled: false silences every subcommand except init: no output, exit 0', () => {
+    const repo = mkRepo()
+    execFileSync('git', ['commit', '--allow-empty', '-q', '-m', 'init'], { cwd: repo })
+    atlas(repo, ['init'])
+    const vault = vaultPath(repo)
+    writeZone(vault, 'one', '', { status: 'seeded', verifiedAt: 'unverified' })
+
+    const configPath = path.join(repo, 'atlas.config.json')
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'))
+    config.enabled = false
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
+
+    const status = atlas(repo, ['status'])
+    assert.equal(status.code, 0)
+    assert.equal(status.stdout, '')
+
+    const build = atlas(repo, ['build'])
+    assert.equal(build.code, 0)
+    assert.equal(build.stdout, '')
+
+    // init is explicitly exempt from the kill switch.
+    const reinit = atlas(repo, ['init'])
+    assert.equal(reinit.code, 0)
+    assert.match(reinit.stdout, /existing vault detected/)
+  })
+
+  test('hooks.sessionStartStatus: false silences "atlas status --hook" only; plain "atlas status" still prints', () => {
+    const repo = mkRepo()
+    execFileSync('git', ['commit', '--allow-empty', '-q', '-m', 'init'], { cwd: repo })
+    atlas(repo, ['init'])
+    const vault = vaultPath(repo)
+    writeZone(vault, 'one', '', { status: 'seeded', verifiedAt: 'unverified' })
+
+    const configPath = path.join(repo, 'atlas.config.json')
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'))
+    config.hooks.sessionStartStatus = false
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
+
+    const hookCall = atlas(repo, ['status', '--hook'])
+    assert.equal(hookCall.code, 0)
+    assert.equal(hookCall.stdout, '')
+
+    const humanCall = atlas(repo, ['status'])
+    assert.equal(humanCall.code, 0)
+    assert.match(humanCall.stdout, /1 zones \(1 seeded\)/)
+  })
+})
