@@ -14,9 +14,9 @@ file.
 ```markdown
 ### Working with the Atlas (`<repo>-atlas/`)
 
-`<repo>-atlas/` is this repository's brain — an Obsidian-compatible vault
-that is the single source of *understanding*, kept separate from the code
-it describes.
+`<repo>-atlas/` is this repository's knowledge base — an Obsidian-compatible
+vault that is the single source of *understanding*, kept separate from the
+code it describes.
 
 - **Orient Atlas-first.** Before working in an area, read
   `<repo>-atlas/map/index.md`, then the relevant

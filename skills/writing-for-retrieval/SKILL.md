@@ -15,7 +15,7 @@ surface, not for a cover-to-cover reader.
 |---|---|
 | `summary` | 1–3 sentences, ≤ 500 chars, carries the note's distinctive terms — this is the line retrieval shows before anyone opens the file. |
 | `##` sections | One concept per heading. A search hit returns the matched section; a section mixing two ideas returns the wrong one for the other query. |
-| Vocabulary | Distinctive, noun-heavy terms over generic verbs ("pending clips sidecar", not "handles processing"). Generic verbs match everything and rank nothing. |
+| Vocabulary | Distinctive, noun-heavy terms over generic verbs ("pending webhook retry queue", not "handles processing"). Generic verbs match everything and rank nothing. |
 | `[[wikilinks]]` | Only link notes that exist; a dangling link is a graph-coherence gap the generated index flags. |
 | `owns.globs` (zone cards) | Keep current — a stale glob list makes the anchor check fail, or silently claims code the zone no longer owns. |
 | `status` | Match reality: `seeded` until a human/reviewed pass verifies the card; don't self-promote to `active`. |

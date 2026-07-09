@@ -38,8 +38,9 @@ zone/decision summary inline; no follow-up read needed for orientation.
 
 ## Rules
 
-- Query with distinctive content terms, not whole questions ("pending clips
-  sidecar", not "which note documents the pending clips sidecar").
+- Query with distinctive content terms, not whole questions ("pending
+  webhook retry queue", not "which note documents the pending webhook retry
+  queue").
 - Retrieval is lazy and per-question — reach for it freely, but NEVER
   preload the whole Atlas or code tree; that re-pays the tokens the engine
   just saved.
