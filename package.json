@@ -1,0 +1,28 @@
+{
+  "name": "memory-atlas",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A convention and toolkit for per-repository knowledge bases — code-verified architecture maps, decision ledgers, and agent-navigable memory.",
+  "bin": {
+    "atlas": "bin/atlas.mjs",
+    "memory-atlas": "bin/atlas.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "templates",
+    "schema",
+    "SPEC.md"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "lint": "npx @biomejs/biome check ."
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.3"
+  }
+}
