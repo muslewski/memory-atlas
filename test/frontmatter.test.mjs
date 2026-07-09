@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { describe, test } from 'node:test'
+import { fileURLToPath } from 'node:url'
 import { parseFrontmatter, setFrontmatterField } from '../lib/frontmatter.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -10,10 +10,7 @@ const REPO_ROOT = path.dirname(__dirname)
 
 describe('parseFrontmatter', () => {
   test('parses the Plan 002 zone template verbatim', () => {
-    const raw = fs.readFileSync(
-      path.join(REPO_ROOT, 'templates', 'notes', 'zone.md'),
-      'utf8',
-    )
+    const raw = fs.readFileSync(path.join(REPO_ROOT, 'templates', 'notes', 'zone.md'), 'utf8')
     const { data, body } = parseFrontmatter(raw)
 
     assert.equal(data.type, 'zone')

@@ -1,9 +1,17 @@
 #!/usr/bin/env node
 
-import { readFileSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
+import fs, { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { findRepoRoot, findVaultDir } from '../lib/detect.mjs'
 import { runInit } from '../lib/init.mjs'
+import { lintLedger } from '../lib/ledger.mjs'
+import { loadConfig, loadVault } from '../lib/notes.mjs'
+import { makeResolvers } from '../lib/resolvers.mjs'
+import { runStamp } from '../lib/stamp.mjs'
+import { runStatus } from '../lib/status.mjs'
+import { renderIndex, validate } from '../lib/validate.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const pkg = JSON.parse(readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'))
@@ -14,20 +22,159 @@ Usage:
   atlas <command> [options]
 
 Commands:
-  atlas init        Scaffold a new Atlas vault in this repository
-  atlas check       (coming soon) verify zone claims against the tree
-  atlas stamp       (coming soon) re-stamp verifiedAt for reviewed zones
-  atlas status      (coming soon) summarize vault health
+  atlas init              Scaffold a new Atlas vault in this repository
+  atlas build             Rebuild map/index.md from zone/flow cards
+  atlas check [--strict]  Verify zone claims, the committed index, and the ledger
+  atlas stamp <slug...>   Re-stamp verifiedAt for reviewed zones (no blanket re-stamp)
+  atlas status            One-line vault health summary (safe as a hook)
 
 Options:
   --help, -h        Show this help
   --version, -v     Show the installed version
 `
 
-const PLACEHOLDER_COMMANDS = new Set(['check', 'stamp', 'status'])
+/**
+ * Resolve the repo root + vault dir for a command, writing a helpful error
+ * to stderr when either is missing.
+ *
+ * @param {string} cwd
+ * @param {{ write: Function }} stderr
+ * @returns {{ repoRoot: string, vaultDir: string } | null}
+ */
+function resolveVault(cwd, stderr) {
+  const repoRoot = findRepoRoot(cwd)
+  if (!repoRoot) {
+    stderr.write('atlas: no git repository found above the current directory\n')
+    return null
+  }
+  const vaultDir = findVaultDir(repoRoot)
+  if (!vaultDir) {
+    stderr.write('atlas: no Atlas vault found — run `atlas init` first\n')
+    return null
+  }
+  return { repoRoot, vaultDir }
+}
+
+/**
+ * Shared build core used by both `atlas build` and `atlas check`: load
+ * config + vault, run validate with real git resolvers, write map/index.md.
+ *
+ * @param {string} cwd
+ * @param {{ write: Function }} stderr
+ */
+function buildCore(cwd, stderr) {
+  const located = resolveVault(cwd, stderr)
+  if (!located) return null
+  const { repoRoot, vaultDir } = located
+
+  const config = loadConfig(repoRoot)
+  const vault = loadVault(vaultDir, config)
+  const resolvers = makeResolvers(repoRoot, config.anchors ?? {})
+  const result = validate(vault.zones, vault.flows, resolvers, {
+    noteIds: vault.noteIds,
+    pillars: vault.pillars,
+  })
+
+  const indexPath = path.join(vaultDir, 'map', 'index.md')
+  fs.mkdirSync(path.dirname(indexPath), { recursive: true })
+  fs.writeFileSync(indexPath, renderIndex(result))
+
+  return { repoRoot, vaultDir, vault, result, indexPath }
+}
+
+function runBuild(_argv, opts) {
+  const cwd = opts.cwd ?? process.cwd()
+  const stdout = opts.stdout ?? process.stdout
+  const stderr = opts.stderr ?? process.stderr
+
+  const built = buildCore(cwd, stderr)
+  if (!built) return 1
+
+  for (const w of built.result.warnings) stderr.write(`warning: ${w}\n`)
+  for (const w of built.result.graphWarnings) stderr.write(`warning: ${w}\n`)
+  for (const e of built.result.errors) stderr.write(`error: ${e}\n`)
+
+  const gaps =
+    built.result.errors.length + built.result.warnings.length + built.result.graphWarnings.length
+  stdout.write(`🗺️ Atlas map rebuilt: ${built.result.rows.length} zones, ${gaps} gap(s).\n`)
+
+  return built.result.errors.length > 0 ? 1 : 0
+}
+
+function runCheck(argv, opts) {
+  const cwd = opts.cwd ?? process.cwd()
+  const stdout = opts.stdout ?? process.stdout
+  const stderr = opts.stderr ?? process.stderr
+  const strict = argv.includes('--strict')
+  const ledgerOnly = argv.includes('--ledger-only')
+
+  const located = resolveVault(cwd, stderr)
+  if (!located) return 1
+  const { repoRoot, vaultDir } = located
+  const config = loadConfig(repoRoot)
+
+  if (ledgerOnly) {
+    const vault = loadVault(vaultDir, config)
+    const zoneSlugs = new Set(vault.zones.map((z) => z.id))
+    const ledgerResult = lintLedger(vaultDir, { zoneSlugs })
+    for (const v of ledgerResult.violations) stdout.write(`${v}\n`)
+    stdout.write(
+      `ledger: ${ledgerResult.clean}/${ledgerResult.total} clean (${ledgerResult.coverage}%)\n`,
+    )
+    return ledgerResult.violations.length > 0 ? 1 : 0
+  }
+
+  let ok = true
+
+  const built = buildCore(cwd, stderr)
+  if (!built) return 1
+  const { result, vault } = built
+
+  for (const w of result.warnings) stderr.write(`warning: ${w}\n`)
+  for (const w of result.graphWarnings) stderr.write(`warning: ${w}\n`)
+  for (const e of result.errors) stderr.write(`error: ${e}\n`)
+  if (result.errors.length > 0) ok = false
+
+  const diff = spawnSync(
+    'git',
+    ['diff', '--exit-code', '--', path.join(vaultDir, 'map', 'index.md')],
+    {
+      cwd: repoRoot,
+      encoding: 'utf8',
+    },
+  )
+  if (diff.status !== 0) {
+    stderr.write(
+      'atlas check: map/index.md is out of date with the committed version — run `atlas build` and commit\n',
+    )
+    ok = false
+  }
+
+  const zoneSlugs = new Set(vault.zones.map((z) => z.id))
+  const ledgerResult = lintLedger(vaultDir, { zoneSlugs })
+  for (const v of ledgerResult.violations) stderr.write(`${v}\n`)
+  if (ledgerResult.violations.length > 0) ok = false
+
+  if (strict) {
+    const stale = result.rows.filter((row) => row.freshness === '⚠ stale')
+    if (stale.length > 0) {
+      stderr.write(
+        `atlas check --strict: ${stale.length} stale zone(s): ${stale.map((row) => row.id).join(', ')}\n`,
+      )
+      ok = false
+    }
+  }
+
+  if (ok) stdout.write('atlas check: ok\n')
+  return ok ? 0 : 1
+}
 
 const COMMANDS = {
   init: (args) => runInit(args, { cwd: process.cwd() }),
+  build: (args) => runBuild(args, { cwd: process.cwd() }),
+  check: (args) => runCheck(args, { cwd: process.cwd() }),
+  stamp: (args) => runStamp(args, { cwd: process.cwd() }),
+  status: (args) => runStatus(args, { cwd: process.cwd() }),
 }
 
 function main(argv) {
@@ -41,11 +188,6 @@ function main(argv) {
 
   if (command === '--version' || command === '-v') {
     process.stdout.write(`atlas ${pkg.version}\n`)
-    return 0
-  }
-
-  if (PLACEHOLDER_COMMANDS.has(command)) {
-    process.stdout.write(`atlas ${command}: coming soon (see Plan 003)\n`)
     return 0
   }
 

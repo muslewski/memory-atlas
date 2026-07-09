@@ -1,0 +1,326 @@
+import assert from 'node:assert/strict'
+import { execFileSync } from 'node:child_process'
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+import { after, describe, test } from 'node:test'
+import { fileURLToPath } from 'node:url'
+import { runStamp } from '../lib/stamp.mjs'
+import { runStatus } from '../lib/status.mjs'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const REPO_ROOT = path.dirname(__dirname)
+const BIN = path.join(REPO_ROOT, 'bin', 'atlas.mjs')
+
+const tmpDirs = []
+
+function mkRepo() {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'atlas-integration-'))
+  tmpDirs.push(dir)
+  execFileSync('git', ['init', '-q'], { cwd: dir })
+  execFileSync('git', ['config', 'user.email', 'test@example.com'], { cwd: dir })
+  execFileSync('git', ['config', 'user.name', 'Test'], { cwd: dir })
+  return dir
+}
+
+function commitAll(repo, message) {
+  execFileSync('git', ['add', '-A'], { cwd: repo })
+  execFileSync('git', ['commit', '-q', '-m', message], { cwd: repo })
+}
+
+function shaOf(repo) {
+  return execFileSync('git', ['rev-parse', '--short=8', 'HEAD'], {
+    cwd: repo,
+    encoding: 'utf8',
+  }).trim()
+}
+
+function atlas(repo, args) {
+  const result = { code: 0, stdout: '', stderr: '' }
+  try {
+    result.stdout = execFileSync('node', [BIN, ...args], { cwd: repo, encoding: 'utf8' })
+  } catch (err) {
+    result.code = err.status ?? 1
+    result.stdout = err.stdout ?? ''
+    result.stderr = err.stderr ?? ''
+  }
+  return result
+}
+
+function writeZone(
+  vault,
+  slug,
+  frontmatterExtra,
+  { status = 'seeded', verifiedAt = 'unverified' } = {},
+) {
+  const content = `---
+type: zone
+summary: "the ${slug} flow"
+tags: []
+status: ${status}
+created: 2026-07-09
+updated: 2026-07-09
+verifiedAt: ${verifiedAt}
+owns:
+  globs:
+    - "src/${slug}/**"
+  routes: []
+  testids: []
+  tools: []
+depends: []
+invariants: []
+skills: []
+advances: []
+related: []
+sources: []
+---
+
+## What this is
+${frontmatterExtra ?? ''}
+`
+  fs.mkdirSync(path.join(vault, 'map', 'zones'), { recursive: true })
+  fs.writeFileSync(path.join(vault, 'map', 'zones', `${slug}.md`), content)
+}
+
+function vaultPath(repo) {
+  return path.join(repo, `${path.basename(repo)}-atlas`)
+}
+
+after(() => {
+  for (const dir of tmpDirs) fs.rmSync(dir, { recursive: true, force: true })
+})
+
+describe('atlas build — scaffold-to-index (Step 3 scaffold)', () => {
+  test('init -> author one zone with verifiedAt = current commit -> build writes an index with 1 row ok', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src', 'checkout'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'checkout', 'index.js'), 'module.exports = {}\n')
+    commitAll(repo, 'init tree')
+    const sha = shaOf(repo)
+
+    const init = atlas(repo, ['init'])
+    assert.equal(init.code, 0)
+
+    const vault = vaultPath(repo)
+    writeZone(vault, 'checkout', '', { status: 'active', verifiedAt: sha })
+
+    const build = atlas(repo, ['build'])
+    assert.equal(build.code, 0)
+    assert.match(build.stdout, /Atlas map rebuilt: 1 zones, 0 gap\(s\)\./)
+
+    const index = fs.readFileSync(path.join(vault, 'map', 'index.md'), 'utf8')
+    assert.match(index, /\| checkout \| active \| ok \| the checkout flow \|/)
+  })
+})
+
+describe('atlas build/check — stale flow (Step 4)', () => {
+  test('touching an owned file after stamping flips the row to stale; check reacts to --strict', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src', 'billing'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'billing', 'index.js'), '// v1\n')
+    commitAll(repo, 'init tree')
+
+    atlas(repo, ['init'])
+    const vault = vaultPath(repo)
+    writeZone(vault, 'billing', '', { status: 'active', verifiedAt: shaOf(repo) })
+
+    const build1 = atlas(repo, ['build'])
+    assert.equal(build1.code, 0)
+    commitAll(repo, 'atlas: seed billing zone + index')
+
+    const check1 = atlas(repo, ['check'])
+    assert.equal(check1.code, 0)
+
+    // Touch the owned file after the stamp/build/commit above.
+    fs.writeFileSync(path.join(repo, 'src', 'billing', 'index.js'), '// v2\n')
+    commitAll(repo, 'billing: v2')
+
+    const build2 = atlas(repo, ['build'])
+    assert.equal(build2.code, 0)
+    const index2 = fs.readFileSync(path.join(vault, 'map', 'index.md'), 'utf8')
+    assert.match(index2, /\| billing \| active \| ⚠ stale \|/)
+    commitAll(repo, 'atlas: rebuild index (stale)')
+
+    const checkLoose = atlas(repo, ['check'])
+    assert.equal(checkLoose.code, 0, 'a stale row must not fail check without --strict')
+
+    const checkStrict = atlas(repo, ['check', '--strict'])
+    assert.equal(checkStrict.code, 1, 'a stale row must fail check --strict')
+    assert.match(checkStrict.stderr, /1 stale zone\(s\): billing/)
+  })
+
+  test('check fails when the committed index is out of date with the working tree', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src', 'auth'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'auth', 'index.js'), '// v1\n')
+    commitAll(repo, 'init tree')
+    atlas(repo, ['init'])
+    const vault = vaultPath(repo)
+    writeZone(vault, 'auth', '', { status: 'active', verifiedAt: shaOf(repo) })
+    atlas(repo, ['build'])
+    commitAll(repo, 'atlas: seed auth zone + index')
+
+    // Change owned code without rebuilding+recommitting the index.
+    fs.writeFileSync(path.join(repo, 'src', 'auth', 'index.js'), '// v2\n')
+    commitAll(repo, 'auth: v2')
+    // Manually rewrite the committed index.md's content to something stale
+    // relative to what `atlas build` would regenerate, without committing —
+    // this simulates "forgot to run atlas build before committing".
+    fs.writeFileSync(path.join(vault, 'map', 'index.md'), '<!-- stale placeholder -->\n')
+    commitAll(repo, 'atlas: hand-edit index (bad)')
+
+    const check = atlas(repo, ['check'])
+    assert.equal(check.code, 1)
+    assert.match(check.stderr, /map\/index\.md is out of date/)
+  })
+})
+
+describe('atlas stamp — explicit-slugs-only + seeded->active flip (Step 4)', () => {
+  test('stamps a seeded zone: verifiedAt becomes HEAD sha, status flips to active', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src', 'search'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'search', 'index.js'), '// v1\n')
+    commitAll(repo, 'init tree')
+    atlas(repo, ['init'])
+    const vault = vaultPath(repo)
+    writeZone(vault, 'search', '', { status: 'seeded', verifiedAt: 'unverified' })
+
+    const result = runStamp(['search'], { cwd: repo })
+    assert.equal(result, 0)
+
+    const raw = fs.readFileSync(path.join(vault, 'map', 'zones', 'search.md'), 'utf8')
+    assert.match(raw, /status: active/)
+    assert.match(raw, new RegExp(`verifiedAt: ${shaOf(repo)}`))
+    assert.match(raw, /## What this is/, 'body must survive untouched')
+  })
+
+  test('no args and --all both exit 1 with the blanket-refusal message; nothing is touched', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'x.js'), '// v1\n')
+    commitAll(repo, 'init tree')
+    atlas(repo, ['init'])
+    const vault = vaultPath(repo)
+    writeZone(vault, 'x', '', { status: 'seeded', verifiedAt: 'unverified' })
+    const before = fs.readFileSync(path.join(vault, 'map', 'zones', 'x.md'), 'utf8')
+
+    const stderrLines = []
+    const stderr = { write: (s) => stderrLines.push(s) }
+
+    const noArgs = runStamp([], { cwd: repo, stderr })
+    assert.equal(noArgs, 1)
+    const allFlag = runStamp(['--all'], { cwd: repo, stderr })
+    assert.equal(allFlag, 1)
+    assert.ok(stderrLines.every((l) => l.includes('blanket re-stamping defeats verification')))
+
+    const after1 = fs.readFileSync(path.join(vault, 'map', 'zones', 'x.md'), 'utf8')
+    assert.equal(after1, before, 'stamp must not touch any file on a rejected blanket attempt')
+  })
+
+  test('refuses a slug that does not exist, exits 1', () => {
+    const repo = mkRepo()
+    execFileSync('git', ['commit', '--allow-empty', '-q', '-m', 'init'], { cwd: repo })
+    atlas(repo, ['init'])
+    const result = runStamp(['ghost'], { cwd: repo, stderr: { write: () => {} } })
+    assert.equal(result, 1)
+  })
+})
+
+describe('atlas stamp / build — unmounted zone amendment (SPEC.md verifiedAt rule)', () => {
+  test('atlas stamp refuses to stamp an unmounted zone and exits non-zero, leaving it untouched', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src', 'legacy'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'legacy', 'index.js'), '// old\n')
+    commitAll(repo, 'init tree')
+    atlas(repo, ['init'])
+    const vault = vaultPath(repo)
+    writeZone(vault, 'legacy', '', { status: 'unmounted', verifiedAt: 'unverified' })
+    const before = fs.readFileSync(path.join(vault, 'map', 'zones', 'legacy.md'), 'utf8')
+
+    const stderrLines = []
+    const result = runStamp(['legacy'], {
+      cwd: repo,
+      stderr: { write: (s) => stderrLines.push(s) },
+    })
+
+    assert.notEqual(result, 0)
+    assert.ok(stderrLines.some((l) => l.includes('unmounted') && l.includes('refusing to stamp')))
+    const after1 = fs.readFileSync(path.join(vault, 'map', 'zones', 'legacy.md'), 'utf8')
+    assert.equal(after1, before)
+  })
+
+  test('an unmounted zone with a SHA verifiedAt survives build unchanged (no error, attic only, no staleness run)', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src', 'legacy'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'legacy', 'index.js'), '// old\n')
+    commitAll(repo, 'init tree')
+    const sha = shaOf(repo)
+    atlas(repo, ['init'])
+    const vault = vaultPath(repo)
+    writeZone(vault, 'legacy', '', { status: 'unmounted', verifiedAt: sha })
+
+    // Now change the owned file again WITHOUT re-stamping — if staleness ran
+    // against this unmounted zone it would report stale; it must not run at all.
+    fs.writeFileSync(path.join(repo, 'src', 'legacy', 'index.js'), '// changed after unmount\n')
+    commitAll(repo, 'legacy: change after unmount')
+
+    const build = atlas(repo, ['build'])
+    assert.equal(build.code, 0)
+    const index = fs.readFileSync(path.join(vault, 'map', 'index.md'), 'utf8')
+    assert.doesNotMatch(index, /legacy.*stale/i)
+    assert.match(index, /- legacy \(zone\) — the legacy flow/)
+  })
+
+  test('an unmounted zone with verifiedAt "unverified" is also legal and produces no error', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src', 'legacy'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'legacy', 'index.js'), '// old\n')
+    commitAll(repo, 'init tree')
+    atlas(repo, ['init'])
+    const vault = vaultPath(repo)
+    writeZone(vault, 'legacy', '', { status: 'unmounted', verifiedAt: 'unverified' })
+
+    const build = atlas(repo, ['build'])
+    assert.equal(build.code, 0)
+    assert.match(build.stdout, /0 gap\(s\)\./)
+  })
+})
+
+describe('atlas status — one line, tolerant, zero side effects', () => {
+  test('silently exits 0 when there is no git repo', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'atlas-nogit-'))
+    tmpDirs.push(dir)
+    const lines = []
+    const code = runStatus([], { cwd: dir, stdout: { write: (s) => lines.push(s) } })
+    assert.equal(code, 0)
+    assert.deepEqual(lines, [])
+  })
+
+  test('silently exits 0 when there is a repo but no vault', () => {
+    const repo = mkRepo()
+    execFileSync('git', ['commit', '--allow-empty', '-q', '-m', 'init'], { cwd: repo })
+    const lines = []
+    const code = runStatus([], { cwd: repo, stdout: { write: (s) => lines.push(s) } })
+    assert.equal(code, 0)
+    assert.deepEqual(lines, [])
+  })
+
+  test('reports zone/seeded/stale counts once a vault exists', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'x.js'), '// v1\n')
+    commitAll(repo, 'init tree')
+    atlas(repo, ['init'])
+    const vault = vaultPath(repo)
+    writeZone(vault, 'one', '', { status: 'seeded', verifiedAt: 'unverified' })
+
+    const lines = []
+    const code = runStatus([], { cwd: repo, stdout: { write: (s) => lines.push(s) } })
+    assert.equal(code, 0)
+    assert.equal(lines.length, 1)
+    assert.match(
+      lines[0],
+      /🧠 .*-atlas: 1 zones \(1 seeded\) · 0 specs · 0 plans · ⚠ 0 open debt · 0 stale/,
+    )
+  })
+})

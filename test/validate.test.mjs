@@ -82,19 +82,25 @@ describe('validate — anchor classes', () => {
     const r = fakeResolvers() // no `testid` resolver present => class unconfigured
     const { errors, warnings } = validate([z], [], r)
     assert.equal(errors.length, 0)
-    assert.ok(warnings.some((w) => w.includes('owns.testids present but anchor class not configured')))
+    assert.ok(
+      warnings.some((w) => w.includes('owns.testids present but anchor class not configured')),
+    )
   })
 
   test('owns.tools present but unconfigured -> warning', () => {
     const z = zone({ owns: { tools: ['some-tool'] } })
     const { warnings } = validate([z], [], fakeResolvers())
-    assert.ok(warnings.some((w) => w.includes('owns.tools present but anchor class not configured')))
+    assert.ok(
+      warnings.some((w) => w.includes('owns.tools present but anchor class not configured')),
+    )
   })
 
   test('owns.routes present but unconfigured -> warning', () => {
     const z = zone({ owns: { routes: ['/checkout'] } })
     const { warnings } = validate([z], [], fakeResolvers())
-    assert.ok(warnings.some((w) => w.includes('owns.routes present but anchor class not configured')))
+    assert.ok(
+      warnings.some((w) => w.includes('owns.routes present but anchor class not configured')),
+    )
   })
 
   test('configured testid class: missing testid is a hard error', () => {
@@ -115,7 +121,9 @@ describe('validate — anchor classes', () => {
   test('invariant with no enforcedBy is a warning', () => {
     const z = zone({ invariants: [{ rule: 'totals stay integers', enforcedBy: [] }] })
     const { warnings } = validate([z], [], fakeResolvers())
-    assert.ok(warnings.some((w) => w.includes('invariant "totals stay integers" has no enforcedBy')))
+    assert.ok(
+      warnings.some((w) => w.includes('invariant "totals stay integers" has no enforcedBy')),
+    )
   })
 
   test('exclude pathspec is skipped for the existence check but kept in changedSince args', () => {
@@ -125,10 +133,14 @@ describe('validate — anchor classes', () => {
     })
     const r = fakeResolvers({
       glob: (g) => {
-        assert.notEqual(g, ':(exclude)src/checkout/legacy/**', 'glob() must never see an exclude pathspec')
+        assert.notEqual(
+          g,
+          ':(exclude)src/checkout/legacy/**',
+          'glob() must never see an exclude pathspec',
+        )
         return true
       },
-      changedSince: (sha, globs) => {
+      changedSince: (_sha, globs) => {
         seenGlobArgs = globs
         return false
       },
@@ -188,7 +200,12 @@ describe('validate — unmounted zones (SPEC.md verifiedAt amendment)', () => {
   test('unmounted zone with a SHA verifiedAt: no error, no row, attic entry, changedSince never called', () => {
     const z = zone({ status: 'unmounted', verifiedAt: 'abc1234' })
     let called = false
-    const r = fakeResolvers({ changedSince: () => { called = true; return true } })
+    const r = fakeResolvers({
+      changedSince: () => {
+        called = true
+        return true
+      },
+    })
     const { errors, warnings, rows, attic } = validate([z], [], r)
     assert.equal(errors.length, 0)
     assert.equal(rows.length, 0)
@@ -243,7 +260,9 @@ describe('validate — graph pass (soft, never affects errors)', () => {
     const noteIds = new Set([...noteIdAliases('checkout'), ...noteIdAliases('speed')])
     const { graphWarnings } = validate([z], [], fakeResolvers(), { noteIds, pillars: [pillar] })
     assert.ok(
-      graphWarnings.some((w) => w.includes('advances [[speed]] but pillar speed does not list it in realizedBy')),
+      graphWarnings.some((w) =>
+        w.includes('advances [[speed]] but pillar speed does not list it in realizedBy'),
+      ),
     )
   })
 
@@ -261,7 +280,9 @@ describe('validate — graph pass (soft, never affects errors)', () => {
     const noteIds = new Set([...noteIdAliases('checkout'), ...noteIdAliases('speed')])
     const { graphWarnings } = validate([z], [], fakeResolvers(), { noteIds, pillars: [pillar] })
     assert.ok(
-      graphWarnings.some((w) => w.includes('realizedBy [[checkout]] but zone checkout does not list it in advances')),
+      graphWarnings.some((w) =>
+        w.includes('realizedBy [[checkout]] but zone checkout does not list it in advances'),
+      ),
     )
   })
 })
