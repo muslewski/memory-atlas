@@ -67,7 +67,7 @@ surface a one-line vault health summary. Paste into `.claude/settings.json`:
   "hooks": {
     "SessionStart": [
       { "hooks": [
-        { "type": "command", "command": "npx --no-install atlas status" },
+        { "type": "command", "command": "npx --no-install atlas status --hook" },
         { "type": "command", "command": "node scripts/nav-refresh-index.mjs" }
       ]}
     ]
@@ -75,23 +75,24 @@ surface a one-line vault health summary. Paste into `.claude/settings.json`:
 }
 ```
 
-- `npx --no-install atlas status` — a one-line vault health summary (zone
-  count, seeded count, stale count, open debt). Reads only this repo's own
-  vault, prints nothing and exits 0 when no repo or vault is found, and
-  never throws — safe to run unconditionally on every session start.
+- `npx --no-install atlas status --hook` — a one-line vault health summary
+  (zone count, seeded count, stale count, open debt). Reads only this
+  repo's own vault, prints nothing and exits 0 when no repo or vault is
+  found, and never throws — safe to run unconditionally on every session
+  start. The `--hook` flag marks this as the SessionStart call site: it
+  honors `atlas.config.json` → `hooks.sessionStartStatus`, so a repo can
+  turn off the automatic summary without touching this hook wiring. Running
+  `atlas status` by hand (no `--hook`) always prints, regardless of that
+  toggle — see `docs/CONFIG.md` → `hooks`.
 - `node scripts/nav-refresh-index.mjs` — only relevant if you copied the
   ctx-search adapter (§4 below) to `scripts/`. Spawns a detached background
-  refresh and returns in under a second; see
+  refresh and returns in under a second; honors `atlas.config.json` →
+  `enabled` and `hooks.sessionStartIndexRefresh` the same way; see
   `adapters/ctx-search/README.md` for what it does.
 
-**Known gap:** the SessionStart hook family convention (documented in
-SPEC.md's Interop section) calls for a dedicated `--hook` flag so a CLI can
-tell a hook invocation apart from a human running the same command by hand.
-`atlas status` does not yet accept `--hook` — today both call sites get
-identical behavior. That's harmless for `status` specifically (it's a
-read-only summary that already fails open), but don't assume the flag
-exists if you're scripting against it; it's on the roadmap for the
-configuration-and-hooks work that follows this one.
+A repo's `atlas.config.json` → `enabled: false` silences both of the above
+(and every other `atlas` subcommand except `init`) unconditionally — the
+master kill switch, independent of the per-hook toggles above.
 
 ## 4. Install flow
 
