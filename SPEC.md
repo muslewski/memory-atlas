@@ -8,7 +8,7 @@ This document is the normative specification of the Atlas convention: a
 per-repository knowledge base that lets agents and humans orient from
 code-verified memory instead of re-exploring a codebase every session.
 Requirement keywords MUST, SHOULD, and MAY are used deliberately and are
-meant to be testable by tooling (see Plan 003's verifier).
+meant to be testable by tooling (see the verifier).
 
 ## What an Atlas is
 
@@ -173,6 +173,16 @@ encodings:
   naming the commit at which a human-or-supervised agent last confirmed the
   card's claims against the code.
 
+An `unmounted` zone MUST retain whatever `verifiedAt` value it carried at the
+moment it was unmounted; both encodings above remain legal there — a hex SHA
+if the zone was `active`, or `unverified` if it never left `seeded`. A
+verifier MUST NOT run the staleness check against an `unmounted` zone: its
+anchors point at code that no longer exists, so staleness is meaningless and
+any result would be a false failure. Correspondingly, a verifier MUST NOT
+error on either legal encoding of `verifiedAt` found in an `unmounted` zone.
+`atlas stamp` MUST refuse to stamp an `unmounted` zone and MUST exit
+non-zero: there is no live code left to anchor the stamp to.
+
 ISO dates, empty strings, and blanket re-stamps (stamping every zone with the
 current HEAD regardless of whether it was reviewed) are forbidden encodings.
 A re-stamp is legal only for zones whose owned code the stamper just
@@ -239,9 +249,9 @@ defines a contract rather than mandating a tool.
 3. Folders listed in `atlas.config.json` → `retrieval.excludeFromSearch`
    (default: `["drafts/", "visuals/"]`) MUST be omitted from agent-facing
    search indexes.
-4. Reference adapters ship in Plan 004: context-mode `ctx_search` (FTS5-based,
-   proven in production usage), Obsidian's official agent skills
-   (vault-native navigation for Obsidian users), and plain grep (a
+4. Reference adapters ship with the toolkit: context-mode `ctx_search`
+   (FTS5-based, proven in production usage), Obsidian's official agent
+   skills (vault-native navigation for Obsidian users), and plain grep (a
    zero-install floor that always works).
 
 ## Coordination (optional)
