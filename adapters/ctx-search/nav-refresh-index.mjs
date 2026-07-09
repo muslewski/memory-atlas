@@ -32,17 +32,23 @@ const LOG_FILE = join(ROOT, '.navidx.log')
 const STAMP_FILE = join(ROOT, '.navidx.stamp')
 const STALENESS_THRESHOLD_MS = 10 * 60 * 1000 // 10 minutes
 
-// ─── Config: retrieval.excludeFromSearch (SPEC.md §8) ─────────────────────────
+// ─── Config: atlas.config.json (kill switch, hook toggle, retrieval excludes) ─
 const DEFAULT_EXCLUDE_FROM_SEARCH = ['drafts/', 'visuals/']
 
-function loadExcludeFromSearch() {
+// Standalone by design: this file is copied into an adopting repo's
+// scripts/ directory on its own (see adapters/ctx-search/README.md), so it
+// reads atlas.config.json directly rather than importing lib/config.mjs.
+function loadAtlasConfig() {
   try {
-    const raw = JSON.parse(readFileSync(join(ROOT, 'atlas.config.json'), 'utf8'))
-    const list = raw?.retrieval?.excludeFromSearch
-    return Array.isArray(list) ? list : DEFAULT_EXCLUDE_FROM_SEARCH
+    return JSON.parse(readFileSync(join(ROOT, 'atlas.config.json'), 'utf8'))
   } catch {
-    return DEFAULT_EXCLUDE_FROM_SEARCH
+    return {}
   }
+}
+
+function loadExcludeFromSearch(atlasConfig) {
+  const list = atlasConfig?.retrieval?.excludeFromSearch
+  return Array.isArray(list) ? list : DEFAULT_EXCLUDE_FROM_SEARCH
 }
 
 // ─── Auto-detect buckets ──────────────────────────────────────────────────────
@@ -72,7 +78,7 @@ function detectVaultDir() {
   }
 }
 
-function buildBuckets() {
+function buildBuckets(atlasConfig) {
   // Both buckets are keyed to the REPO ROOT as --project (distinguished by --source),
   // because the MCP ctx_search reader's DEFAULT project is the cwd (= repo root). Keying
   // to the root means a plain ctx_search with NO project param Just Works — no need for
@@ -95,7 +101,9 @@ function buildBuckets() {
     // excluded folder to the CLI's own --exclude <glob> flag (confirmed via
     // `node <cli> --help` → "Index options: --exclude <glob>  Directory
     // exclude pattern (repeatable)"). No CLI flag is invented here.
-    const excludeGlobs = loadExcludeFromSearch().map((dir) => `${dir.replace(/\/$/, '')}/**`)
+    const excludeGlobs = loadExcludeFromSearch(atlasConfig).map(
+      (dir) => `${dir.replace(/\/$/, '')}/**`,
+    )
     buckets.push({ label: 'atlas', srcDir: vault, project: ROOT, ext: '.md', excludeGlobs })
   }
   return buckets
@@ -195,7 +203,7 @@ async function runWorker(force) {
     return
   }
   try {
-    const buckets = buildBuckets()
+    const buckets = buildBuckets(loadAtlasConfig())
     if (!buckets.length) {
       await log('skip: no code or atlas bucket detected')
       return
@@ -262,11 +270,26 @@ if (args.includes('--help') || args.includes('-h')) {
   )
   process.exit(0)
 }
+
+// Master kill switch (atlas.config.json → enabled: false): print nothing,
+// exit 0, regardless of which flags were passed — a disabled repo means
+// disabled, full stop (SPEC.md Interop's SessionStart hook contract: a
+// disabled tool's hook command must print nothing and exit 0).
+const atlasConfigForGate = loadAtlasConfig()
+if (atlasConfigForGate.enabled === false) {
+  process.exit(0)
+}
+
 if (args.includes('--worker') || args.includes('--force')) {
   runWorker(args.includes('--force')).catch(async (err) => {
     await log(`FATAL: ${err}`)
     process.exit(1)
   })
+} else if (atlasConfigForGate.hooks?.sessionStartIndexRefresh === false) {
+  // hooks.sessionStartIndexRefresh only gates the automatic SessionStart
+  // call site (no flags) — a deliberate `--worker`/`--force` run above
+  // still runs even when this toggle is off.
+  process.exit(0)
 } else {
   const worker = spawn(process.execPath, [__filename, '--worker'], { detached: true, stdio: 'ignore' })
   worker.unref()
