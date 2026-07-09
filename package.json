@@ -2,7 +2,25 @@
   "name": "memory-atlas",
   "version": "0.1.0",
   "type": "module",
-  "description": "A convention and toolkit for per-repository knowledge bases — code-verified architecture maps, decision ledgers, and agent-navigable memory.",
+  "description": "Per-repo knowledge atlas for agent fleets — verified architecture cards with an honest freshness signal. The past, mapped.",
+  "keywords": [
+    "knowledge-base",
+    "agents",
+    "memory",
+    "obsidian",
+    "claude-code",
+    "architecture",
+    "adr",
+    "atlas"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/muslewski/memory-atlas.git"
+  },
+  "homepage": "https://github.com/muslewski/memory-atlas#readme",
+  "bugs": {
+    "url": "https://github.com/muslewski/memory-atlas/issues"
+  },
   "bin": {
     "atlas": "bin/atlas.mjs",
     "memory-atlas": "bin/atlas.mjs"
