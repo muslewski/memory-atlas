@@ -82,6 +82,47 @@ ${frontmatterExtra ?? ''}
   fs.writeFileSync(path.join(vault, 'map', 'zones', `${slug}.md`), content)
 }
 
+/**
+ * Like `writeZone`, but writes the card under an arbitrary vault-relative
+ * directory instead of the default `map/zones` — for exercising a vault
+ * whose `atlas.config.json` remaps `folders.zones`.
+ */
+function writeZoneAt(
+  vault,
+  zonesDir,
+  slug,
+  frontmatterExtra,
+  { status = 'seeded', verifiedAt = 'unverified' } = {},
+) {
+  const content = `---
+type: zone
+summary: "the ${slug} flow"
+tags: []
+status: ${status}
+created: 2026-07-09
+updated: 2026-07-09
+verifiedAt: ${verifiedAt}
+owns:
+  globs:
+    - "src/${slug}/**"
+  routes: []
+  testids: []
+  tools: []
+depends: []
+invariants: []
+skills: []
+advances: []
+related: []
+sources: []
+---
+
+## What this is
+${frontmatterExtra ?? ''}
+`
+  fs.mkdirSync(path.join(vault, zonesDir), { recursive: true })
+  fs.writeFileSync(path.join(vault, zonesDir, `${slug}.md`), content)
+}
+
 function vaultPath(repo) {
   return path.join(repo, `${path.basename(repo)}-atlas`)
 }
@@ -464,6 +505,38 @@ describe('config — folder remapping (Step 2)', () => {
     const ledgerOnly = atlas(repo, ['check', '--ledger-only'])
     assert.equal(ledgerOnly.code, 0)
     assert.match(ledgerOnly.stdout, /ledger: 2\/2 clean \(100(\.0)?%\)/)
+  })
+
+  test('remapping folders.zones: atlas stamp resolves the remapped zone card, not the map/zones default', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src', 'billing'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'billing', 'index.js'), '// v1\n')
+    commitAll(repo, 'init tree')
+    atlas(repo, ['init'])
+
+    const configPath = path.join(repo, 'atlas.config.json')
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'))
+    config.folders.zones = 'architecture/zones'
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
+
+    const vault = vaultPath(repo)
+    // The card lives ONLY at the remapped location — no map/zones/billing.md
+    // exists at all, so a stamp that still hardcodes map/zones must fail to
+    // find it even though the card plainly exists.
+    writeZoneAt(vault, 'architecture/zones', 'billing', '', {
+      status: 'seeded',
+      verifiedAt: 'unverified',
+    })
+
+    const stamp = atlas(repo, ['stamp', 'billing'])
+    assert.equal(stamp.code, 0, `expected stamp to succeed, got stderr: ${stamp.stderr}`)
+
+    const raw = fs.readFileSync(path.join(vault, 'architecture', 'zones', 'billing.md'), 'utf8')
+    assert.match(raw, /status: active/)
+    assert.match(raw, new RegExp(`verifiedAt: ${shaOf(repo)}`))
+
+    // The default map/zones/ location must never have been touched/created.
+    assert.equal(fs.existsSync(path.join(vault, 'map', 'zones', 'billing.md')), false)
   })
 })
 
