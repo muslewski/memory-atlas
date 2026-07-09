@@ -411,7 +411,7 @@ describe('atlas status — one line, tolerant, zero side effects', () => {
     assert.equal(lines.length, 1)
     assert.match(
       lines[0],
-      /🧠 .*-atlas: 1 zones \(1 seeded\) · 0 specs · 0 plans · ⚠ 0 open debt · 0 stale/,
+      /🧭 .*-atlas: 1 zones \(1 seeded\) · 0 specs · 0 plans · ⚠ 0 open debt · 0 stale/,
     )
   })
 })
