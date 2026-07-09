@@ -24,7 +24,8 @@ Usage:
 Commands:
   atlas init              Scaffold a new Atlas vault in this repository
   atlas build             Rebuild map/index.md from zone/flow cards
-  atlas check [--strict]  Verify zone claims, the committed index, and the ledger
+  atlas check [--strict] [--report] [--ledger-only]
+                          Verify zone claims, the committed index, and the ledger
   atlas stamp <slug...>   Re-stamp verifiedAt for reviewed zones (no blanket re-stamp)
   atlas status            One-line vault health summary (safe as a hook)
 
@@ -107,6 +108,7 @@ function runCheck(argv, opts) {
   const stderr = opts.stderr ?? process.stderr
   const strict = argv.includes('--strict')
   const ledgerOnly = argv.includes('--ledger-only')
+  const report = argv.includes('--report')
 
   const located = resolveVault(cwd, stderr)
   if (!located) return 1
@@ -154,6 +156,11 @@ function runCheck(argv, opts) {
   const ledgerResult = lintLedger(vaultDir, { zoneSlugs })
   for (const v of ledgerResult.violations) stderr.write(`${v}\n`)
   if (ledgerResult.violations.length > 0) ok = false
+  if (report) {
+    stdout.write(
+      `ledger: ${ledgerResult.clean}/${ledgerResult.total} clean (${ledgerResult.coverage}%)\n`,
+    )
+  }
 
   if (strict) {
     const stale = result.rows.filter((row) => row.freshness === '⚠ stale')
