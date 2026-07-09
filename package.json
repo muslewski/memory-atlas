@@ -15,6 +15,9 @@
     "lib",
     "templates",
     "schema",
+    "skills",
+    "adapters",
+    "docs",
     "SPEC.md"
   ],
   "scripts": {
