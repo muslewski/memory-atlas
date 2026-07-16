@@ -83,6 +83,7 @@ describe('runInit', () => {
       'idea.md',
       'debt.md',
       'pillar.md',
+      'report.md',
     ]) {
       assert.ok(fs.existsSync(path.join(vault, 'templates', name)), `${name} template should exist`)
     }

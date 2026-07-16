@@ -151,4 +151,47 @@ describe('lintLedger', () => {
     assert.equal(result.total, 0)
     assert.equal(result.coverage, 100)
   })
+
+  test('report lifecycle accepted', () => {
+    const vault = mkVault()
+    write(vault, 'specs/2026-07-01-x.md', '---\ntype: spec\nsummary: "x"\nstatus: draft\n---\n')
+    write(
+      vault,
+      'reports/2026-07-17-x.md',
+      '---\ntype: report\nsummary: "snapshot of x"\nstatus: snapshot\n---\n',
+    )
+    const result = lintLedger(vault, { reports: true })
+    assert.deepEqual(result.violations, [])
+    assert.equal(result.total, 2)
+    assert.equal(result.clean, 2)
+  })
+
+  test('report bad status rejected', () => {
+    const vault = mkVault()
+    write(
+      vault,
+      'reports/2026-07-17-x.md',
+      '---\ntype: report\nsummary: "snapshot of x"\nstatus: draft\n---\n',
+    )
+    const result = lintLedger(vault, { reports: true })
+    assert.equal(result.violations.length, 1)
+    assert.match(result.violations[0], /status "draft" not in report's lifecycle/)
+    assert.match(result.violations[0], /snapshot/)
+  })
+
+  test('reports not walked when module disabled', () => {
+    const vault = mkVault()
+    write(vault, 'specs/2026-07-01-x.md', '---\ntype: spec\nsummary: "x"\nstatus: draft\n---\n')
+    write(
+      vault,
+      'reports/2026-07-17-x.md',
+      '---\ntype: report\nsummary: "snapshot of x"\nstatus: snapshot\n---\n',
+    )
+    const baseline = lintLedger(vault)
+    const withFlagOff = lintLedger(vault, { reports: false })
+    assert.equal(baseline.total, 1)
+    assert.equal(withFlagOff.total, 1)
+    assert.equal(withFlagOff.clean, 1)
+    assert.deepEqual(withFlagOff.violations, [])
+  })
 })

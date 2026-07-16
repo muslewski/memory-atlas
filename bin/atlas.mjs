@@ -130,7 +130,11 @@ function runCheck(argv, opts) {
   if (ledgerOnly) {
     const vault = loadVault(vaultDir, config)
     const zoneSlugs = new Set(vault.zones.map((z) => z.id))
-    const ledgerResult = lintLedger(vaultDir, { zoneSlugs, folders: config.folders })
+    const ledgerResult = lintLedger(vaultDir, {
+      zoneSlugs,
+      folders: config.folders,
+      reports: config.modules?.reports === true,
+    })
     for (const v of ledgerResult.violations) stdout.write(`${v}\n`)
     stdout.write(
       `ledger: ${ledgerResult.clean}/${ledgerResult.total} clean (${ledgerResult.coverage}%)\n`,
@@ -165,7 +169,11 @@ function runCheck(argv, opts) {
   }
 
   const zoneSlugs = new Set(vault.zones.map((z) => z.id))
-  const ledgerResult = lintLedger(vaultDir, { zoneSlugs, folders: config.folders })
+  const ledgerResult = lintLedger(vaultDir, {
+    zoneSlugs,
+    folders: config.folders,
+    reports: config.modules?.reports === true,
+  })
   for (const v of ledgerResult.violations) stderr.write(`${v}\n`)
   if (ledgerResult.violations.length > 0) ok = false
   if (report) {
