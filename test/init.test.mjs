@@ -150,6 +150,40 @@ describe('runInit', () => {
     assert.equal(config.modules.flows, false)
   })
 
+  test('--modules reports creates reports/ and README stub', () => {
+    const repo = mkRepo()
+    const io = silentIo()
+
+    const code = runInit(['--modules', 'reports'], { cwd: repo, ...io })
+
+    assert.equal(code, 0)
+    const vault = path.join(repo, `${path.basename(repo)}-atlas`)
+    assert.ok(fs.statSync(path.join(vault, 'reports')).isDirectory())
+    const readme = fs.readFileSync(path.join(vault, 'reports', 'README.md'), 'utf8')
+    assert.ok(readme.startsWith('# Reports\n'))
+    assert.ok(readme.includes('type: report'))
+    assert.ok(readme.includes('status: snapshot'))
+    assert.ok(readme.includes('YYYY-MM-DD-<topic>.md'))
+    assert.ok(readme.includes('commits to nothing'))
+
+    const config = JSON.parse(fs.readFileSync(path.join(repo, 'atlas.config.json'), 'utf8'))
+    assert.equal(config.modules.reports, true)
+  })
+
+  test('init without --modules reports does not create reports/', () => {
+    const repo = mkRepo()
+    const io = silentIo()
+
+    const code = runInit([], { cwd: repo, ...io })
+
+    assert.equal(code, 0)
+    const vault = path.join(repo, `${path.basename(repo)}-atlas`)
+    assert.ok(!fs.existsSync(path.join(vault, 'reports')))
+
+    const config = JSON.parse(fs.readFileSync(path.join(repo, 'atlas.config.json'), 'utf8'))
+    assert.equal(config.modules.reports, false)
+  })
+
   test('unknown module name exits 1 and creates nothing', () => {
     const repo = mkRepo()
     const io = silentIo()
