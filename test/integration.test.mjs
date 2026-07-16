@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { execFileSync } from 'node:child_process'
+import { execFileSync, spawnSync } from 'node:child_process'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
@@ -37,15 +37,14 @@ function shaOf(repo) {
 }
 
 function atlas(repo, args) {
-  const result = { code: 0, stdout: '', stderr: '' }
-  try {
-    result.stdout = execFileSync('node', [BIN, ...args], { cwd: repo, encoding: 'utf8' })
-  } catch (err) {
-    result.code = err.status ?? 1
-    result.stdout = err.stdout ?? ''
-    result.stderr = err.stderr ?? ''
+  // spawnSync (not execFileSync) so success-path stderr is captured too —
+  // graphWarnings print via stderr.write while exit code stays 0.
+  const r = spawnSync('node', [BIN, ...args], { cwd: repo, encoding: 'utf8' })
+  return {
+    code: r.status ?? 1,
+    stdout: r.stdout ?? '',
+    stderr: r.stderr ?? '',
   }
-  return result
 }
 
 function writeZone(
@@ -354,6 +353,84 @@ describe('atlas stamp / build — unmounted zone amendment (SPEC.md verifiedAt r
 
     const check = atlas(repo, ['check'])
     assert.equal(check.code, 0, 'check must exit 0 for the canonical tombstoned-zone case')
+  })
+})
+
+describe('atlas build — decisions reach validate() in production', () => {
+  test('atlas build surfaces decision graph results', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src', 'checkout'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'checkout', 'index.js'), 'module.exports = {}\n')
+    commitAll(repo, 'init tree')
+    const sha = shaOf(repo)
+    atlas(repo, ['init'])
+    const vault = vaultPath(repo)
+    writeZone(vault, 'checkout', '', { status: 'active', verifiedAt: sha })
+
+    fs.mkdirSync(path.join(vault, 'map', 'decisions'), { recursive: true })
+    fs.writeFileSync(
+      path.join(vault, 'map', 'decisions', '0001-x.md'),
+      `---
+type: decision
+summary: "choice with a broken link"
+tags: []
+status: active
+created: 2026-07-09
+updated: 2026-07-09
+decided: 2026-07-09
+supersededBy: ""
+zones: []
+related:
+  - "[[does-not-exist]]"
+sources: []
+---
+
+## Context
+`,
+    )
+
+    const build = atlas(repo, ['build'])
+    assert.equal(build.code, 0)
+    assert.match(build.stderr, /decision 0001-x: dangling link \[\[does-not-exist\]\] in related/)
+    const index = fs.readFileSync(path.join(vault, 'map', 'index.md'), 'utf8')
+    assert.match(index, /decision 0001-x: dangling link \[\[does-not-exist\]\] in related/)
+  })
+
+  test('unmounted decision appears in the attic', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src', 'checkout'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'checkout', 'index.js'), 'module.exports = {}\n')
+    commitAll(repo, 'init tree')
+    const sha = shaOf(repo)
+    atlas(repo, ['init'])
+    const vault = vaultPath(repo)
+    writeZone(vault, 'checkout', '', { status: 'active', verifiedAt: sha })
+
+    fs.mkdirSync(path.join(vault, 'map', 'decisions'), { recursive: true })
+    fs.writeFileSync(
+      path.join(vault, 'map', 'decisions', '0002-retired.md'),
+      `---
+type: decision
+summary: "superseded choice"
+tags: []
+status: unmounted
+created: 2026-07-09
+updated: 2026-07-09
+decided: 2026-07-09
+supersededBy: ""
+zones: []
+related: []
+sources: []
+---
+
+## Context
+`,
+    )
+
+    const build = atlas(repo, ['build'])
+    assert.equal(build.code, 0)
+    const index = fs.readFileSync(path.join(vault, 'map', 'index.md'), 'utf8')
+    assert.match(index, /- 0002-retired \(decision\) — superseded choice/)
   })
 })
 

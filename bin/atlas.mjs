@@ -83,6 +83,7 @@ function buildCore(cwd, stderr) {
   const result = validate(vault.zones, vault.flows, resolvers, {
     noteIds: vault.noteIds,
     pillars: vault.pillars,
+    decisions: vault.decisions,
   })
 
   const indexPath = path.join(vaultDir, 'map', 'index.md')
