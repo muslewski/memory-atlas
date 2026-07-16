@@ -256,6 +256,40 @@ describe('validate — unmounted zones (SPEC.md verifiedAt amendment)', () => {
   })
 })
 
+describe('validate — decision-number uniqueness', () => {
+  test('duplicate decision numbers warn', () => {
+    const decisions = [
+      { id: '0013-a', status: 'active', summary: 'a' },
+      { id: '0013-b', status: 'active', summary: 'b' },
+      { id: '0014-c', status: 'active', summary: 'c' },
+    ]
+    const { errors, warnings } = validate([], [], fakeResolvers(), { decisions })
+    assert.equal(errors.length, 0)
+    const numWarns = warnings.filter((w) => w.includes('decision number'))
+    assert.equal(numWarns.length, 1)
+    assert.equal(numWarns[0], 'decision number 0013 reused: 0013-a, 0013-b')
+  })
+
+  test('unique numbers stay silent', () => {
+    const decisions = [
+      { id: '0001-a', status: 'active', summary: 'a' },
+      { id: '0002-b', status: 'active', summary: 'b' },
+    ]
+    const { warnings } = validate([], [], fakeResolvers(), { decisions })
+    assert.ok(!warnings.some((w) => w.includes('decision number')))
+  })
+
+  test('non-numbered decision ids are ignored', () => {
+    const decisions = [
+      { id: 'adr-foo', status: 'active', summary: 'a' },
+      { id: '2026-01-01-old-choice', status: 'active', summary: 'b' },
+      { id: 'no-prefix', status: 'active', summary: 'c' },
+    ]
+    const { warnings } = validate([], [], fakeResolvers(), { decisions })
+    assert.ok(!warnings.some((w) => w.includes('decision number')))
+  })
+})
+
 describe('validate — graph pass (soft, never affects errors)', () => {
   test('dangling link in related -> graph warning, never an error', () => {
     const z = zone({ related: ['[[nowhere]]'] })
