@@ -1,3 +1,4 @@
 node_modules/
 .navidx.*
 advisor-plans/
+.claude/worktrees/
