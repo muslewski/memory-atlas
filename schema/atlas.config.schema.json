@@ -41,6 +41,7 @@
         "vision": { "type": "string", "default": "vision", "description": "Product pillars (module: vision)." },
         "reference": { "type": "string", "default": "reference", "description": "Long-form reference docs (module: reference)." },
         "archive": { "type": "string", "default": "archive", "description": "Retired specs/plans (module: archive)." },
+        "reports": { "type": "string", "default": "reports", "description": "Point-in-time rear-view snapshots (module: reports)." },
         "drafts": { "type": "string", "default": "drafts", "description": "Human scratch space, excluded from agent retrieval by default (module: drafts)." },
         "templates": { "type": "string", "default": "templates", "description": "Per-type note scaffolds; also where `atlas routine` looks for a vault's own routines/ subfolder." }
       }
@@ -55,6 +56,7 @@
         "vision": { "type": "boolean", "default": false },
         "reference": { "type": "boolean", "default": false },
         "archive": { "type": "boolean", "default": false },
+        "reports": { "type": "boolean", "default": false },
         "backlog": { "type": "boolean", "default": false },
         "drafts": { "type": "boolean", "default": false }
       }
