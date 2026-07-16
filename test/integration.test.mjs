@@ -434,6 +434,213 @@ sources: []
   })
 })
 
+describe('loadVault — optional modules join the wikilink graph', () => {
+  test('enabled reports module enters the wikilink graph', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src', 'checkout'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'checkout', 'index.js'), 'module.exports = {}\n')
+    commitAll(repo, 'init tree')
+    const sha = shaOf(repo)
+    atlas(repo, ['init'])
+
+    const configPath = path.join(repo, 'atlas.config.json')
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'))
+    config.modules.reports = true
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
+
+    const vault = vaultPath(repo)
+    fs.mkdirSync(path.join(vault, 'reports'), { recursive: true })
+    fs.writeFileSync(
+      path.join(vault, 'reports', '2026-07-17-example.md'),
+      `---
+type: report
+summary: "example report"
+status: snapshot
+created: 2026-07-17
+updated: 2026-07-17
+---
+
+## Snapshot
+`,
+    )
+    // Zone links the report via related (graph pass scans frontmatter fields).
+    const zonePath = path.join(vault, 'map', 'zones', 'checkout.md')
+    fs.mkdirSync(path.dirname(zonePath), { recursive: true })
+    fs.writeFileSync(
+      zonePath,
+      `---
+type: zone
+summary: "the checkout flow"
+tags: []
+status: active
+created: 2026-07-09
+updated: 2026-07-09
+verifiedAt: ${sha}
+owns:
+  globs:
+    - "src/checkout/**"
+  routes: []
+  testids: []
+  tools: []
+depends: []
+invariants: []
+skills: []
+advances: []
+related:
+  - "[[2026-07-17-example]]"
+sources: []
+---
+
+## What this is
+`,
+    )
+
+    const build = atlas(repo, ['build'])
+    assert.equal(build.code, 0)
+    assert.doesNotMatch(build.stderr, /dangling link \[\[2026-07-17-example\]\]/)
+    const index = fs.readFileSync(path.join(vault, 'map', 'index.md'), 'utf8')
+    assert.doesNotMatch(index, /dangling link \[\[2026-07-17-example\]\]/)
+  })
+
+  test('disabled modules are not walked', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src', 'checkout'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'checkout', 'index.js'), 'module.exports = {}\n')
+    commitAll(repo, 'init tree')
+    const sha = shaOf(repo)
+    atlas(repo, ['init'])
+
+    // reports defaults to false — leave it off (conservative default intact).
+    const vault = vaultPath(repo)
+    fs.mkdirSync(path.join(vault, 'reports'), { recursive: true })
+    fs.writeFileSync(
+      path.join(vault, 'reports', '2026-07-17-example.md'),
+      `---
+type: report
+summary: "example report"
+status: snapshot
+created: 2026-07-17
+updated: 2026-07-17
+---
+
+## Snapshot
+`,
+    )
+    const zonePath = path.join(vault, 'map', 'zones', 'checkout.md')
+    fs.mkdirSync(path.dirname(zonePath), { recursive: true })
+    fs.writeFileSync(
+      zonePath,
+      `---
+type: zone
+summary: "the checkout flow"
+tags: []
+status: active
+created: 2026-07-09
+updated: 2026-07-09
+verifiedAt: ${sha}
+owns:
+  globs:
+    - "src/checkout/**"
+  routes: []
+  testids: []
+  tools: []
+depends: []
+invariants: []
+skills: []
+advances: []
+related:
+  - "[[2026-07-17-example]]"
+sources: []
+---
+
+## What this is
+`,
+    )
+
+    const build = atlas(repo, ['build'])
+    assert.equal(build.code, 0)
+    assert.match(build.stderr, /dangling link \[\[2026-07-17-example\]\]/)
+  })
+
+  test('enabled reference and archive modules enter the wikilink graph', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src', 'checkout'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'checkout', 'index.js'), 'module.exports = {}\n')
+    commitAll(repo, 'init tree')
+    const sha = shaOf(repo)
+    atlas(repo, ['init'])
+
+    const configPath = path.join(repo, 'atlas.config.json')
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'))
+    config.modules.reference = true
+    config.modules.archive = true
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
+
+    const vault = vaultPath(repo)
+    fs.mkdirSync(path.join(vault, 'reference'), { recursive: true })
+    fs.writeFileSync(
+      path.join(vault, 'reference', 'glossary.md'),
+      `---
+type: reference
+summary: "terms"
+---
+
+## Terms
+`,
+    )
+    // archive is nested (retired trees).
+    fs.mkdirSync(path.join(vault, 'archive', 'old-specs'), { recursive: true })
+    fs.writeFileSync(
+      path.join(vault, 'archive', 'old-specs', 'retired-spec.md'),
+      `---
+type: spec
+summary: "retired"
+status: done
+---
+
+## Old
+`,
+    )
+
+    const zonePath = path.join(vault, 'map', 'zones', 'checkout.md')
+    fs.mkdirSync(path.dirname(zonePath), { recursive: true })
+    fs.writeFileSync(
+      zonePath,
+      `---
+type: zone
+summary: "the checkout flow"
+tags: []
+status: active
+created: 2026-07-09
+updated: 2026-07-09
+verifiedAt: ${sha}
+owns:
+  globs:
+    - "src/checkout/**"
+  routes: []
+  testids: []
+  tools: []
+depends: []
+invariants: []
+skills: []
+advances: []
+related:
+  - "[[glossary]]"
+  - "[[retired-spec]]"
+sources: []
+---
+
+## What this is
+`,
+    )
+
+    const build = atlas(repo, ['build'])
+    assert.equal(build.code, 0)
+    assert.doesNotMatch(build.stderr, /dangling link \[\[glossary\]\]/)
+    assert.doesNotMatch(build.stderr, /dangling link \[\[retired-spec\]\]/)
+  })
+})
+
 describe('atlas check --report — ledger coverage summary (Step 5)', () => {
   test('--report prints the ledger coverage line; without it the line is absent', () => {
     const repo = mkRepo()
