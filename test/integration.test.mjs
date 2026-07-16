@@ -53,6 +53,8 @@ function writeZone(
   frontmatterExtra,
   { status = 'seeded', verifiedAt = 'unverified' } = {},
 ) {
+  // JSON.stringify keeps all-digit short SHAs as quoted YAML strings so the
+  // frontmatter subset does not parse them as Numbers (flake root cause).
   const content = `---
 type: zone
 summary: "the ${slug} flow"
@@ -60,7 +62,7 @@ tags: []
 status: ${status}
 created: 2026-07-09
 updated: 2026-07-09
-verifiedAt: ${verifiedAt}
+verifiedAt: ${JSON.stringify(verifiedAt)}
 owns:
   globs:
     - "src/${slug}/**"
@@ -101,7 +103,7 @@ tags: []
 status: ${status}
 created: 2026-07-09
 updated: 2026-07-09
-verifiedAt: ${verifiedAt}
+verifiedAt: ${JSON.stringify(verifiedAt)}
 owns:
   globs:
     - "src/${slug}/**"
@@ -231,7 +233,8 @@ describe('atlas stamp — explicit-slugs-only + seeded->active flip (Step 4)', (
 
     const raw = fs.readFileSync(path.join(vault, 'map', 'zones', 'search.md'), 'utf8')
     assert.match(raw, /status: active/)
-    assert.match(raw, new RegExp(`verifiedAt: ${shaOf(repo)}`))
+    // All-digit short SHAs are YAML-quoted by stamp; others stay bare.
+    assert.match(raw, new RegExp(`verifiedAt: "?${shaOf(repo)}"?`))
     assert.match(raw, /## What this is/, 'body must survive untouched')
   })
 
@@ -475,7 +478,7 @@ tags: []
 status: active
 created: 2026-07-09
 updated: 2026-07-09
-verifiedAt: ${sha}
+verifiedAt: ${JSON.stringify(sha)}
 owns:
   globs:
     - "src/checkout/**"
@@ -537,7 +540,7 @@ tags: []
 status: active
 created: 2026-07-09
 updated: 2026-07-09
-verifiedAt: ${sha}
+verifiedAt: ${JSON.stringify(sha)}
 owns:
   globs:
     - "src/checkout/**"
@@ -613,7 +616,7 @@ tags: []
 status: active
 created: 2026-07-09
 updated: 2026-07-09
-verifiedAt: ${sha}
+verifiedAt: ${JSON.stringify(sha)}
 owns:
   globs:
     - "src/checkout/**"
@@ -853,7 +856,8 @@ describe('config — folder remapping (Step 2)', () => {
 
     const raw = fs.readFileSync(path.join(vault, 'architecture', 'zones', 'billing.md'), 'utf8')
     assert.match(raw, /status: active/)
-    assert.match(raw, new RegExp(`verifiedAt: ${shaOf(repo)}`))
+    // All-digit short SHAs are YAML-quoted by stamp; others stay bare.
+    assert.match(raw, new RegExp(`verifiedAt: "?${shaOf(repo)}"?`))
 
     // The default map/zones/ location must never have been touched/created.
     assert.equal(fs.existsSync(path.join(vault, 'map', 'zones', 'billing.md')), false)

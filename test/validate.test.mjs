@@ -180,6 +180,23 @@ describe('validate — verifiedAt encoding + freshness tri-state', () => {
     assert.equal(rows[0].freshness, 'ok')
   })
 
+  test('active + all-digit short SHA coerced from YAML Number is accepted', () => {
+    // Frontmatter subset parses bare `verifiedAt: 34341274` as Number.
+    // Real git short SHAs are occasionally pure digits; must not hard-fail.
+    const z = zone({ status: 'active', verifiedAt: 34341274 })
+    const seen = []
+    const r = fakeResolvers({
+      changedSince: (sha) => {
+        seen.push(sha)
+        return false
+      },
+    })
+    const { errors, rows } = validate([z], [], r)
+    assert.equal(errors.length, 0)
+    assert.equal(rows[0].freshness, 'ok')
+    assert.deepEqual(seen, ['34341274'])
+  })
+
   test('active + changed-since-verified -> freshness "⚠ stale"', () => {
     const z = zone({ status: 'active', verifiedAt: 'abc1234' })
     const r = fakeResolvers({ changedSince: () => true })
