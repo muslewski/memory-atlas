@@ -88,7 +88,15 @@ function buildCore(cwd, stderr) {
 
   const indexPath = path.join(vaultDir, 'map', 'index.md')
   fs.mkdirSync(path.dirname(indexPath), { recursive: true })
-  fs.writeFileSync(indexPath, renderIndex(result))
+  fs.writeFileSync(
+    indexPath,
+    renderIndex(result, {
+      specs: vault.specs,
+      plans: vault.plans,
+      reports: vault.reports,
+      decisions: vault.decisions,
+    }),
+  )
 
   return { repoRoot, vaultDir, vault, result, indexPath }
 }

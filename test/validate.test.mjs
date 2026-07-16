@@ -378,6 +378,62 @@ describe('renderIndex', () => {
     assert.match(md, /## ⚠ Graph coherence\n\n_none_/)
     assert.match(md, /## Attic \(unmounted\)\n\n_none_/)
   })
+
+  test('renderIndex ledger section counts and recency', () => {
+    const specs = [
+      { id: '2026-07-01-a', status: 'draft' },
+      { id: '2026-07-10-b', status: 'approved' },
+      { id: '2026-06-01-old', status: 'draft' },
+    ]
+    const plans = [
+      { id: '2026-07-15-c', status: 'ready' },
+      { id: '2026-07-20-d', status: 'done' },
+    ]
+    // 11 dated reports to exercise the 10-item recency cap.
+    const reports = []
+    for (let i = 1; i <= 11; i++) {
+      const day = String(i).padStart(2, '0')
+      reports.push({ id: `2026-05-${day}-r${i}`, status: 'snapshot' })
+    }
+    const decisions = [
+      { id: '0001-choice', status: 'active' },
+      { id: '0002-other', status: 'unmounted' },
+    ]
+
+    const md = renderIndex({ rows: [] }, { specs, plans, reports, decisions })
+
+    assert.match(md, /## Ledger/)
+    assert.match(md, /specs: 3 \(approved 1 · draft 2\)/)
+    assert.match(md, /plans: 2 \(done 1 · ready 1\)/)
+    assert.match(md, /reports: 11 \(snapshot 11\)/)
+    assert.match(md, /decisions: 2 \(active 1 · unmounted 1\)/)
+
+    // Newest-first date-prefixed across specs/plans/reports, capped at 10.
+    const ledger = md.slice(md.indexOf('## Ledger'))
+    const linkMatches = [...ledger.matchAll(/\[\[([^\]]+)\]\]/g)].map((m) => m[1])
+    assert.equal(linkMatches.length, 10)
+    assert.equal(linkMatches[0], '2026-07-20-d')
+    assert.equal(linkMatches[1], '2026-07-15-c')
+    assert.equal(linkMatches[2], '2026-07-10-b')
+    assert.equal(linkMatches[3], '2026-07-01-a')
+    assert.equal(linkMatches[4], '2026-06-01-old')
+    // Decision NNNN- ids are not date-prefixed YYYY-MM-DD and stay out of recency.
+    assert.ok(!linkMatches.includes('0001-choice'))
+    // 11th-oldest report falls off the cap.
+    assert.ok(!linkMatches.includes('2026-05-01-r1'))
+  })
+
+  test('renderIndex without ledger arg is unchanged', () => {
+    const withEmpty = renderIndex({
+      rows: [{ id: 'alpha', status: 'active', freshness: 'ok', summary: 'a' }],
+    })
+    const withExplicitEmpty = renderIndex(
+      { rows: [{ id: 'alpha', status: 'active', freshness: 'ok', summary: 'a' }] },
+      {},
+    )
+    assert.equal(withEmpty, withExplicitEmpty)
+    assert.doesNotMatch(withEmpty, /## Ledger/)
+  })
 })
 
 describe('renderIndex — Verification gaps lists stale/seeded zones (SPEC.md §6 item 2)', () => {

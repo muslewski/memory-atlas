@@ -641,6 +641,40 @@ sources: []
   })
 })
 
+describe('atlas build — ledger section in generated index', () => {
+  test('build index includes Ledger section when specs exist', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src', 'checkout'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'checkout', 'index.js'), 'module.exports = {}\n')
+    commitAll(repo, 'init tree')
+    const sha = shaOf(repo)
+    atlas(repo, ['init'])
+    const vault = vaultPath(repo)
+    writeZone(vault, 'checkout', '', { status: 'active', verifiedAt: sha })
+    fs.mkdirSync(path.join(vault, 'specs'), { recursive: true })
+    fs.writeFileSync(
+      path.join(vault, 'specs', '2026-07-17-checkout.md'),
+      `---
+type: spec
+summary: "checkout design"
+status: draft
+created: 2026-07-17
+updated: 2026-07-17
+---
+
+## Design
+`,
+    )
+
+    const build = atlas(repo, ['build'])
+    assert.equal(build.code, 0)
+    const index = fs.readFileSync(path.join(vault, 'map', 'index.md'), 'utf8')
+    assert.match(index, /## Ledger/)
+    assert.match(index, /specs: 1 \(draft 1\)/)
+    assert.match(index, /\[\[2026-07-17-checkout\]\]/)
+  })
+})
+
 describe('atlas check --report — ledger coverage summary (Step 5)', () => {
   test('--report prints the ledger coverage line; without it the line is absent', () => {
     const repo = mkRepo()
