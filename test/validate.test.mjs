@@ -126,6 +126,30 @@ describe('validate — anchor classes', () => {
     )
   })
 
+  test('invariant missing rule field gets an honest flow-style warning', () => {
+    // Flow-style list items parse as strings (see frontmatter test); objects
+    // with no rule field are the other path into this branch.
+    const z = zone({
+      invariants: [{ enforcedBy: ['src/config.mjs'] }, '{ rule: "x", enforcedBy: ["y"] }'],
+    })
+    const { warnings } = validate([z], [], fakeResolvers())
+    const missingRule = warnings.filter((w) =>
+      w.includes(
+        'invariant missing rule field (flow-style YAML maps are not supported — use block style)',
+      ),
+    )
+    assert.equal(missingRule.length, 2)
+    assert.ok(missingRule.every((w) => w.includes('zone checkout:')))
+    assert.ok(!warnings.some((w) => w.includes('invariant "undefined"')))
+  })
+
+  test('invariant with rule but no enforcedBy keeps the classic warning', () => {
+    const z = zone({ invariants: [{ rule: 'no silent defaults' }] })
+    const { warnings } = validate([z], [], fakeResolvers())
+    assert.ok(warnings.some((w) => w.includes('invariant "no silent defaults" has no enforcedBy')))
+    assert.ok(!warnings.some((w) => w.includes('missing rule field')))
+  })
+
   test('exclude pathspec is skipped for the existence check but kept in changedSince args', () => {
     let seenGlobArgs
     const z = zone({
