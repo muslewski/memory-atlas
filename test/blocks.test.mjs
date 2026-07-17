@@ -36,6 +36,20 @@ describe('blocks', () => {
     assert.ok(!agents.includes('<repo>-atlas'))
   })
 
+  test('on-ramp bodies document stamp-after-commit order', () => {
+    const claude = renderOnrampBlock('claude', { vaultName: 'demo-atlas' })
+    assert.ok(
+      claude.includes('Order matters: commit the code + card edits first'),
+      'claude body must document stamp-after-commit order',
+    )
+
+    const agents = renderOnrampBlock('agents', { vaultName: 'demo-atlas' })
+    assert.ok(
+      agents.includes('anchors to the committed HEAD'),
+      'agents body must document that stamp anchors to committed HEAD',
+    )
+  })
+
   test('upsertBlock creates the file when missing', () => {
     const dir = mkTmp()
     const filePath = path.join(dir, 'CLAUDE.md')
