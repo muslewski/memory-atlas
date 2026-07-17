@@ -1,6 +1,6 @@
 {
   "name": "memory-atlas",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
   "description": "Per-repo knowledge atlas for agent fleets — verified architecture cards with an honest freshness signal. The past, mapped.",
   "keywords": [

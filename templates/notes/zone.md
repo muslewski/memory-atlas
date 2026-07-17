@@ -12,7 +12,9 @@ owns:
   globs: []           # REQUIRED class, e.g. "src/billing/**" — must match ≥1 tracked file
   tools: []           # optional anchor class
 depends: []           # [[zone]] siblings this relies on
-invariants: []        # [{ rule: "...", enforcedBy: ["path or [[note]]"] }]
+invariants: []        # block style only, e.g.:
+                      #   - rule: "no silent defaults"
+                      #     enforcedBy: ["src/config.mjs"]
 skills: []            # [[skill-slug]] projections (excluded from link checking)
 advances: []          # [[pillar]] this zone realizes
 related: []

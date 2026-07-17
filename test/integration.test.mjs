@@ -961,7 +961,7 @@ describe('atlas status — one line, tolerant, zero side effects', () => {
     assert.match(lines[0], /🧭 /)
     assert.equal(
       lines[1],
-      `⬆ atlas ${packageVersion()} installed, wired 0.0.1 — run atlas-update\n`,
+      `⬆ atlas ${packageVersion()} installed, wired 0.0.1 — run the atlas-update skill (.claude/skills/atlas-update/SKILL.md)\n`,
     )
   })
 

@@ -63,6 +63,29 @@ body
     assert.deepEqual(data.invariants[1].enforcedBy, [])
   })
 
+  test('flow-style map in a list item is NOT parsed as an object (subset limit)', () => {
+    // Documents actual behavior: flow maps are unsupported; the list item is
+    // kept as a bare scalar string, so inv.rule is undefined downstream.
+    const raw = `---
+type: zone
+summary: "x"
+status: active
+invariants:
+  - { rule: "no silent defaults", enforcedBy: ["src/config.mjs"] }
+---
+
+body
+`
+    const { data } = parseFrontmatter(raw)
+    assert.equal(data.invariants.length, 1)
+    assert.equal(typeof data.invariants[0], 'string')
+    assert.equal(
+      data.invariants[0],
+      '{ rule: "no silent defaults", enforcedBy: ["src/config.mjs"] }',
+    )
+    assert.equal(data.invariants[0].rule, undefined)
+  })
+
   test('parses block arrays of scalars including wikilinks', () => {
     const raw = `---
 type: zone

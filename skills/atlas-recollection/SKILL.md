@@ -14,7 +14,9 @@ pass. Run this checklist before ending the session:
 - [ ] **Re-stamp exactly the zones you reviewed.** `atlas stamp <slug...>` —
   name only the zones whose owned code you actually changed and re-read
   against the card. Never a blanket re-stamp; there is no "all zones"
-  shortcut, by design.
+  shortcut, by design. Order matters: commit the code + card edits first,
+  then stamp — `verifiedAt` anchors to the committed HEAD, so stamping
+  before the commit leaves the zone stale.
 - [ ] **Decision record for any non-obvious why.** If the change involved a
   choice a future reader would ask "why did we do it this way," add a
   `map/decisions/NNNN-slug.md`. Obvious mechanical changes don't need one.

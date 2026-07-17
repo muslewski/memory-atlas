@@ -6,6 +6,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project has no stability guarantee across minor versions until 1.0
 (see `SPEC.md`'s Versioning section).
 
+## [0.2.1] - 2026-07-17
+
+### Fixed
+
+- **Stamp-order guard** — `atlas stamp` warns on stderr when a zone's
+  `owns.globs` match uncommitted (staged or unstaged) changes: `verifiedAt`
+  anchors to committed HEAD, so stamping before the code commit leaves the
+  zone stale. Exit code stays 0. On-ramp blocks (`CLAUDE.md` / `AGENTS.md`),
+  `docs/ONRAMP.md`, and the `atlas-recollection` skill document the sequence:
+  commit code + card edits first, then stamp, then fold stamp + index into
+  the same commit.
+- **Tool-agnostic skill reachability** — the `AGENTS.md` on-ramp block now
+  points at vendored procedure files under `config.skills.dir` (default
+  `.claude/skills/<name>/SKILL.md`) and routes specs/plans with the vault
+  name. The status update nudge names the reachable path
+  (`…/atlas-update/SKILL.md`) instead of an unresolvable "run atlas-update"
+  skill invocation.
+- **Zone template invariants** — template comment shows block-style
+  `rule` / `enforcedBy` only (flow-style maps are not in the frontmatter
+  subset). Validate warns honestly when an invariant is missing `rule`
+  instead of claiming invariant `"undefined"` has no `enforcedBy`.
+
 ## [0.2.0] - 2026-07-17
 
 ### Added
