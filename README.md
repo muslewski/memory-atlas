@@ -65,7 +65,8 @@ atlas check: ok
 Exit `0` means every zone's claims resolved against the tree, the committed
 index matches what `atlas build` would regenerate, and the ledger's
 frontmatter is in shape. Wire `atlas check` into CI once there's more than a
-card or two (`docs/ONRAMP.md` §4 and `docs/ADOPTION.md` walk through both the
+card or two — see **[docs/CI.md](docs/CI.md)** for a copy-paste GitHub Actions
+recipe (`docs/ONRAMP.md` §4 and `docs/ADOPTION.md` walk through the
 greenfield and brownfield paths).
 
 ## How it works
@@ -210,6 +211,8 @@ When a newer memory-atlas is installed, the loop is:
   reference.
 - [`docs/ONRAMP.md`](docs/ONRAMP.md) — adopt via `atlas wire`: managed
   CLAUDE.md/AGENTS.md blocks, dual-CLI hooks, install flow.
+- [`docs/CI.md`](docs/CI.md) — GitHub Actions recipe: `atlas check --strict`
+  + index-in-sync gate.
 - [`docs/ADOPTION.md`](docs/ADOPTION.md) — migrating an existing,
   non-greenfield repo into the convention.
 

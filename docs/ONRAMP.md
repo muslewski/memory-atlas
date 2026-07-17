@@ -143,9 +143,11 @@ Inventory without writing: `atlas doctor`.
    `atlas-recollection`, `atlas-update`). Locally edited skill copies are
    left alone and flagged by `atlas doctor` until the `atlas-update` skill
    merges them.
-6. Add `atlas check` to CI (add `--strict` once the team is ready to block
-   merges on stale zones, not just report them) so the vault can't silently
-   drift from the code it describes.
+6. Add `atlas check` to CI so the vault can't silently drift from the code
+   it describes. Copy-paste recipe: [`docs/CI.md`](CI.md) (strict structural
+   check + index-in-sync gate). Staleness stays advisory under `--strict`;
+   set `check.strictFreshness: true` only when you want merges blocked on
+   freshness drift.
 
 ## 5. Updating an adopting repo
 
