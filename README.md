@@ -101,7 +101,7 @@ by one of a small set of anchors:
 | `owns.globs` | `git ls-files` — at least one tracked file must match | hard error, required |
 | `owns.testids` / `owns.tools` | grep for a configured id under a configured root | hard error, optional & config-declared |
 | `owns.routes` | match against configured route-file globs | soft warning, optional & config-declared |
-| `verifiedAt` | `git diff <sha>..HEAD` over the zone's `owns.globs` | freshness — warning, or hard failure under `--strict` |
+| `verifiedAt` | `git diff <sha>..HEAD` over the zone's `owns.globs` | freshness — warning by default; hard failure only with `check.strictFreshness: true` |
 | `invariants[].enforcedBy` | flagged when the list is empty | soft warning ("file tech-debt") |
 
 The freshness model in short: every zone's `verifiedAt` is either the literal
@@ -109,10 +109,12 @@ string `unverified` (while `status: seeded`) or a commit SHA (while `status:
 active`) naming the last commit a human — or a supervised agent — confirmed
 its claims against the code. `atlas check` diffs that SHA against `HEAD`
 over the zone's owned globs; any touched file is reported as stale.
-Staleness is advisory by default (it shows up in the generated index, it
-doesn't fail the build) until `--strict` (or `check.strictFreshness: true`
-in `atlas.config.json`) turns it into a hard failure, so a team can adopt
-gradually and only start blocking merges once the stale count is near zero.
+Staleness is advisory by default (it shows up in the generated index and as a
+warning; it does not fail the build) — including under `atlas check --strict`.
+Only `check.strictFreshness: true` in `atlas.config.json` turns staleness into
+a hard failure, so a team can adopt gradually and only start blocking merges
+once the stale count is near zero. Structural, ownership, lifecycle, and
+(when enabled) corpus violations are always hard errors.
 Re-stamping (`atlas stamp <slug...>`) always requires explicit zone slugs —
 there is no "stamp everything" shortcut — so a card only becomes fresh again
 when someone actually reviewed it.

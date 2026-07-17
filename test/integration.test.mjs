@@ -158,7 +158,7 @@ describe('atlas build — scaffold-to-index (Step 3 scaffold)', () => {
 })
 
 describe('atlas build/check — stale flow (Step 4)', () => {
-  test('touching an owned file after stamping flips the row to stale; check reacts to --strict', () => {
+  test('touching an owned file after stamping flips the row to stale; --strict does not harden it', () => {
     const repo = mkRepo()
     fs.mkdirSync(path.join(repo, 'src', 'billing'), { recursive: true })
     fs.writeFileSync(path.join(repo, 'src', 'billing', 'index.js'), '// v1\n')
@@ -186,11 +186,22 @@ describe('atlas build/check — stale flow (Step 4)', () => {
     commitAll(repo, 'atlas: rebuild index (stale)')
 
     const checkLoose = atlas(repo, ['check'])
-    assert.equal(checkLoose.code, 0, 'a stale row must not fail check without --strict')
+    assert.equal(checkLoose.code, 0, 'staleness alone must not fail plain check')
+    assert.match(checkLoose.stderr, /stale zone\(s\): billing/)
 
+    // Owner decision 3: --strict never hardens freshness — only config does.
     const checkStrict = atlas(repo, ['check', '--strict'])
-    assert.equal(checkStrict.code, 1, 'a stale row must fail check --strict')
-    assert.match(checkStrict.stderr, /1 stale zone\(s\): billing/)
+    assert.equal(checkStrict.code, 0, 'a stale row must NOT fail check --strict')
+    assert.match(checkStrict.stderr, /stale zone\(s\): billing/)
+
+    const cfgPath = path.join(repo, 'atlas.config.json')
+    const cfg = JSON.parse(fs.readFileSync(cfgPath, 'utf8'))
+    cfg.check = { ...(cfg.check ?? {}), strictFreshness: true }
+    fs.writeFileSync(cfgPath, JSON.stringify(cfg, null, 2))
+
+    const checkHard = atlas(repo, ['check'])
+    assert.equal(checkHard.code, 1, 'check.strictFreshness: true must fail on stale')
+    assert.match(checkHard.stderr, /1 stale zone\(s\): billing/)
   })
 
   test('check fails when the committed index is out of date with the working tree', () => {
@@ -751,6 +762,58 @@ ${bodyExtra}
   fs.mkdirSync(path.join(vault, 'map', 'zones'), { recursive: true })
   fs.writeFileSync(path.join(vault, 'map', 'zones', `${slug}.md`), content)
 }
+
+describe('atlas check — ownership SSOT is always hard', () => {
+  test('ownership conflict fails check with and without --strict', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src', 'shared'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'shared', 'x.js'), '// x\n')
+    commitAll(repo, 'init tree')
+    atlas(repo, ['init'])
+    const vault = vaultPath(repo)
+    const sha = shaOf(repo)
+
+    // Two zones both claim src/shared/**
+    for (const slug of ['alpha', 'beta']) {
+      const content = `---
+type: zone
+summary: "the ${slug} flow"
+tags: []
+status: active
+created: 2026-07-09
+updated: 2026-07-09
+verifiedAt: ${JSON.stringify(sha)}
+owns:
+  globs:
+    - "src/shared/**"
+  routes: []
+  testids: []
+  tools: []
+depends: []
+invariants: []
+skills: []
+advances: []
+related: []
+sources: []
+---
+
+## What this is
+`
+      fs.mkdirSync(path.join(vault, 'map', 'zones'), { recursive: true })
+      fs.writeFileSync(path.join(vault, 'map', 'zones', `${slug}.md`), content)
+    }
+    atlas(repo, ['build'])
+    commitAll(repo, 'atlas: conflicting owners')
+
+    const loose = atlas(repo, ['check'])
+    assert.equal(loose.code, 1, 'ownership conflict must fail plain check')
+    assert.match(loose.stderr, /owned by|src\/shared/)
+
+    const strict = atlas(repo, ['check', '--strict'])
+    assert.equal(strict.code, 1, 'ownership conflict must fail --strict too')
+    assert.match(strict.stderr, /owned by|src\/shared/)
+  })
+})
 
 describe('atlas check — corpus-quality gate (opt-in)', () => {
   test('corpus disabled (default): retrieval-shape violations are invisible; check exits 0', () => {

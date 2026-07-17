@@ -142,9 +142,10 @@ function runCheck(argv, opts) {
   if (!located) return 1
   const { repoRoot, vaultDir } = located
   const config = loadConfig(repoRoot)
-  // config.check.strictFreshness lets a repo opt every `atlas check` into
-  // --strict (e.g. for CI) without every caller remembering the flag.
-  const strict = argv.includes('--strict') || config.check?.strictFreshness === true
+  // Owner decision 3: `--strict` does NOT harden staleness. Only the config
+  // key `check.strictFreshness: true` turns ⚠ stale into a hard failure.
+  // Structural / ownership / lifecycle / corpus (when enabled) are always hard.
+  const hardenFreshness = config.check?.strictFreshness === true
 
   if (ledgerOnly) {
     const vault = loadVault(vaultDir, config)
@@ -230,14 +231,15 @@ function runCheck(argv, opts) {
     )
   }
 
-  if (strict) {
-    const stale = result.rows.filter((row) => row.freshness === '⚠ stale')
-    if (stale.length > 0) {
-      stderr.write(
-        `atlas check --strict: ${stale.length} stale zone(s): ${stale.map((row) => row.id).join(', ')}\n`,
-      )
-      ok = false
-    }
+  const stale = result.rows.filter((row) => row.freshness === '⚠ stale')
+  if (stale.length > 0) {
+    // Staleness is always reported; it only fails the command when the
+    // repo opts in via check.strictFreshness (never via the --strict flag).
+    const label = hardenFreshness ? 'error' : 'warning'
+    stderr.write(
+      `atlas check: ${label}: ${stale.length} stale zone(s): ${stale.map((row) => row.id).join(', ')}\n`,
+    )
+    if (hardenFreshness) ok = false
   }
 
   if (ok) stdout.write('atlas check: ok\n')

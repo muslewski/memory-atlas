@@ -35,7 +35,11 @@ per-field descriptions and autocomplete.
     "tools":   { "enabled": false, "pattern": "'{id}'", "root": "" },
     "routes":  { "enabled": false, "fileGlobs": [], "stripPrefix": "", "stripSuffix": "" }
   },
-  "check": { "strictFreshness": false },
+  "check": {
+    "strictFreshness": false,
+    "ownership": true,
+    "corpus": { "enabled": false, "maxSummaryLen": 500 }
+  },
   "retrieval": {
     "engine": "ctx-search",
     "excludeFromSearch": ["drafts/", "visuals/"]
@@ -113,12 +117,17 @@ be declared here (`enabled: true`) before a verifier enforces it — SPEC.md
 
 ### `check`
 
-Type `object`. `strictFreshness` (`boolean`, default `false`): when `true`,
-`atlas check` behaves as if `--strict` were always passed — any stale zone
-fails the command. Useful for CI, where you want staleness to block a merge
-without every call site remembering the flag; local usage stays
-non-blocking by default (SPEC.md: staleness reporting is advisory by
-default, hard failure only under `--strict`/this toggle).
+Type `object`.
+
+- `strictFreshness` (`boolean`, default `false`): when `true`, any stale
+  zone fails `atlas check`. Useful for CI. Staleness stays advisory under
+  plain `atlas check` and under `atlas check --strict` — only this config
+  key hardens it (SPEC.md owner decision 3).
+- `ownership` (`boolean`, default `true`): enforce one-artifact-one-owner
+  across mounted zones' `owns.globs`.
+- `corpus` (`object`, default `{ enabled: false, maxSummaryLen: 500 }`):
+  opt-in retrieval-shape lint (summary cap, required headers, body links,
+  orphans).
 
 ### `retrieval`
 
@@ -202,7 +211,7 @@ disables `status` too, since the kill switch is global — there is no
 `hooks` instead if you specifically want to keep `status` alive while
 turning off the index-refresh hook.)
 
-### Strict CI freshness without every caller passing `--strict`
+### Strict CI freshness (config only — not the `--strict` flag)
 
 ```json
 "check": { "strictFreshness": true }
