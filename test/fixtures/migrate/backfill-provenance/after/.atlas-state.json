@@ -1,0 +1,17 @@
+{
+  "atlasVersion": "PLACEHOLDER",
+  "configVersion": 1,
+  "specVersion": "0.1",
+  "modules": ["reports"],
+  "wired": {
+    "claude": true,
+    "grok": false,
+    "rootBlocks": ["CLAUDE.md"]
+  },
+  "vendored": {
+    "CLAUDE.md#atlas:onramp": {
+      "sha256": "fe42181e0db28a0f539b7b572f61ddb7605aba924e317b48987aa1238bb57361",
+      "atlasVersion": "PLACEHOLDER"
+    }
+  }
+}
