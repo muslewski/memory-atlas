@@ -9,6 +9,7 @@ import { findRepoRoot, findVaultDir } from '../lib/detect.mjs'
 import { runDoctor } from '../lib/doctor.mjs'
 import { runInit } from '../lib/init.mjs'
 import { lintLedger } from '../lib/ledger.mjs'
+import { runMigrate } from '../lib/migrate.mjs'
 import { loadVault } from '../lib/notes.mjs'
 import { makeResolvers } from '../lib/resolvers.mjs'
 import { runRoutine } from '../lib/routine.mjs'
@@ -38,6 +39,8 @@ Commands:
                           Wire SessionStart hooks + managed CLAUDE.md/AGENTS.md on-ramp
                           blocks (default: all). Idempotent; refuses malformed JSON targets.
   atlas doctor            Dry-run inventory of provenance lockfile, wiring, and on-ramp blocks
+  atlas migrate [--write] [--json]
+                          Apply pending versioned migrations (dry-run by default; --write to apply)
   atlas routine [name]    Print a maintenance-routine prompt (no name: list available)
 
 Options:
@@ -218,6 +221,7 @@ const COMMANDS = {
   status: (args) => runStatus(args, { cwd: process.cwd() }),
   wire: (args) => runWire(args, { cwd: process.cwd() }),
   doctor: (args) => runDoctor(args, { cwd: process.cwd() }),
+  migrate: (args) => runMigrate(args, { cwd: process.cwd() }),
   routine: (args) => runRoutine(args, { cwd: process.cwd() }),
 }
 

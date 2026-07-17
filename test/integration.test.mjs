@@ -992,3 +992,18 @@ describe('atlas — enabled kill switch + hooks.sessionStartStatus (Step 3)', ()
     assert.match(humanCall.stdout, /1 zones \(1 seeded\)/)
   })
 })
+
+describe('atlas migrate', () => {
+  test('current state → ✓ up to date', () => {
+    const repo = mkRepo()
+    execFileSync('git', ['commit', '--allow-empty', '-q', '-m', 'init'], { cwd: repo })
+    atlas(repo, ['init'])
+    // init stamps state at packageVersion — empty registry → nothing pending
+    const state = readState(repo)
+    assert.equal(state?.atlasVersion, packageVersion())
+
+    const r = atlas(repo, ['migrate'])
+    assert.equal(r.code, 0)
+    assert.match(r.stdout, /✓ up to date \(atlas .+\)/)
+  })
+})
