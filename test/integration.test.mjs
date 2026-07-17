@@ -6,6 +6,7 @@ import path from 'node:path'
 import { after, describe, test } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { runStamp } from '../lib/stamp.mjs'
+import { packageVersion, readState, writeState } from '../lib/state.mjs'
 import { runStatus } from '../lib/status.mjs'
 import { removeDirsWithRetry } from './helpers.mjs'
 
@@ -735,6 +736,85 @@ describe('atlas status — one line, tolerant, zero side effects', () => {
       lines[0],
       /🧭 .*-atlas: 1 zones \(1 seeded\) · 0 specs · 0 plans · ⚠ 0 open debt · 0 stale/,
     )
+  })
+
+  test('update nudge when state.atlasVersion is older than installed', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'x.js'), '// v1\n')
+    commitAll(repo, 'init tree')
+    atlas(repo, ['init'])
+    const vault = vaultPath(repo)
+    writeZone(vault, 'one', '', { status: 'seeded', verifiedAt: 'unverified' })
+
+    const state = readState(repo)
+    state.atlasVersion = '0.0.1'
+    writeState(repo, state)
+
+    const lines = []
+    const code = runStatus([], { cwd: repo, stdout: { write: (s) => lines.push(s) } })
+    assert.equal(code, 0)
+    assert.equal(lines.length, 2)
+    assert.match(lines[0], /🧭 /)
+    assert.equal(
+      lines[1],
+      `⬆ atlas ${packageVersion()} installed, wired 0.0.1 — run atlas-update\n`,
+    )
+  })
+
+  test('equal versions → single-line status, no nudge', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'x.js'), '// v1\n')
+    commitAll(repo, 'init tree')
+    atlas(repo, ['init'])
+    const vault = vaultPath(repo)
+    writeZone(vault, 'one', '', { status: 'seeded', verifiedAt: 'unverified' })
+
+    const lines = []
+    runStatus([], { cwd: repo, stdout: { write: (s) => lines.push(s) } })
+    assert.equal(lines.length, 1)
+    assert.ok(!lines[0].includes('⬆ atlas'))
+  })
+
+  test('no state file → single-line status, silent no nudge', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'x.js'), '// v1\n')
+    commitAll(repo, 'init tree')
+    atlas(repo, ['init'])
+    const vault = vaultPath(repo)
+    writeZone(vault, 'one', '', { status: 'seeded', verifiedAt: 'unverified' })
+    fs.rmSync(path.join(repo, '.atlas-state.json'))
+
+    const lines = []
+    runStatus([], { cwd: repo, stdout: { write: (s) => lines.push(s) } })
+    assert.equal(lines.length, 1)
+    assert.match(lines[0], /🧭 /)
+  })
+
+  test('update nudge respects --hook + sessionStartStatus: false silence path', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'x.js'), '// v1\n')
+    commitAll(repo, 'init tree')
+    atlas(repo, ['init'])
+    const vault = vaultPath(repo)
+    writeZone(vault, 'one', '', { status: 'seeded', verifiedAt: 'unverified' })
+
+    const state = readState(repo)
+    state.atlasVersion = '0.0.1'
+    writeState(repo, state)
+
+    const configPath = path.join(repo, 'atlas.config.json')
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'))
+    config.hooks.sessionStartStatus = false
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
+
+    const lines = []
+    const code = runStatus(['--hook'], { cwd: repo, stdout: { write: (s) => lines.push(s) } })
+    assert.equal(code, 0)
+    assert.deepEqual(lines, [])
   })
 })
 

@@ -4,6 +4,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { after, describe, test } from 'node:test'
 import { runInit } from '../lib/init.mjs'
+import { packageVersion, readState, STATE_FILE } from '../lib/state.mjs'
 import { removeDirsWithRetry } from './helpers.mjs'
 
 const tmpDirs = []
@@ -209,5 +210,39 @@ describe('runInit', () => {
     const vault = path.join(repo, `${path.basename(repo)}-atlas`)
     assert.ok(!fs.existsSync(vault))
     assert.ok(!fs.existsSync(path.join(repo, 'atlas.config.json')))
+    assert.ok(!fs.existsSync(path.join(repo, STATE_FILE)))
+  })
+
+  test('fresh init creates .atlas-state.json with modules and atlasVersion', () => {
+    const repo = mkRepo()
+    const io = silentIo()
+
+    const code = runInit(['--modules', 'backlog,drafts'], { cwd: repo, ...io })
+
+    assert.equal(code, 0)
+    const state = readState(repo)
+    assert.ok(state)
+    assert.equal(state.atlasVersion, packageVersion())
+    assert.deepEqual(state.modules, ['backlog', 'drafts'])
+    assert.equal(state.configVersion, 1)
+    assert.equal(state.specVersion, '0.1')
+  })
+
+  test('re-init leaves an existing state file byte-identical (create-if-missing only)', () => {
+    const repo = mkRepo()
+    runInit(['--modules', 'backlog'], { cwd: repo, ...silentIo() })
+
+    const statePath = path.join(repo, STATE_FILE)
+    const before = fs.readFileSync(statePath, 'utf8')
+    // Mutate so we can prove re-init does not rewrite
+    const mutated = JSON.parse(before)
+    mutated.atlasVersion = '9.9.9'
+    mutated.wired = { claude: true, grok: true, rootBlocks: ['CLAUDE.md'] }
+    const mutatedRaw = `${JSON.stringify(mutated, null, 2)}\n`
+    fs.writeFileSync(statePath, mutatedRaw)
+
+    const code = runInit([], { cwd: repo, ...silentIo() })
+    assert.equal(code, 0)
+    assert.equal(fs.readFileSync(statePath, 'utf8'), mutatedRaw)
   })
 })
