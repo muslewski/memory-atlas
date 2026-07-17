@@ -3,9 +3,26 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { after, describe, test } from 'node:test'
+import { BLOCK_BEGIN, BLOCK_END } from '../lib/blocks.mjs'
 import { compareVersions, pendingMigrations, runMigrate } from '../lib/migrate.mjs'
-import { defaultState, packageVersion, readState, STATE_FILE, writeState } from '../lib/state.mjs'
+import { migration as m0001 } from '../lib/migrations/0001-backfill-provenance.mjs'
+import {
+  defaultState,
+  packageVersion,
+  readState,
+  STATE_FILE,
+  sha256,
+  writeState,
+} from '../lib/state.mjs'
 import { removeDirsWithRetry } from './helpers.mjs'
+
+/** Real migrations remapped so target <= installed (dev branch still on 0.1.x). */
+function runnable(migrations = [m0001]) {
+  return migrations.map((m) => ({
+    ...m,
+    target: compareVersions(m.target, packageVersion()) > 0 ? packageVersion() : m.target,
+  }))
+}
 
 const tmpDirs = []
 
@@ -225,5 +242,103 @@ describe('runMigrate', () => {
     assert.match(io.errText() + io.text(), /0001-fail/)
     const state = readState(repo)
     assert.equal(state.atlasVersion, '0.0.0')
+  })
+})
+
+describe('0001-backfill-provenance', () => {
+  function mkPreA2({ reports = true, withClaudeBlock = true } = {}) {
+    const repo = mkRepo()
+    const vault = path.join(repo, 'demo-atlas')
+    fs.mkdirSync(path.join(vault, 'map', 'zones'), { recursive: true })
+    fs.writeFileSync(path.join(vault, 'map', 'index.md'), '# index\n')
+    fs.writeFileSync(
+      path.join(repo, 'atlas.config.json'),
+      `${JSON.stringify(
+        {
+          version: 1,
+          vaultDir: 'demo-atlas',
+          modules: { reports },
+        },
+        null,
+        2,
+      )}\n`,
+    )
+    let handBlock = null
+    if (withClaudeBlock) {
+      // Hand-pasted block — deliberately not the current renderOnrampBlock text
+      handBlock = `${BLOCK_BEGIN}
+### Working with the Atlas (hand-pasted)
+custom local body
+${BLOCK_END}`
+      fs.writeFileSync(path.join(repo, 'CLAUDE.md'), `# Project\n\n${handBlock}\n`)
+    }
+    return { repo, handBlock }
+  }
+
+  test('pre-A2 fixture → --write creates state, modules, adopts block hash without rewrite', () => {
+    const { repo, handBlock } = mkPreA2({ reports: true, withClaudeBlock: true })
+    const claudeBefore = fs.readFileSync(path.join(repo, 'CLAUDE.md'), 'utf8')
+
+    const planActions = m0001.plan(repo)
+    assert.ok(planActions.some((a) => a.action === 'create' && a.path === STATE_FILE))
+    assert.ok(planActions.some((a) => a.action === 'update' && a.path === 'CLAUDE.md'))
+    assert.match(planActions.find((a) => a.action === 'create').detail, /reports/)
+
+    const io = capture()
+    const code = runMigrate(['--write'], {
+      cwd: repo,
+      stdout: io.stdout,
+      stderr: io.stderr,
+      migrations: runnable(),
+    })
+    assert.equal(code, 0)
+
+    const state = readState(repo)
+    assert.ok(state)
+    assert.deepEqual(state.modules, ['reports'])
+    assert.equal(state.atlasVersion, packageVersion())
+
+    const key = 'CLAUDE.md#atlas:onramp'
+    assert.ok(state.vendored[key])
+    assert.equal(state.vendored[key].sha256, sha256(handBlock))
+
+    // Block text byte-identical — adopt-in-place, never rewrite
+    const claudeAfter = fs.readFileSync(path.join(repo, 'CLAUDE.md'), 'utf8')
+    assert.equal(claudeAfter, claudeBefore)
+  })
+
+  test('repo with existing state → apply is a no-op (state byte-identical)', () => {
+    const { repo } = mkPreA2()
+    writeState(
+      repo,
+      defaultState({
+        atlasVersion: '0.1.0',
+        modules: ['reports'],
+      }),
+    )
+    const before = fs.readFileSync(path.join(repo, STATE_FILE), 'utf8')
+
+    const planActions = m0001.plan(repo)
+    assert.equal(planActions.length, 1)
+    assert.equal(planActions[0].action, 'skip')
+
+    const result = m0001.apply(repo)
+    assert.deepEqual(result.changed, [])
+    const after = fs.readFileSync(path.join(repo, STATE_FILE), 'utf8')
+    assert.equal(after, before)
+  })
+
+  test('repo with no vault → migration not applicable (plan skip)', () => {
+    const repo = mkRepo()
+    // config only, no vault
+    fs.writeFileSync(
+      path.join(repo, 'atlas.config.json'),
+      `${JSON.stringify({ version: 1 }, null, 2)}\n`,
+    )
+    const planActions = m0001.plan(repo)
+    assert.equal(planActions[0].action, 'skip')
+    assert.match(planActions[0].detail, /no vault/)
+    assert.deepEqual(m0001.apply(repo).changed, [])
+    assert.equal(readState(repo), null)
   })
 })
