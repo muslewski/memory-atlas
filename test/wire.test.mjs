@@ -254,6 +254,32 @@ describe('runWire', () => {
     assert.equal(fs.readFileSync(path.join(repo, STATE_FILE), 'utf8'), stateBefore)
   })
 
+  test('custom skills.dir is substituted into the AGENTS.md on-ramp block', () => {
+    const repo = mkRepo()
+    const grokHooksDir = mkGrokDir()
+    fs.writeFileSync(
+      path.join(repo, 'atlas.config.json'),
+      `${JSON.stringify({ skills: { dir: '.agents/skills' } }, null, 2)}\n`,
+    )
+
+    const code = runWire(['grok'], {
+      cwd: repo,
+      grokHooksDir,
+      stdout: { write: () => {} },
+      stderr: { write: () => {} },
+    })
+    assert.equal(code, 0)
+
+    const agents = fs.readFileSync(path.join(repo, 'AGENTS.md'), 'utf8')
+    assert.ok(
+      agents.includes(
+        'plain markdown files under `.agents/skills/<name>/SKILL.md` — read the matching one before doing those tasks',
+      ),
+      'wire must pass config.skills.dir into the AGENTS.md block',
+    )
+    assert.ok(!agents.includes('`.claude/skills/<name>/SKILL.md`'))
+  })
+
   test('locally edited skill copy left byte-identical; doctor flags not pristine', () => {
     const repo = mkRepo()
     const grokHooksDir = mkGrokDir()

@@ -50,6 +50,36 @@ describe('blocks', () => {
     )
   })
 
+  test('agents body points at vault paths and default skills dir', () => {
+    const agents = renderOnrampBlock('agents', { vaultName: 'my-repo-atlas' })
+    assert.ok(
+      agents.includes(
+        'Route spec-writing output to `my-repo-atlas/specs/` and plan-writing output to `my-repo-atlas/plans/`',
+      ),
+      'agents body must route specs/plans with substituted vault name',
+    )
+    assert.ok(
+      agents.includes(
+        'plain markdown files under `.claude/skills/<name>/SKILL.md` — read the matching one before doing those tasks',
+      ),
+      'agents body must point at default skills dir',
+    )
+  })
+
+  test('agents body substitutes custom skillsDir opt', () => {
+    const agents = renderOnrampBlock('agents', {
+      vaultName: 'demo-atlas',
+      skillsDir: '.agents/skills',
+    })
+    assert.ok(
+      agents.includes(
+        'plain markdown files under `.agents/skills/<name>/SKILL.md` — read the matching one before doing those tasks',
+      ),
+      'custom skillsDir must appear in the procedures pointer',
+    )
+    assert.ok(!agents.includes('`.claude/skills/<name>/SKILL.md`'))
+  })
+
   test('upsertBlock creates the file when missing', () => {
     const dir = mkTmp()
     const filePath = path.join(dir, 'CLAUDE.md')
