@@ -14,6 +14,7 @@ import { runRoutine } from '../lib/routine.mjs'
 import { runStamp } from '../lib/stamp.mjs'
 import { runStatus } from '../lib/status.mjs'
 import { renderIndex, validate } from '../lib/validate.mjs'
+import { runWire } from '../lib/wire.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const pkg = JSON.parse(readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'))
@@ -32,6 +33,9 @@ Commands:
   atlas status [--hook]   One-line vault health summary (safe as a hook). --hook marks
                           a SessionStart-hook call site, honoring hooks.sessionStartStatus
                           in atlas.config.json; a plain human/script call always prints.
+  atlas wire [claude|grok|all]
+                          Wire SessionStart hooks + managed CLAUDE.md/AGENTS.md on-ramp
+                          blocks (default: all). Idempotent; refuses malformed JSON targets.
   atlas routine [name]    Print a maintenance-routine prompt (no name: list available)
 
 Options:
@@ -210,6 +214,7 @@ const COMMANDS = {
   check: (args) => runCheck(args, { cwd: process.cwd() }),
   stamp: (args) => runStamp(args, { cwd: process.cwd() }),
   status: (args) => runStatus(args, { cwd: process.cwd() }),
+  wire: (args) => runWire(args, { cwd: process.cwd() }),
   routine: (args) => runRoutine(args, { cwd: process.cwd() }),
 }
 
