@@ -52,9 +52,10 @@ Next steps:
 
 Write those first zone cards (by hand, or agent-drafted from a fresh reading
 of the code — either way they start `status: seeded` / `verifiedAt:
-unverified` until reviewed), then paste the copy-paste CLAUDE.md/AGENTS.md
-block from [`docs/ONRAMP.md`](docs/ONRAMP.md) so agents orient from the vault
-before exploring code directly. Once a card or two exist:
+unverified` until reviewed), then run `atlas wire` (see
+[`docs/ONRAMP.md`](docs/ONRAMP.md)) so SessionStart hooks and managed
+CLAUDE.md/AGENTS.md on-ramp blocks point agents at the vault before they
+explore code directly. Once a card or two exist:
 
 ```
 $ atlas check
@@ -172,14 +173,27 @@ The recollection ritual — updating and re-stamping a zone card as part of
 finishing a change, not a separate pass — is what keeps `verifiedAt` honest
 across all three rows above.
 
+## Commands
+
+| Command | Purpose |
+|---|---|
+| `atlas init` | Scaffold a vault + `atlas.config.json` + `.atlas-state.json` |
+| `atlas build` | Regenerate `map/index.md` from zone/flow cards |
+| `atlas check` | Verify claims, committed index, and ledger (CI-friendly) |
+| `atlas stamp <slug…>` | Re-stamp reviewed zones (explicit slugs only) |
+| `atlas status [--hook]` | One-line vault health; safe as a SessionStart hook |
+| `atlas wire [claude\|grok\|all]` | SessionStart hooks + managed CLAUDE.md/AGENTS.md on-ramp blocks |
+| `atlas doctor` | Dry-run inventory of provenance lockfile, wiring, and on-ramp blocks |
+| `atlas routine [name]` | Print a maintenance-routine prompt |
+
 ## Docs
 
 - [`SPEC.md`](SPEC.md) — the normative convention: vault layout, note
   taxonomy, lifecycles, anchors, the freshness rule, interop contracts.
 - [`docs/CONFIG.md`](docs/CONFIG.md) — the full `atlas.config.json`
   reference.
-- [`docs/ONRAMP.md`](docs/ONRAMP.md) — the copy-paste kit: CLAUDE.md/AGENTS.md
-  blocks, hook wiring, install flow.
+- [`docs/ONRAMP.md`](docs/ONRAMP.md) — adopt via `atlas wire`: managed
+  CLAUDE.md/AGENTS.md blocks, dual-CLI hooks, install flow.
 - [`docs/ADOPTION.md`](docs/ADOPTION.md) — migrating an existing,
   non-greenfield repo into the convention.
 
