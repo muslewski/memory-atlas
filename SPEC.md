@@ -120,6 +120,7 @@ program:  planned → active → complete | shipped | deferred
 zone:     seeded → active → unmounted
 flow:     active → unmounted
 decision: active → unmounted
+report:   snapshot
 ```
 
 `seeded` is load-bearing. A machine-generated zone card that no human has

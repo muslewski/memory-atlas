@@ -180,6 +180,23 @@ describe('validate — verifiedAt encoding + freshness tri-state', () => {
     assert.equal(rows[0].freshness, 'ok')
   })
 
+  test('active + all-digit short SHA coerced from YAML Number is accepted', () => {
+    // Frontmatter subset parses bare `verifiedAt: 34341274` as Number.
+    // Real git short SHAs are occasionally pure digits; must not hard-fail.
+    const z = zone({ status: 'active', verifiedAt: 34341274 })
+    const seen = []
+    const r = fakeResolvers({
+      changedSince: (sha) => {
+        seen.push(sha)
+        return false
+      },
+    })
+    const { errors, rows } = validate([z], [], r)
+    assert.equal(errors.length, 0)
+    assert.equal(rows[0].freshness, 'ok')
+    assert.deepEqual(seen, ['34341274'])
+  })
+
   test('active + changed-since-verified -> freshness "⚠ stale"', () => {
     const z = zone({ status: 'active', verifiedAt: 'abc1234' })
     const r = fakeResolvers({ changedSince: () => true })
@@ -253,6 +270,40 @@ describe('validate — unmounted zones (SPEC.md verifiedAt amendment)', () => {
     const { attic } = validate([], [flow], fakeResolvers(), { decisions: [decision] })
     assert.ok(attic.some((a) => a.id === 'checkout-flow' && a.kind === 'flow'))
     assert.ok(attic.some((a) => a.id === '2026-01-01-old-choice' && a.kind === 'decision'))
+  })
+})
+
+describe('validate — decision-number uniqueness', () => {
+  test('duplicate decision numbers warn', () => {
+    const decisions = [
+      { id: '0013-a', status: 'active', summary: 'a' },
+      { id: '0013-b', status: 'active', summary: 'b' },
+      { id: '0014-c', status: 'active', summary: 'c' },
+    ]
+    const { errors, warnings } = validate([], [], fakeResolvers(), { decisions })
+    assert.equal(errors.length, 0)
+    const numWarns = warnings.filter((w) => w.includes('decision number'))
+    assert.equal(numWarns.length, 1)
+    assert.equal(numWarns[0], 'decision number 0013 reused: 0013-a, 0013-b')
+  })
+
+  test('unique numbers stay silent', () => {
+    const decisions = [
+      { id: '0001-a', status: 'active', summary: 'a' },
+      { id: '0002-b', status: 'active', summary: 'b' },
+    ]
+    const { warnings } = validate([], [], fakeResolvers(), { decisions })
+    assert.ok(!warnings.some((w) => w.includes('decision number')))
+  })
+
+  test('non-numbered decision ids are ignored', () => {
+    const decisions = [
+      { id: 'adr-foo', status: 'active', summary: 'a' },
+      { id: '2026-01-01-old-choice', status: 'active', summary: 'b' },
+      { id: 'no-prefix', status: 'active', summary: 'c' },
+    ]
+    const { warnings } = validate([], [], fakeResolvers(), { decisions })
+    assert.ok(!warnings.some((w) => w.includes('decision number')))
   })
 })
 
@@ -343,6 +394,62 @@ describe('renderIndex', () => {
     assert.match(md, /## ⚠ Verification gaps\n\n_none_/)
     assert.match(md, /## ⚠ Graph coherence\n\n_none_/)
     assert.match(md, /## Attic \(unmounted\)\n\n_none_/)
+  })
+
+  test('renderIndex ledger section counts and recency', () => {
+    const specs = [
+      { id: '2026-07-01-a', status: 'draft' },
+      { id: '2026-07-10-b', status: 'approved' },
+      { id: '2026-06-01-old', status: 'draft' },
+    ]
+    const plans = [
+      { id: '2026-07-15-c', status: 'ready' },
+      { id: '2026-07-20-d', status: 'done' },
+    ]
+    // 11 dated reports to exercise the 10-item recency cap.
+    const reports = []
+    for (let i = 1; i <= 11; i++) {
+      const day = String(i).padStart(2, '0')
+      reports.push({ id: `2026-05-${day}-r${i}`, status: 'snapshot' })
+    }
+    const decisions = [
+      { id: '0001-choice', status: 'active' },
+      { id: '0002-other', status: 'unmounted' },
+    ]
+
+    const md = renderIndex({ rows: [] }, { specs, plans, reports, decisions })
+
+    assert.match(md, /## Ledger/)
+    assert.match(md, /specs: 3 \(approved 1 · draft 2\)/)
+    assert.match(md, /plans: 2 \(done 1 · ready 1\)/)
+    assert.match(md, /reports: 11 \(snapshot 11\)/)
+    assert.match(md, /decisions: 2 \(active 1 · unmounted 1\)/)
+
+    // Newest-first date-prefixed across specs/plans/reports, capped at 10.
+    const ledger = md.slice(md.indexOf('## Ledger'))
+    const linkMatches = [...ledger.matchAll(/\[\[([^\]]+)\]\]/g)].map((m) => m[1])
+    assert.equal(linkMatches.length, 10)
+    assert.equal(linkMatches[0], '2026-07-20-d')
+    assert.equal(linkMatches[1], '2026-07-15-c')
+    assert.equal(linkMatches[2], '2026-07-10-b')
+    assert.equal(linkMatches[3], '2026-07-01-a')
+    assert.equal(linkMatches[4], '2026-06-01-old')
+    // Decision NNNN- ids are not date-prefixed YYYY-MM-DD and stay out of recency.
+    assert.ok(!linkMatches.includes('0001-choice'))
+    // 11th-oldest report falls off the cap.
+    assert.ok(!linkMatches.includes('2026-05-01-r1'))
+  })
+
+  test('renderIndex without ledger arg is unchanged', () => {
+    const withEmpty = renderIndex({
+      rows: [{ id: 'alpha', status: 'active', freshness: 'ok', summary: 'a' }],
+    })
+    const withExplicitEmpty = renderIndex(
+      { rows: [{ id: 'alpha', status: 'active', freshness: 'ok', summary: 'a' }] },
+      {},
+    )
+    assert.equal(withEmpty, withExplicitEmpty)
+    assert.doesNotMatch(withEmpty, /## Ledger/)
   })
 })
 
