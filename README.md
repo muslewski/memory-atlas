@@ -1,6 +1,8 @@
 # memory-atlas
 
-*A per-repo knowledge atlas for agent fleets — verified architecture cards with an honest freshness signal.*
+**Code-verified memory for coding agents.** *A per-repo knowledge atlas for agent fleets — verified architecture cards with an honest freshness signal.*
+
+<!-- badges: add after first publish -->
 
 ![tests](https://img.shields.io/badge/tests-131%20passing-brightgreen)
 ![node](https://img.shields.io/badge/node-%3E%3D20-blue)
@@ -25,6 +27,21 @@ what was **verified** — and tells you when.
 - **A generated index, never hand-edited.** `atlas build` regenerates
   `map/index.md` — one command turns zone cards into a single map with a
   verification-gaps section, so drift is visible instead of assumed away.
+
+## Install
+
+```bash
+npm i -D memory-atlas
+npx atlas init
+```
+
+Inside an adopting repo, every command also works as
+`npx --no-install atlas <cmd>` (uses the local install, no network).
+
+**Name collision.** The `atlas` bin name collides with the [MongoDB Atlas CLI](https://www.mongodb.com/docs/atlas/cli/)
+if that tool is installed globally. This package also ships a `memory-atlas`
+bin that points at the same entry point — use `npx memory-atlas <cmd>`
+(or the global `memory-atlas` shim) when both are on your `PATH`.
 
 ## Quickstart
 
