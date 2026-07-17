@@ -3,7 +3,13 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { after, describe, test } from 'node:test'
-import { fixDebtType, fixDecisionZones, fixZoneHonesty, planAdoption } from '../lib/adopt.mjs'
+import {
+  fixDebtType,
+  fixDecisionZones,
+  fixZoneHonesty,
+  planAdoption,
+  runAdopt,
+} from '../lib/adopt.mjs'
 import { DEFAULTS } from '../lib/config.mjs'
 import { parseFrontmatter } from '../lib/frontmatter.mjs'
 import { removeDirsWithRetry } from './helpers.mjs'
@@ -15,6 +21,74 @@ function mkRepo() {
   fs.mkdirSync(path.join(dir, '.git'))
   tmpDirs.push(dir)
   return dir
+}
+
+function capture() {
+  const out = []
+  const err = []
+  return {
+    stdout: { write: (s) => out.push(s) },
+    stderr: { write: (s) => err.push(s) },
+    text: () => out.join(''),
+    errText: () => err.join(''),
+  }
+}
+
+function write(file, text) {
+  fs.mkdirSync(path.dirname(file), { recursive: true })
+  fs.writeFileSync(file, text)
+}
+
+/**
+ * Syndcast-shaped brownfield vault (no atlas.config.json).
+ * @param {{ withModules?: boolean }} [opts] when true, also seeds reports/ for module detection
+ */
+function mkSyndcastFixture(opts = {}) {
+  const repo = mkRepo()
+  const vault = path.join(repo, 'demo-mind')
+  write(
+    path.join(vault, 'map', 'decisions', '0001-auth.md'),
+    `---
+type: decision
+summary: "auth"
+zones:
+  - "[[auth]]"
+  - [[data-spine]]
+---
+body
+`,
+  )
+  write(
+    path.join(vault, 'map', 'zones', 'auth.md'),
+    `---
+type: zone
+summary: "auth zone"
+status: active
+verifiedAt: ""
+owns:
+  globs:
+    - "src/auth/**"
+---
+## What
+`,
+  )
+  write(
+    path.join(vault, 'tech-debt', 'old-debt.md'),
+    `---
+type: tech-debt
+summary: "legacy"
+---
+body
+`,
+  )
+  write(path.join(vault, 'human-drafts', 'scratch.md'), '# scratch\n')
+  write(path.join(vault, 'notes', 'random.md'), `---\ntype: note\n---\nrandom\n`)
+  write(path.join(vault, 'map', 'index.md'), '# index\n')
+  write(path.join(vault, 'templates', 'zone.md'), '---\ntype: zone\n---\n')
+  if (opts.withModules) {
+    write(path.join(vault, 'reports', 'snap.md'), '# report\n')
+  }
+  return { repo, vault }
 }
 
 /** Snapshot every file path + mtimeMs + size under dir (recursive, sorted). */
@@ -33,11 +107,6 @@ function snapshotTree(dir) {
   }
   walk('')
   return entries
-}
-
-function write(file, text) {
-  fs.mkdirSync(path.dirname(file), { recursive: true })
-  fs.writeFileSync(file, text)
 }
 
 after(async () => {
@@ -370,5 +439,117 @@ body
     assert.ok(create)
     assert.match(create.detail, /drafts/)
     assert.match(create.detail, /reports/)
+  })
+})
+
+describe('runAdopt', () => {
+  test('dry-run prints actions + unclassified + footer; zero writes', () => {
+    const { repo } = mkSyndcastFixture({ withModules: true })
+    const before = snapshotTree(repo)
+    const io = capture()
+    const code = runAdopt([], { cwd: repo, ...io })
+    assert.equal(code, 0)
+    const text = io.text()
+    assert.match(text, /update .*0001-auth/)
+    assert.match(text, /update .*auth\.md/)
+    assert.match(text, /update .*old-debt/)
+    assert.match(text, /rename .*human-drafts/)
+    assert.match(text, /create atlas\.config\.json/)
+    assert.match(text, /needs classification \(run the atlas-adopt skill\):/)
+    assert.match(text, /\? .*notes\/random\.md/)
+    assert.match(text, /dry run — re-run with --write to apply/)
+    assert.deepEqual(snapshotTree(repo), before)
+  })
+
+  test('--write applies transforms, rename, config; second run is nothing-to-adopt', () => {
+    const { repo, vault } = mkSyndcastFixture({ withModules: true })
+    // tracked path so ownership can resolve if check runs
+    write(path.join(repo, 'src', 'auth', 'index.js'), 'export {}\n')
+
+    const io = capture()
+    const code = runAdopt(['--write'], { cwd: repo, ...io })
+    assert.equal(code, 0)
+    const text = io.text()
+    assert.match(
+      text,
+      /next: atlas wire all && atlas migrate --write, review unclassified notes with the atlas-adopt skill, then verify cards before any stamp — adopted zones stay unverified until reviewed/,
+    )
+
+    // decision zones bare
+    const decision = fs.readFileSync(path.join(vault, 'map', 'decisions', '0001-auth.md'), 'utf8')
+    assert.deepEqual(parseFrontmatter(decision).data.zones, ['auth', 'data-spine'])
+
+    // zone honesty
+    const zone = fs.readFileSync(path.join(vault, 'map', 'zones', 'auth.md'), 'utf8')
+    const zdata = parseFrontmatter(zone).data
+    assert.equal(zdata.status, 'seeded')
+    assert.equal(zdata.verifiedAt, 'unverified')
+
+    // debt type
+    const debt = fs.readFileSync(path.join(vault, 'tech-debt', 'old-debt.md'), 'utf8')
+    assert.equal(parseFrontmatter(debt).data.type, 'debt')
+
+    // rename
+    assert.ok(!fs.existsSync(path.join(vault, 'human-drafts')))
+    assert.ok(fs.existsSync(path.join(vault, 'drafts', 'scratch.md')))
+
+    // config created with detected modules (reports; drafts after human-drafts intent)
+    assert.ok(fs.existsSync(path.join(repo, 'atlas.config.json')))
+    const cfg = JSON.parse(fs.readFileSync(path.join(repo, 'atlas.config.json'), 'utf8'))
+    assert.equal(cfg.modules.reports, true)
+    assert.equal(cfg.vaultDir, 'demo-mind')
+
+    // adopted zone frontmatter is honest (seeded/unverified) — no SHA
+    assert.equal(zdata.verifiedAt, 'unverified')
+    assert.ok(!/verifiedAt:\s*["']?[0-9a-f]{7,}/.test(zone))
+
+    // idempotent second --write
+    const io2 = capture()
+    const code2 = runAdopt(['--write'], { cwd: repo, ...io2 })
+    assert.equal(code2, 0)
+    assert.match(io2.text(), /✓ nothing to adopt — vault already conforms/)
+  })
+
+  test('--json emits { actions, unclassified } shape (dry)', () => {
+    const { repo } = mkSyndcastFixture()
+    const io = capture()
+    const code = runAdopt(['--json'], { cwd: repo, ...io })
+    assert.equal(code, 0)
+    const payload = JSON.parse(io.text())
+    assert.ok(Array.isArray(payload.actions))
+    assert.ok(Array.isArray(payload.unclassified))
+    assert.ok(payload.actions.length > 0)
+    for (const a of payload.actions) {
+      assert.ok(['update', 'rename', 'create'].includes(a.action))
+      assert.equal(typeof a.path, 'string')
+      assert.equal(typeof a.detail, 'string')
+      assert.equal(a._apply, undefined, 'json must strip internal _apply')
+    }
+  })
+
+  test('conforming vault → nothing to adopt', () => {
+    const repo = mkRepo()
+    const vault = path.join(repo, 'demo-mind')
+    write(
+      path.join(vault, 'map', 'zones', 'z.md'),
+      '---\ntype: zone\nstatus: seeded\nverifiedAt: unverified\nowns:\n  globs: []\n---\n',
+    )
+    write(path.join(vault, 'map', 'index.md'), '# i\n')
+    write(
+      path.join(repo, 'atlas.config.json'),
+      JSON.stringify({ version: 1, enabled: true, vaultDir: 'demo-mind' }, null, 2),
+    )
+    const io = capture()
+    const code = runAdopt([], { cwd: repo, ...io })
+    assert.equal(code, 0)
+    assert.match(io.text(), /✓ nothing to adopt — vault already conforms/)
+  })
+
+  test('no vault → exit 1', () => {
+    const repo = mkRepo()
+    const io = capture()
+    const code = runAdopt([], { cwd: repo, ...io })
+    assert.equal(code, 1)
+    assert.match(io.errText(), /no Atlas vault/)
   })
 })

@@ -1210,3 +1210,74 @@ describe('atlas migrate', () => {
     assert.match(r.stdout, /✓ up to date \(atlas .+\)/)
   })
 })
+
+describe('atlas adopt', () => {
+  function write(file, text) {
+    fs.mkdirSync(path.dirname(file), { recursive: true })
+    fs.writeFileSync(file, text)
+  }
+
+  test('CLI dry-run then --write on brownfield vault; adopted zone frontmatter is honest', () => {
+    const repo = mkRepo()
+    execFileSync('git', ['commit', '--allow-empty', '-q', '-m', 'init'], { cwd: repo })
+    const vault = path.join(repo, 'demo-mind')
+    write(
+      path.join(vault, 'map', 'zones', 'auth.md'),
+      `---
+type: zone
+summary: "auth zone"
+status: active
+verifiedAt: ""
+owns:
+  globs:
+    - "src/auth/**"
+---
+## What
+`,
+    )
+    write(path.join(vault, 'map', 'index.md'), '# index\n')
+    write(
+      path.join(vault, 'map', 'decisions', '0001.md'),
+      `---
+type: decision
+zones:
+  - "[[auth]]"
+---
+`,
+    )
+    write(path.join(vault, 'tech-debt', 'd.md'), '---\ntype: tech-debt\n---\n')
+    write(path.join(vault, 'human-drafts', 'x.md'), '# x\n')
+    write(path.join(repo, 'src', 'auth', 'a.js'), 'export {}\n')
+
+    const dry = atlas(repo, ['adopt'])
+    assert.equal(dry.code, 0)
+    assert.match(dry.stdout, /dry run — re-run with --write to apply/)
+    assert.equal(fs.existsSync(path.join(repo, 'atlas.config.json')), false)
+
+    const w = atlas(repo, ['adopt', '--write'])
+    assert.equal(w.code, 0, w.stderr)
+    assert.match(w.stdout, /next: atlas wire all && atlas migrate --write/)
+
+    const zone = fs.readFileSync(path.join(vault, 'map', 'zones', 'auth.md'), 'utf8')
+    assert.match(zone, /status: seeded/)
+    assert.match(zone, /verifiedAt: unverified/)
+    assert.ok(fs.existsSync(path.join(repo, 'atlas.config.json')))
+    assert.ok(fs.existsSync(path.join(vault, 'drafts', 'x.md')))
+    assert.equal(fs.existsSync(path.join(vault, 'human-drafts')), false)
+
+    // frontmatter is parseable / honest — check should not fail purely on zone honesty shape
+    // (ownership may still warn/fail if files untracked; commit them)
+    commitAll(repo, 'adopt seed')
+    const check = atlas(repo, ['check'])
+    // may still fail on ledger/staleness but not on missing frontmatter parse — stderr should not mention
+    // invalid frontmatter for auth zone
+    assert.ok(
+      !/frontmatter|parse|YAML/i.test(check.stderr) || check.code === 0,
+      `unexpected frontmatter errors: ${check.stderr}`,
+    )
+
+    const again = atlas(repo, ['adopt', '--write'])
+    assert.equal(again.code, 0)
+    assert.match(again.stdout, /✓ nothing to adopt/)
+  })
+})
