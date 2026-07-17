@@ -34,7 +34,11 @@
     "tools": { "enabled": false, "pattern": "'{id}'", "root": "" },
     "routes": { "enabled": false, "fileGlobs": [], "stripPrefix": "", "stripSuffix": "" }
   },
-  "check": { "strictFreshness": false },
+  "check": {
+    "strictFreshness": false,
+    "ownership": true,
+    "corpus": { "enabled": false, "maxSummaryLen": 500 }
+  },
   "retrieval": {
     "engine": "ctx-search",
     "excludeFromSearch": ["drafts/", "visuals/"]
