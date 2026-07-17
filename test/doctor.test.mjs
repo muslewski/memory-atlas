@@ -87,7 +87,7 @@ describe('runDoctor', () => {
     writeState(repo, state)
 
     const io = capture()
-    runDoctor([], { cwd: repo, grokHooksDir, stdout: io.stdout })
+    runDoctor([], { cwd: repo, grokHooksDir, stdout: io.stdout, migrations: [] })
     const text = io.text()
     assert.match(
       text,
@@ -95,6 +95,54 @@ describe('runDoctor', () => {
         `⚠ update pending \\(installed ${packageVersion()}, wired 0\\.0\\.1\\) — run the atlas-update skill`,
       ),
     )
+    // Zero pending → no migration-pending line
+    assert.ok(!/migration\(s\) pending/.test(text))
+  })
+
+  test('pending migrations line after version-drift when registry has work', () => {
+    const repo = mkRepo()
+    const grokHooksDir = mkGrokDir()
+    writeState(repo, defaultState({ atlasVersion: '0.0.1' }))
+    const stubs = [
+      {
+        id: '0001-a',
+        target: packageVersion(),
+        describe: 'a',
+        plan: () => [],
+        apply: () => ({ changed: [] }),
+      },
+      {
+        id: '0002-b',
+        target: packageVersion(),
+        describe: 'b',
+        plan: () => [],
+        apply: () => ({ changed: [] }),
+      },
+    ]
+
+    const io = capture()
+    runDoctor([], { cwd: repo, grokHooksDir, stdout: io.stdout, migrations: stubs })
+    const text = io.text()
+    assert.match(text, /⚠ update pending \(installed/)
+    assert.match(text, /⚠ 2 migration\(s\) pending — run atlas migrate/)
+    // Order: version-drift line before pending-migration line
+    const driftIdx = text.indexOf('update pending (installed')
+    const migIdx = text.indexOf('migration(s) pending')
+    assert.ok(driftIdx >= 0 && migIdx > driftIdx)
+  })
+
+  test('zero pending migrations prints no pending-migration line', () => {
+    const repo = mkRepo()
+    const grokHooksDir = mkGrokDir()
+    runWire(['all'], {
+      cwd: repo,
+      grokHooksDir,
+      stdout: { write: () => {} },
+      stderr: { write: () => {} },
+    })
+    const io = capture()
+    runDoctor([], { cwd: repo, grokHooksDir, stdout: io.stdout, migrations: [] })
+    assert.ok(!/migration\(s\) pending/.test(io.text()))
   })
 
   test('edited block detected via hash mismatch', () => {

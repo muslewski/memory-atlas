@@ -1,0 +1,12 @@
+{
+  "atlasVersion": "99.0.0",
+  "configVersion": 1,
+  "specVersion": "0.1",
+  "modules": [],
+  "wired": {
+    "claude": false,
+    "grok": false,
+    "rootBlocks": []
+  },
+  "vendored": {}
+}

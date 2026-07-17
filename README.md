@@ -182,9 +182,23 @@ across all three rows above.
 | `atlas check` | Verify claims, committed index, and ledger (CI-friendly) |
 | `atlas stamp <slug…>` | Re-stamp reviewed zones (explicit slugs only) |
 | `atlas status [--hook]` | One-line vault health; safe as a SessionStart hook |
-| `atlas wire [claude\|grok\|all]` | SessionStart hooks + managed CLAUDE.md/AGENTS.md on-ramp blocks |
+| `atlas wire [claude\|grok\|all]` | SessionStart hooks + managed CLAUDE.md/AGENTS.md on-ramp blocks + vendor skills |
 | `atlas doctor` | Dry-run inventory of provenance lockfile, wiring, and on-ramp blocks |
+| `atlas migrate [--write]` | Apply pending versioned migrations (dry-run by default) |
 | `atlas routine [name]` | Print a maintenance-routine prompt |
+
+### Update flow
+
+When a newer memory-atlas is installed, the loop is:
+
+1. **Nudge** — `atlas status` prints when installed version ≠ wired
+   `atlasVersion`.
+2. **Inventory** — `atlas doctor` shows version drift, pending migrations,
+   and any locally edited vendored files.
+3. **Deterministic migrate** — `atlas migrate` (dry-run), then
+   `atlas migrate --write`.
+4. **AI merge** — run the **`atlas-update`** skill for judgment merges of
+   `⚠ locally edited` blocks/skills, then re-wire and re-check.
 
 ## Docs
 

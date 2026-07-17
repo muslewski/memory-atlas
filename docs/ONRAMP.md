@@ -131,16 +131,35 @@ Inventory without writing: `atlas doctor`.
    way until a human, or an agent under human review, actually verifies its
    claims against the code. Nothing self-promotes to `active`.
 3. Run `atlas wire` (or `atlas wire claude` / `atlas wire grok`) to install
-   SessionStart hooks and managed CLAUDE.md / AGENTS.md on-ramp blocks.
+   SessionStart hooks, managed CLAUDE.md / AGENTS.md on-ramp blocks, and
+   package skills under `config.skills.dir` (default `.claude/skills/`).
 4. Optional: copy `adapters/ctx-search/nav-refresh-index.mjs` to
    `scripts/` and add it next to the status hook — only if this repo uses the
    context-mode MCP plugin. Repos that lean on Obsidian tooling instead can
    use Obsidian's own official agent skills for vault navigation; see
    `adapters/obsidian-skills/README.md` for what that covers and where it
    still falls short of a full retrieval adapter.
-5. Copy the three skills (`skills/atlas-nav/`, `skills/writing-for-retrieval/`,
-   `skills/atlas-recollection/`) into the repo, or point your agent's skill
-   search path at this package — whichever your tooling supports.
+5. Skills are vendored by `atlas wire` (`atlas-nav`, `writing-for-retrieval`,
+   `atlas-recollection`, `atlas-update`). Locally edited skill copies are
+   left alone and flagged by `atlas doctor` until the `atlas-update` skill
+   merges them.
 6. Add `atlas check` to CI (add `--strict` once the team is ready to block
    merges on stale zones, not just report them) so the vault can't silently
    drift from the code it describes.
+
+## 5. Updating an adopting repo
+
+When a newer `memory-atlas` is installed:
+
+1. `atlas status` may nudge: installed version ≠ wired `atlasVersion`.
+2. `atlas doctor` inventories drift, pending migrations, and locally
+   edited vendored files.
+3. `atlas migrate` (dry-run), then `atlas migrate --write` for deterministic
+   toolkit transforms only.
+4. Run the **`atlas-update`** skill for AI-merge of any `⚠ locally edited`
+   items, then `atlas wire all` and `atlas check` / `atlas doctor` to
+   verify.
+
+Pre-A2 vaults (config + vault, no `.atlas-state.json`) get a lockfile via
+migration `0001-backfill-provenance` — existing on-ramp marker text is
+adopted by hash, not rewritten.
