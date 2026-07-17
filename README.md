@@ -188,7 +188,22 @@ across all three rows above.
 | `atlas wire [claude\|grok\|all]` | SessionStart hooks + managed CLAUDE.md/AGENTS.md on-ramp blocks + vendor skills |
 | `atlas doctor` | Dry-run inventory of provenance lockfile, wiring, and on-ramp blocks |
 | `atlas migrate [--write]` | Apply pending versioned migrations (dry-run by default) |
+| `atlas adopt [--write]` | Normalize an existing (brownfield) vault + adoption report |
 | `atlas routine [name]` | Print a maintenance-routine prompt |
+
+### Brownfield adoption
+
+When the repo already has a vault-like mind/docs tree (not a greenfield
+`atlas init`):
+
+1. **`atlas adopt`** (dry-run), then **`atlas adopt --write`** — deterministic
+   frontmatter/folder fixes and a report of notes still needing classification.
+2. **`atlas wire all`** then **`atlas migrate --write`** — hooks, on-ramp
+   blocks, provenance lockfile.
+3. Run the **`atlas-adopt`** skill for unclassified notes and proposed zone
+   cards (cards stay `seeded` / `verifiedAt: unverified`).
+4. **Verify, then stamp** — human review before any `atlas stamp`; adopted
+   zones must not claim `active` until checked against code.
 
 ### Update flow
 

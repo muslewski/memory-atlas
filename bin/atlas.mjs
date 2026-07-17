@@ -4,6 +4,7 @@ import { spawnSync } from 'node:child_process'
 import fs, { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { runAdopt } from '../lib/adopt.mjs'
 import { loadConfig } from '../lib/config.mjs'
 import { runCorpusChecks } from '../lib/corpus.mjs'
 import { findRepoRoot, findVaultDir } from '../lib/detect.mjs'
@@ -42,6 +43,8 @@ Commands:
   atlas doctor            Dry-run inventory of provenance lockfile, wiring, and on-ramp blocks
   atlas migrate [--write] [--json]
                           Apply pending versioned migrations (dry-run by default; --write to apply)
+  atlas adopt [--write] [--json]
+                          Normalize an existing (brownfield) vault + adoption report
   atlas routine [name]    Print a maintenance-routine prompt (no name: list available)
 
 Options:
@@ -255,6 +258,7 @@ const COMMANDS = {
   wire: (args) => runWire(args, { cwd: process.cwd() }),
   doctor: (args) => runDoctor(args, { cwd: process.cwd() }),
   migrate: (args) => runMigrate(args, { cwd: process.cwd() }),
+  adopt: (args) => runAdopt(args, { cwd: process.cwd() }),
   routine: (args) => runRoutine(args, { cwd: process.cwd() }),
 }
 
@@ -295,11 +299,20 @@ function main(argv) {
     return 1
   }
 
+  const rest = args.slice(1)
+  // Subcommand --help / -h: print usage and exit 0 without executing
+  // (avoids `atlas build --help` running a real build, `atlas stamp --help`
+  // erroring for missing slugs, etc.).
+  if (rest.includes('--help') || rest.includes('-h')) {
+    process.stdout.write(USAGE)
+    return 0
+  }
+
   if (command !== 'init' && isKillSwitched(process.cwd())) {
     return 0
   }
 
-  return handler(args.slice(1))
+  return handler(rest)
 }
 
 process.exit(main(process.argv))

@@ -129,6 +129,8 @@ Inventory without writing: `atlas doctor`.
 
 ## 4. Install flow
 
+### Greenfield
+
 1. `atlas init` in the repo root — scaffolds the vault's core skeleton
    (`map/`, `specs/`, `plans/`, `ideas/`, `tech-debt/`, `templates/`,
    `README.md`) plus `atlas.config.json` and `.atlas-state.json`.
@@ -146,14 +148,28 @@ Inventory without writing: `atlas doctor`.
    `adapters/obsidian-skills/README.md` for what that covers and where it
    still falls short of a full retrieval adapter.
 5. Skills are vendored by `atlas wire` (`atlas-nav`, `writing-for-retrieval`,
-   `atlas-recollection`, `atlas-update`). Locally edited skill copies are
-   left alone and flagged by `atlas doctor` until the `atlas-update` skill
-   merges them.
+   `atlas-recollection`, `atlas-update`, `atlas-adopt`). Locally edited skill
+   copies are left alone and flagged by `atlas doctor` until the
+   `atlas-update` skill merges them.
 6. Add `atlas check` to CI so the vault can't silently drift from the code
    it describes. Copy-paste recipe: [`docs/CI.md`](CI.md) (strict structural
    check + index-in-sync gate). Staleness stays advisory under `--strict`;
    set `check.strictFreshness: true` only when you want merges blocked on
    freshness drift.
+
+### Brownfield (existing vault / mind / docs tree)
+
+When the repository already has a knowledge base (not a greenfield init):
+
+1. `atlas adopt` (dry-run), then `atlas adopt --write` — normalizes known
+   friction (wikilink zones, zone honesty, debt type, `human-drafts/`,
+   seed config) and reports notes that still need classification.
+2. Run the **`atlas-adopt`** skill on unclassified notes: place them,
+   set `type:`, propose zone cards as `seeded`/`unverified` — never stamp.
+3. `atlas wire all` and `atlas migrate --write` for hooks, on-ramp blocks,
+   and the provenance lockfile.
+4. Human review, then `atlas stamp <slug>` only for verified cards; `atlas
+   build` / `atlas check`.
 
 ## 5. Updating an adopting repo
 

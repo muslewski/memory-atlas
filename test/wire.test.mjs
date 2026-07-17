@@ -9,7 +9,13 @@ import { readState, STATE_FILE } from '../lib/state.mjs'
 import { runWire } from '../lib/wire.mjs'
 import { removeDirsWithRetry } from './helpers.mjs'
 
-const EXPECTED_SKILLS = ['atlas-nav', 'atlas-recollection', 'atlas-update', 'writing-for-retrieval']
+const EXPECTED_SKILLS = [
+  'atlas-adopt',
+  'atlas-nav',
+  'atlas-recollection',
+  'atlas-update',
+  'writing-for-retrieval',
+]
 
 const tmpDirs = []
 

@@ -6,6 +6,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project has no stability guarantee across minor versions until 1.0
 (see `SPEC.md`'s Versioning section).
 
+## [0.3.0] - 2026-07-17
+
+### Added
+
+- **`atlas adopt [--write] [--json]`** — deterministic brownfield onboarding
+  for repos that already have a vault-like knowledge base. Dry-run by default
+  (zero filesystem writes); `--write` applies; `--json` emits a machine
+  report. Transforms: decision `zones:` wikilinks → bare slugs; zone cards
+  with empty/missing `verifiedAt` → `unverified` + honesty `status: seeded`;
+  `type: tech-debt` → `type: debt`; `human-drafts/` → `drafts/` when the
+  target is absent; seed `atlas.config.json` with optional modules detected
+  from existing folders. Adoption report lists unclassified notes and next
+  steps (`wire` → `migrate` → atlas-adopt skill → verify-then-stamp). Never
+  pre-stamps a git SHA into `verifiedAt`.
+- **`atlas-adopt` skill** — AI classification layer for notes the
+  deterministic pass leaves unclassified: ground on dry `atlas adopt`,
+  classify Map/Ledger/Vision, propose zone cards as `seeded`/`unverified`,
+  then wire/migrate/build/check. Hard rules: never delete notes, never
+  pre-stamp, frontmatter + location only during classification.
+
+### Fixed
+
+- **Subcommand `--help` / `-h`** — `atlas <cmd> --help` prints usage and
+  exits 0 without executing the command (previously `atlas build --help`
+  ran a real build; `atlas stamp --help` errored demanding slugs).
+
 ## [0.2.1] - 2026-07-17
 
 ### Fixed
