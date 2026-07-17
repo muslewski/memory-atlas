@@ -1211,6 +1211,42 @@ describe('atlas migrate', () => {
   })
 })
 
+describe('subcommand --help', () => {
+  test('atlas build --help exits 0, prints usage, does not rebuild index', () => {
+    const repo = mkRepo()
+    execFileSync('git', ['commit', '--allow-empty', '-q', '-m', 'init'], { cwd: repo })
+    atlas(repo, ['init'])
+    const vault = vaultPath(repo)
+    writeZone(vault, 'one', '', { status: 'seeded', verifiedAt: 'unverified' })
+    // seed an index that build would rewrite
+    const indexPath = path.join(vault, 'map', 'index.md')
+    const marker = '# HAND-MARKED INDEX — help must not overwrite\n'
+    fs.writeFileSync(indexPath, marker)
+    const before = fs.readFileSync(indexPath, 'utf8')
+    const mtimeBefore = fs.statSync(indexPath).mtimeMs
+
+    const r = atlas(repo, ['build', '--help'])
+    assert.equal(r.code, 0)
+    assert.match(r.stdout, /Usage:/)
+    assert.match(r.stdout, /atlas build/)
+    assert.equal(fs.readFileSync(indexPath, 'utf8'), before)
+    assert.equal(fs.statSync(indexPath).mtimeMs, mtimeBefore)
+    assert.ok(!/Atlas map rebuilt/.test(r.stdout))
+  })
+
+  test('atlas stamp --help exits 0 with usage, no error demanding slugs', () => {
+    const repo = mkRepo()
+    execFileSync('git', ['commit', '--allow-empty', '-q', '-m', 'init'], { cwd: repo })
+    atlas(repo, ['init'])
+
+    const r = atlas(repo, ['stamp', '--help'])
+    assert.equal(r.code, 0)
+    assert.match(r.stdout, /Usage:/)
+    assert.ok(!/slug/i.test(r.stderr) || r.stderr === '')
+    assert.equal(r.stderr.trim(), '')
+  })
+})
+
 describe('atlas adopt', () => {
   function write(file, text) {
     fs.mkdirSync(path.dirname(file), { recursive: true })

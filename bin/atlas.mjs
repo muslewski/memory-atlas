@@ -299,11 +299,20 @@ function main(argv) {
     return 1
   }
 
+  const rest = args.slice(1)
+  // Subcommand --help / -h: print usage and exit 0 without executing
+  // (avoids `atlas build --help` running a real build, `atlas stamp --help`
+  // erroring for missing slugs, etc.).
+  if (rest.includes('--help') || rest.includes('-h')) {
+    process.stdout.write(USAGE)
+    return 0
+  }
+
   if (command !== 'init' && isKillSwitched(process.cwd())) {
     return 0
   }
 
-  return handler(args.slice(1))
+  return handler(rest)
 }
 
 process.exit(main(process.argv))
