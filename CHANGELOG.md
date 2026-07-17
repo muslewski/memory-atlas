@@ -6,6 +6,42 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project has no stability guarantee across minor versions until 1.0
 (see `SPEC.md`'s Versioning section).
 
+## [0.2.0] - 2026-07-17
+
+### Added
+
+- **A2 provenance lockfile** — `.atlas-state.json` records `atlasVersion`,
+  wired CLI lanes, and content hashes of managed on-ramp blocks (and
+  vendored skills). Machine-owned only; never rewrites user vault content.
+- **`atlas wire [claude|grok|all]`** — dual-CLI SessionStart hooks
+  (Claude repo-level + Grok global drop-in), managed `CLAUDE.md` /
+  `AGENTS.md` on-ramp blocks between atlas markers, and vendoring of
+  package skills into `config.skills.dir`. Idempotent; refuses malformed
+  JSON targets; `.bak` before first modification.
+- **`atlas doctor`** — dry-run inventory of lockfile, version drift,
+  pending migrations, wiring, and pristine/edited/missing vendored items
+  (always exit 0).
+- **Offline update nudge** — `atlas status` reports when installed package
+  version differs from wired `atlasVersion`.
+- **`atlas init` stamps state** — fresh vaults get `.atlas-state.json` at
+  creation with enabled modules.
+- **A3 migrations** — `atlas migrate [--write] [--json]`: versioned,
+  ordered, dry-run-default transforms over toolkit-owned artifacts only.
+  Registry in `lib/migrations/` (append-only).
+- **Migration `0001-backfill-provenance`** — creates `.atlas-state.json`
+  for pre-A2 vaults (config + vault, no lockfile) and adopts existing
+  on-ramp marker blocks by hash without rewriting their text.
+- **`atlas-update` skill** — AI layer for the update loop: doctor →
+  migrate dry → migrate `--write` → merge locally-edited vendored files
+  → re-wire → check. Preserves user customizations; never touches zone
+  cards, decisions, specs, plans, reports, or user config knobs.
+
+### Fixed (A1 carry-forward / hardening on the maturation track)
+
+- Provenance and migration tests never touch real `~/.grok` / `~/.claude`
+  — injectable temp dirs only; dry-run migrate is covered by a zero-fs
+  change assertion.
+
 ## [0.1.0] - 2026-07-09
 
 ### Added

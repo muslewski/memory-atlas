@@ -331,9 +331,46 @@ only that span (or appends a new block when markers are absent). Hand-paste
 is allowed; the next `atlas wire` adopts the region.
 
 - **`atlas wire [claude\|grok\|all]`** — install dual-CLI SessionStart hooks
-  and managed on-ramp blocks; update the lockfile.
-- **`atlas doctor`** — dry-run inventory of lockfile, version drift, wiring,
-  and pristine/edited/missing vendored blocks (always exit 0).
+  and managed on-ramp blocks; vendor package skills into
+  `config.skills.dir`; update the lockfile.
+- **`atlas doctor`** — dry-run inventory of lockfile, version drift, pending
+  migrations, wiring, and pristine/edited/missing vendored blocks/skills
+  (always exit 0).
+- **`atlas migrate [--write] [--json]`** — apply pending versioned
+  migrations (see Migrations below).
+
+### Migrations
+
+Versioned, ordered transforms live in `lib/migrations/` and are registered
+append-only in `lib/migrations/index.mjs`. Each migration has:
+
+| Field | Meaning |
+|---|---|
+| `id` | `NNNN-slug` — monotonic, never reused |
+| `target` | `atlasVersion` this migration belongs to (e.g. `0.2.0`) |
+| `describe` | One-line human summary |
+| `plan(repoRoot, opts)` | Returns planned actions — **no filesystem writes** |
+| `apply(repoRoot, opts)` | Performs writes; returns `{ changed: string[] }` |
+
+**Dry-run contract:** `atlas migrate` without `--write` must make zero
+filesystem changes. With `--write`, migrations run in registry order; only
+on full success does the runner set `state.atlasVersion` to the installed
+package version. A thrown apply stops the run, leaves the version unbumped,
+and exits 1.
+
+**Pending set:** migrations where
+`state.atlasVersion` (default `0.0.0`) is strictly behind `m.target` and
+`m.target` is ≤ the installed package version (3-integer semver compare,
+no dependency).
+
+**Ownership rules:** migrations may create or rewrite **only** machine-owned
+artifacts (`.atlas-state.json`, content inside atlas markers, vendored skill
+copies, hook wiring). A migration that would touch zone cards, ledger notes,
+or `atlas.config.json` user knobs is a design bug — refuse to write one.
+
+**Shipped:** `0001-backfill-provenance` (`target: 0.2.0`) creates the
+lockfile for pre-A2 vaults (vault + config, no state) and adopts existing
+on-ramp marker blocks by hash without rewriting their text.
 
 ## Security
 
