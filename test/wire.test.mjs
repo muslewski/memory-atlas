@@ -4,9 +4,12 @@ import os from 'node:os'
 import path from 'node:path'
 import { after, describe, test } from 'node:test'
 import { BLOCK_BEGIN, BLOCK_END } from '../lib/blocks.mjs'
+import { runDoctor } from '../lib/doctor.mjs'
 import { readState, STATE_FILE } from '../lib/state.mjs'
 import { runWire } from '../lib/wire.mjs'
 import { removeDirsWithRetry } from './helpers.mjs'
+
+const EXPECTED_SKILLS = ['atlas-nav', 'atlas-recollection', 'atlas-update', 'writing-for-retrieval']
 
 const tmpDirs = []
 
@@ -203,5 +206,84 @@ describe('runWire', () => {
     assert.equal(state.wired.grok, true)
     assert.ok(state.vendored['AGENTS.md#atlas:onramp'])
     assert.ok(!state.vendored['CLAUDE.md#atlas:onramp'])
+  })
+
+  test('fresh wire vendors package skills + records hashes; second wire no skill changes', () => {
+    const repo = mkRepo()
+    const grokHooksDir = mkGrokDir()
+    const code = runWire(['all'], {
+      cwd: repo,
+      grokHooksDir,
+      stdout: { write: () => {} },
+      stderr: { write: () => {} },
+    })
+    assert.equal(code, 0)
+
+    const skillsRoot = path.join(repo, '.claude', 'skills')
+    for (const name of EXPECTED_SKILLS) {
+      const skillPath = path.join(skillsRoot, name, 'SKILL.md')
+      assert.ok(fs.existsSync(skillPath), `expected ${skillPath}`)
+    }
+
+    const state = readState(repo)
+    for (const name of EXPECTED_SKILLS) {
+      const key = `skills/${name}/SKILL.md`
+      assert.ok(state.vendored[key]?.sha256, `missing vendored hash for ${key}`)
+    }
+
+    // Snapshot skill files
+    const skillSnapshots = {}
+    for (const name of EXPECTED_SKILLS) {
+      skillSnapshots[name] = fs.readFileSync(path.join(skillsRoot, name, 'SKILL.md'), 'utf8')
+    }
+    const stateBefore = fs.readFileSync(path.join(repo, STATE_FILE), 'utf8')
+
+    const code2 = runWire(['all'], {
+      cwd: repo,
+      grokHooksDir,
+      stdout: { write: () => {} },
+      stderr: { write: () => {} },
+    })
+    assert.equal(code2, 0)
+    for (const name of EXPECTED_SKILLS) {
+      assert.equal(
+        fs.readFileSync(path.join(skillsRoot, name, 'SKILL.md'), 'utf8'),
+        skillSnapshots[name],
+      )
+    }
+    assert.equal(fs.readFileSync(path.join(repo, STATE_FILE), 'utf8'), stateBefore)
+  })
+
+  test('locally edited skill copy left byte-identical; doctor flags not pristine', () => {
+    const repo = mkRepo()
+    const grokHooksDir = mkGrokDir()
+    runWire(['all'], {
+      cwd: repo,
+      grokHooksDir,
+      stdout: { write: () => {} },
+      stderr: { write: () => {} },
+    })
+
+    const skillPath = path.join(repo, '.claude', 'skills', 'atlas-nav', 'SKILL.md')
+    const original = fs.readFileSync(skillPath, 'utf8')
+    const edited = `${original}\n\n<!-- local edit -->\n`
+    fs.writeFileSync(skillPath, edited)
+
+    runWire(['all'], {
+      cwd: repo,
+      grokHooksDir,
+      stdout: { write: () => {} },
+      stderr: { write: () => {} },
+    })
+    assert.equal(fs.readFileSync(skillPath, 'utf8'), edited)
+
+    const out = []
+    runDoctor([], {
+      cwd: repo,
+      grokHooksDir,
+      stdout: { write: (s) => out.push(s) },
+    })
+    const text = out.join('')
+    assert.match(text, /⚠ skills\/atlas-nav\/SKILL\.md: locally edited/)
   })
 })
