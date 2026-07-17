@@ -5,6 +5,7 @@ import fs, { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { loadConfig } from '../lib/config.mjs'
+import { runCorpusChecks } from '../lib/corpus.mjs'
 import { findRepoRoot, findVaultDir } from '../lib/detect.mjs'
 import { runDoctor } from '../lib/doctor.mjs'
 import { runInit } from '../lib/init.mjs'
@@ -93,6 +94,7 @@ function buildCore(cwd, stderr) {
     noteIds: vault.noteIds,
     pillars: vault.pillars,
     decisions: vault.decisions,
+    check: config.check ?? {},
   })
 
   const indexPath = path.join(vaultDir, 'map', 'index.md')
@@ -140,9 +142,10 @@ function runCheck(argv, opts) {
   if (!located) return 1
   const { repoRoot, vaultDir } = located
   const config = loadConfig(repoRoot)
-  // config.check.strictFreshness lets a repo opt every `atlas check` into
-  // --strict (e.g. for CI) without every caller remembering the flag.
-  const strict = argv.includes('--strict') || config.check?.strictFreshness === true
+  // Owner decision 3: `--strict` does NOT harden staleness. Only the config
+  // key `check.strictFreshness: true` turns ⚠ stale into a hard failure.
+  // Structural / ownership / lifecycle / corpus (when enabled) are always hard.
+  const hardenFreshness = config.check?.strictFreshness === true
 
   if (ledgerOnly) {
     const vault = loadVault(vaultDir, config)
@@ -169,6 +172,35 @@ function runCheck(argv, opts) {
   for (const w of result.graphWarnings) stderr.write(`warning: ${w}\n`)
   for (const e of result.errors) stderr.write(`error: ${e}\n`)
   if (result.errors.length > 0) ok = false
+
+  // Opt-in corpus-quality gate (retrieval-shape lint). Default off.
+  if (config.check?.corpus?.enabled === true) {
+    const allNotes = [
+      ...vault.zones,
+      ...vault.flows,
+      ...vault.decisions,
+      ...vault.specs,
+      ...vault.plans,
+      ...vault.ideas,
+      ...vault.debt,
+      ...vault.pillars,
+      ...vault.programs,
+      ...vault.reference,
+      ...vault.archive,
+      ...vault.reports,
+      ...vault.drafts,
+    ]
+    const corpusViolations = runCorpusChecks({
+      zones: vault.zones,
+      allNotes,
+      noteIds: vault.noteIds,
+      maxSummaryLen: config.check.corpus.maxSummaryLen ?? 500,
+    })
+    for (const v of corpusViolations) {
+      stderr.write(`error: zone ${v.zoneId}: [${v.rule}] ${v.message}\n`)
+    }
+    if (corpusViolations.length > 0) ok = false
+  }
 
   const diff = spawnSync(
     'git',
@@ -199,14 +231,15 @@ function runCheck(argv, opts) {
     )
   }
 
-  if (strict) {
-    const stale = result.rows.filter((row) => row.freshness === '⚠ stale')
-    if (stale.length > 0) {
-      stderr.write(
-        `atlas check --strict: ${stale.length} stale zone(s): ${stale.map((row) => row.id).join(', ')}\n`,
-      )
-      ok = false
-    }
+  const stale = result.rows.filter((row) => row.freshness === '⚠ stale')
+  if (stale.length > 0) {
+    // Staleness is always reported; it only fails the command when the
+    // repo opts in via check.strictFreshness (never via the --strict flag).
+    const label = hardenFreshness ? 'error' : 'warning'
+    stderr.write(
+      `atlas check: ${label}: ${stale.length} stale zone(s): ${stale.map((row) => row.id).join(', ')}\n`,
+    )
+    if (hardenFreshness) ok = false
   }
 
   if (ok) stdout.write('atlas check: ok\n')

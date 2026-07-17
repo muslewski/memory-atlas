@@ -107,7 +107,29 @@
         "strictFreshness": {
           "type": "boolean",
           "default": false,
-          "description": "When true, `atlas check` behaves as if `--strict` were always passed: any stale zone fails the command. Lets a repo opt CI into blocking on staleness without every caller remembering the flag; local default usage stays non-blocking."
+          "description": "When true, any stale zone (⚠ stale freshness) fails `atlas check`. Default false: staleness is always advisory (including under `--strict`); only this config key hardens it."
+        },
+        "ownership": {
+          "type": "boolean",
+          "default": true,
+          "description": "When true (default), enforce the ownership SSOT invariant: a tracked file must not appear in more than one mounted zone's owns.globs. Set false only to temporarily silence conflicts during a migration."
+        },
+        "corpus": {
+          "type": "object",
+          "description": "Opt-in retrieval-shape lint (summary cap, required section headers, body wikilinks, orphan zones). Off by default.",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false,
+              "description": "When true, run the corpus-quality pass during `atlas check` and treat violations as hard errors."
+            },
+            "maxSummaryLen": {
+              "type": "integer",
+              "default": 500,
+              "description": "Maximum allowed length of a zone's summary frontmatter field (longest legit summaries measured ~480)."
+            }
+          }
         }
       }
     },

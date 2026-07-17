@@ -194,9 +194,10 @@ operation — a stamp command MUST NOT offer an "all zones" shortcut.
 
 Staleness is computed as `git diff --name-only <verifiedAt>..HEAD --
 <owns.globs>` returning any file. Staleness reporting is advisory by default
-and MUST become a hard failure under a `--strict` mode, so that CI adopters
-can opt into blocking merges on stale zones while default local usage stays
-non-blocking.
+— including under `atlas check --strict` — and MUST become a hard failure
+only when `check.strictFreshness: true` is set in `atlas.config.json`, so that
+CI adopters can opt into blocking merges on stale zones while default local
+usage (and the `--strict` flag alone) stays non-blocking on freshness.
 
 ## The generated index
 

@@ -43,6 +43,27 @@ describe('loadConfig', () => {
     assert.equal(config.modules.reports, false)
   })
 
+  test('DEFAULT_CHECK shape: ownership on, corpus opt-in off, strictFreshness advisory', () => {
+    assert.deepEqual(DEFAULTS.check, {
+      strictFreshness: false,
+      ownership: true,
+      corpus: { enabled: false, maxSummaryLen: 500 },
+    })
+    const repo = mkRepo()
+    const config = loadConfig(repo)
+    assert.deepEqual(config.check, DEFAULTS.check)
+  })
+
+  test('check.ownership and check.corpus merge from a partial override', () => {
+    const repo = mkRepo()
+    writeConfig(repo, { check: { ownership: false, corpus: { enabled: true } } })
+    const config = loadConfig(repo)
+    assert.equal(config.check.ownership, false)
+    assert.equal(config.check.corpus.enabled, true)
+    assert.equal(config.check.corpus.maxSummaryLen, 500)
+    assert.equal(config.check.strictFreshness, false)
+  })
+
   test('deep merge: a partial folders override keeps every other folders default', () => {
     const repo = mkRepo()
     writeConfig(repo, { folders: { ideas: 'notes/sparks' } })
