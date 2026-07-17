@@ -5,6 +5,7 @@ import fs, { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { loadConfig } from '../lib/config.mjs'
+import { runCorpusChecks } from '../lib/corpus.mjs'
 import { findRepoRoot, findVaultDir } from '../lib/detect.mjs'
 import { runDoctor } from '../lib/doctor.mjs'
 import { runInit } from '../lib/init.mjs'
@@ -170,6 +171,35 @@ function runCheck(argv, opts) {
   for (const w of result.graphWarnings) stderr.write(`warning: ${w}\n`)
   for (const e of result.errors) stderr.write(`error: ${e}\n`)
   if (result.errors.length > 0) ok = false
+
+  // Opt-in corpus-quality gate (retrieval-shape lint). Default off.
+  if (config.check?.corpus?.enabled === true) {
+    const allNotes = [
+      ...vault.zones,
+      ...vault.flows,
+      ...vault.decisions,
+      ...vault.specs,
+      ...vault.plans,
+      ...vault.ideas,
+      ...vault.debt,
+      ...vault.pillars,
+      ...vault.programs,
+      ...vault.reference,
+      ...vault.archive,
+      ...vault.reports,
+      ...vault.drafts,
+    ]
+    const corpusViolations = runCorpusChecks({
+      zones: vault.zones,
+      allNotes,
+      noteIds: vault.noteIds,
+      maxSummaryLen: config.check.corpus.maxSummaryLen ?? 500,
+    })
+    for (const v of corpusViolations) {
+      stderr.write(`error: zone ${v.zoneId}: [${v.rule}] ${v.message}\n`)
+    }
+    if (corpusViolations.length > 0) ok = false
+  }
 
   const diff = spawnSync(
     'git',

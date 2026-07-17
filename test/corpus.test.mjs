@@ -1,6 +1,14 @@
 import assert from 'node:assert/strict'
 import { describe, test } from 'node:test'
-import { findOwnershipConflicts } from '../lib/corpus.mjs'
+import {
+  buildInboundCounts,
+  checkBrokenLinks,
+  checkHeaders,
+  checkOrphans,
+  checkSummary,
+  findOwnershipConflicts,
+  ZONE_REQUIRED_HEADERS,
+} from '../lib/corpus.mjs'
 import { validate } from '../lib/validate.mjs'
 
 function zone(overrides = {}) {
@@ -137,5 +145,77 @@ describe('validate — ownership SSOT', () => {
     const r = fakeResolvers({ filesFor: identityFilesFor })
     const { errors } = validate(zones, [], r)
     assert.ok(!errors.some((e) => e.includes('owned by')))
+  })
+})
+
+const FULL_HEADERS = ZONE_REQUIRED_HEADERS.map((h) => `## ${h}\n\n`).join('')
+
+describe('checkSummary', () => {
+  test('missing/empty summary is a violation', () => {
+    assert.equal(checkSummary(zone({ summary: '' }), { maxSummaryLen: 500 }).length, 1)
+    assert.equal(checkSummary(zone({ summary: '   ' }), { maxSummaryLen: 500 }).length, 1)
+    assert.equal(checkSummary(zone({ summary: undefined }), { maxSummaryLen: 500 }).length, 1)
+  })
+
+  test('summary over the cap is a violation', () => {
+    const long = 'x'.repeat(501)
+    const v = checkSummary(zone({ summary: long }), { maxSummaryLen: 500 })
+    assert.equal(v.length, 1)
+    assert.match(v[0].message, /501/)
+    assert.match(v[0].message, /500/)
+  })
+
+  test('crisp summary within cap is silent', () => {
+    assert.equal(
+      checkSummary(zone({ summary: 'short and useful' }), { maxSummaryLen: 500 }).length,
+      0,
+    )
+  })
+})
+
+describe('checkHeaders', () => {
+  test('missing a required zone template section is a violation', () => {
+    const z = zone({ body: '## What this is\n\nonly one section\n' })
+    const v = checkHeaders(z)
+    assert.ok(v.length >= 1)
+    assert.ok(v.some((x) => x.message.includes('Anchors') || x.rule === 'headers'))
+  })
+
+  test('all required sections present is silent', () => {
+    const z = zone({ body: FULL_HEADERS })
+    assert.equal(checkHeaders(z).length, 0)
+  })
+})
+
+describe('checkBrokenLinks', () => {
+  test('body wikilink to nowhere is a violation', () => {
+    const z = zone({ body: 'see [[no-such-note]] for context\n' })
+    const noteIds = new Set(['checkout', 'other'])
+    const v = checkBrokenLinks(z, noteIds)
+    assert.equal(v.length, 1)
+    assert.match(v[0].message, /no-such-note/)
+  })
+
+  test('body wikilink that resolves via note id is silent', () => {
+    const z = zone({ body: 'see [[other]]\n' })
+    const noteIds = new Set(['checkout', 'other'])
+    assert.equal(checkBrokenLinks(z, noteIds).length, 0)
+  })
+})
+
+describe('buildInboundCounts + checkOrphans', () => {
+  test('mounted zone with zero inbound links is an orphan', () => {
+    const orphan = zone({ id: 'lonely', body: FULL_HEADERS })
+    const inbound = buildInboundCounts([orphan])
+    const v = checkOrphans(orphan, inbound)
+    assert.equal(v.length, 1)
+    assert.match(v[0].message, /orphan|inbound/i)
+  })
+
+  test('zone linked from another note is not an orphan', () => {
+    const target = zone({ id: 'hub', body: FULL_HEADERS })
+    const linker = zone({ id: 'spoke', body: `${FULL_HEADERS}\nSee [[hub]].\n` })
+    const inbound = buildInboundCounts([target, linker])
+    assert.equal(checkOrphans(target, inbound).length, 0)
   })
 })

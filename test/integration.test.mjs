@@ -700,6 +700,146 @@ describe('atlas check --report — ledger coverage summary (Step 5)', () => {
   })
 })
 
+/**
+ * Write a zone card with full template headers + optional body/summary overrides
+ * for corpus-quality integration fixtures.
+ */
+function writeCorpusZone(
+  vault,
+  slug,
+  { summary, bodyExtra = '', status = 'seeded', verifiedAt = 'unverified' } = {},
+) {
+  const sum = summary ?? `the ${slug} flow`
+  const content = `---
+type: zone
+summary: ${JSON.stringify(sum)}
+tags: []
+status: ${status}
+created: 2026-07-09
+updated: 2026-07-09
+verifiedAt: ${JSON.stringify(verifiedAt)}
+owns:
+  globs:
+    - "src/${slug}/**"
+  routes: []
+  testids: []
+  tools: []
+depends: []
+invariants: []
+skills: []
+advances: []
+related: []
+sources: []
+---
+
+## What this is
+
+Zone body for ${slug}.
+
+## Anchors
+
+Owns src/${slug}/**
+
+## Invariants
+
+None yet.
+
+## Lineage
+
+${bodyExtra}
+`
+  fs.mkdirSync(path.join(vault, 'map', 'zones'), { recursive: true })
+  fs.writeFileSync(path.join(vault, 'map', 'zones', `${slug}.md`), content)
+}
+
+describe('atlas check — corpus-quality gate (opt-in)', () => {
+  test('corpus disabled (default): retrieval-shape violations are invisible; check exits 0', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src', 'messy'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'messy', 'a.js'), '// a\n')
+    commitAll(repo, 'init tree')
+    atlas(repo, ['init'])
+    const vault = vaultPath(repo)
+    // Over-cap summary, broken body link, orphan — all would fail if corpus were on.
+    writeCorpusZone(vault, 'messy', {
+      summary: 'x'.repeat(501),
+      bodyExtra: 'See [[nowhere-at-all]].\n',
+      status: 'active',
+      verifiedAt: shaOf(repo),
+    })
+    atlas(repo, ['build'])
+    commitAll(repo, 'atlas: seed messy zone')
+
+    const check = atlas(repo, ['check'])
+    assert.equal(check.code, 0, `default corpus off must not fail: ${check.stderr}`)
+    assert.doesNotMatch(check.stderr, /\[summary\]|\[headers\]|\[broken-link\]|\[orphan\]/)
+  })
+
+  test('corpus enabled via config: atlas check exit 1 with corpus violations', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src', 'messy'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'messy', 'a.js'), '// a\n')
+    commitAll(repo, 'init tree')
+    atlas(repo, ['init'])
+
+    const cfgPath = path.join(repo, 'atlas.config.json')
+    const cfg = JSON.parse(fs.readFileSync(cfgPath, 'utf8'))
+    cfg.check = { ...(cfg.check ?? {}), corpus: { enabled: true, maxSummaryLen: 500 } }
+    fs.writeFileSync(cfgPath, JSON.stringify(cfg, null, 2))
+
+    const vault = vaultPath(repo)
+    writeCorpusZone(vault, 'messy', {
+      summary: 'x'.repeat(501),
+      bodyExtra: 'See [[nowhere-at-all]].\n',
+      status: 'active',
+      verifiedAt: shaOf(repo),
+    })
+    atlas(repo, ['build'])
+    commitAll(repo, 'atlas: seed messy zone + corpus on')
+
+    const check = atlas(repo, ['check'])
+    assert.equal(check.code, 1, `corpus on must fail: ${check.stderr}`)
+    assert.match(check.stderr, /\[summary\]/)
+    assert.match(check.stderr, /\[broken-link\]/)
+    assert.match(check.stderr, /\[orphan\]/)
+  })
+
+  test('corpus enabled + linked zones with crisp summaries pass', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src', 'alpha'), { recursive: true })
+    fs.mkdirSync(path.join(repo, 'src', 'beta'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'alpha', 'a.js'), '// a\n')
+    fs.writeFileSync(path.join(repo, 'src', 'beta', 'b.js'), '// b\n')
+    commitAll(repo, 'init tree')
+    atlas(repo, ['init'])
+
+    const cfgPath = path.join(repo, 'atlas.config.json')
+    const cfg = JSON.parse(fs.readFileSync(cfgPath, 'utf8'))
+    cfg.check = { ...(cfg.check ?? {}), corpus: { enabled: true, maxSummaryLen: 500 } }
+    fs.writeFileSync(cfgPath, JSON.stringify(cfg, null, 2))
+
+    const vault = vaultPath(repo)
+    const sha = shaOf(repo)
+    writeCorpusZone(vault, 'alpha', {
+      summary: 'alpha zone',
+      bodyExtra: 'See [[beta]].\n',
+      status: 'active',
+      verifiedAt: sha,
+    })
+    writeCorpusZone(vault, 'beta', {
+      summary: 'beta zone',
+      bodyExtra: 'See [[alpha]].\n',
+      status: 'active',
+      verifiedAt: sha,
+    })
+    atlas(repo, ['build'])
+    commitAll(repo, 'atlas: two linked zones')
+
+    const check = atlas(repo, ['check'])
+    assert.equal(check.code, 0, `linked clean corpus vault must pass: ${check.stderr}`)
+  })
+})
+
 describe('atlas status — one line, tolerant, zero side effects', () => {
   test('silently exits 0 when there is no git repo', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'atlas-nogit-'))
