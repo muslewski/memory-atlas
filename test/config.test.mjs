@@ -34,6 +34,15 @@ describe('loadConfig', () => {
     assert.deepEqual(config, DEFAULTS)
   })
 
+  test('defaults include folders.reports="reports" and modules.reports=false', () => {
+    assert.equal(DEFAULTS.folders.reports, 'reports')
+    assert.equal(DEFAULTS.modules.reports, false)
+    const repo = mkRepo()
+    const config = loadConfig(repo)
+    assert.equal(config.folders.reports, 'reports')
+    assert.equal(config.modules.reports, false)
+  })
+
   test('deep merge: a partial folders override keeps every other folders default', () => {
     const repo = mkRepo()
     writeConfig(repo, { folders: { ideas: 'notes/sparks' } })

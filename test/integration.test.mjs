@@ -450,6 +450,7 @@ describe('config — folder remapping (Step 2)', () => {
       vision: 'vision',
       reference: 'reference',
       archive: 'archive',
+      reports: 'reports',
       drafts: 'drafts',
       templates: 'templates',
     }

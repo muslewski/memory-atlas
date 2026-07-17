@@ -61,6 +61,7 @@ the vault.
 - `vision/` — product pillars.
 - `reference/` — long-form reference docs.
 - `archive/` — dated retirement of superseded specs/plans.
+- `reports/` — point-in-time rear-view snapshots (Ledger, past tense); searchable.
 - `BACKLOG.md` — multi-session coordination (tracks, claims, a `Lands` field).
 - `drafts/` — human scratch space; EXCLUDED from agent retrieval by default.
 - `Home.md`, `bases/` — Obsidian conveniences (Map-of-Content note, Bases
@@ -74,7 +75,7 @@ the vault.
 Every note in the vault carries this universal frontmatter:
 
 ```yaml
-type:            # zone | flow | decision | spec | plan | program | idea | debt | pillar
+type:            # zone | flow | decision | spec | plan | program | idea | debt | pillar | report
 summary:         # 1–3 sentence human glance
 tags: []
 status:          # per-type lifecycle, see "Lifecycles"
@@ -84,7 +85,7 @@ related: []      # lateral [[wikilinks]]
 sources: []      # lineage [[wikilinks]] — where this note came from
 ```
 
-The core taxonomy is nine types:
+The core taxonomy is ten types:
 
 | Type | Tense | Purpose | Per-type extras |
 |------|-------|---------|-----------------|
@@ -97,6 +98,7 @@ The core taxonomy is nine types:
 | idea | evergreen | Small brainstorm seed. | `maturity` |
 | debt | until-resolved | Deferred work. | `severity`, `effort` |
 | pillar | evergreen | Strategic product dimension. | `maturity`, `realizedBy`, `group` |
+| report | past | Rear-view snapshot of what something *was* at one moment (Ledger-side; frozen once written). Filename `YYYY-MM-DD-<topic>.md`. Optional module; convention originates from syndcast-mind. | `status: snapshot`, `zones`, `covers` |
 
 `entity` is explicitly cut from the core taxonomy: it is a documented
 extension point only. A conforming implementation MAY add an `entity` type
