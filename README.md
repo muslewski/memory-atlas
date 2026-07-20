@@ -2,9 +2,8 @@
 
 **Code-verified memory for coding agents.** *A per-repo knowledge atlas for agent fleets — verified architecture cards with an honest freshness signal.*
 
-<!-- badges: add after first publish -->
-
-![tests](https://img.shields.io/badge/tests-131%20passing-brightgreen)
+[![CI](https://github.com/muslewski/memory-atlas/actions/workflows/ci.yml/badge.svg)](https://github.com/muslewski/memory-atlas/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/memory-atlas.svg)](https://www.npmjs.com/package/memory-atlas)
 ![node](https://img.shields.io/badge/node-%3E%3D20-blue)
 ![license](https://img.shields.io/badge/license-MIT-blue)
 ![dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
