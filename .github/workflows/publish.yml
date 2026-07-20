@@ -7,7 +7,9 @@ name: Publish to npm
 # full release automation.
 on:
   push:
-    tags: ['v*']
+    tags:
+      - 'v*'
+      - 'memory-atlas-v*'
   workflow_dispatch:
 
 permissions:
