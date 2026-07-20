@@ -6,6 +6,62 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project has no stability guarantee across minor versions until 1.0
 (see `SPEC.md`'s Versioning section).
 
+## [0.4.0](https://github.com/muslewski/memory-atlas/compare/memory-atlas-v0.3.0...memory-atlas-v0.4.0) (2026-07-20)
+
+
+### Features
+
+* **adapters:** ctx-search index refresh honors enabled + its own hook toggle ([8e02a7f](https://github.com/muslewski/memory-atlas/commit/8e02a7f83805adc962ce65037efac2f5f3acdaed))
+* **adopt:** atlas-adopt skill — AI classification layer for brownfield vaults ([d4b4a15](https://github.com/muslewski/memory-atlas/commit/d4b4a15159bb973eefa1f3e37cb69fdc49edd882))
+* **adopt:** pure brownfield transforms — wikilink zones, verifiedAt honesty, debt type, adoption plan ([2c19a2c](https://github.com/muslewski/memory-atlas/commit/2c19a2cbd793a7ff3671e8dea4e9627e6887d4dc))
+* atlas init ([94f57d4](https://github.com/muslewski/memory-atlas/commit/94f57d4adda2ad1e5886b833fe84b027ac54e190))
+* atlas-nav + recollection + writing-for-retrieval skills ([6969e99](https://github.com/muslewski/memory-atlas/commit/6969e99974bde2a7856cb2207beac9eecdea2e0e))
+* **blocks:** AGENTS.md skills-path pointer + reachable atlas-update nudge for tool-agnostic hosts ([1ad2f71](https://github.com/muslewski/memory-atlas/commit/1ad2f719a109163542c15b6d0eda83d269390c81))
+* **blocks:** marker-delimited CLAUDE.md/AGENTS.md on-ramp blocks ([c87cb97](https://github.com/muslewski/memory-atlas/commit/c87cb971f6042b7e7bba95fed643a3e3320c973a))
+* check/build/stamp/status ([0719682](https://github.com/muslewski/memory-atlas/commit/0719682c319a3ce20387c05b82272e0460514b79))
+* **check:** corpus-quality gate — summary cap, headers, body links, orphans (opt-in) ([8cb5204](https://github.com/muslewski/memory-atlas/commit/8cb5204517082ec3b513c9ec20c2d57ea7f9e057))
+* **check:** decision-number uniqueness warning ([20e2a2d](https://github.com/muslewski/memory-atlas/commit/20e2a2df24700e9b139e1476613f15047961cfab))
+* **check:** ownership SSOT — one artifact, one owner (core invariant) ([8512d85](https://github.com/muslewski/memory-atlas/commit/8512d85cbebd834bd8dda5ba721842030bd7bd5e))
+* **cli:** atlas adopt — deterministic brownfield onboarding with adoption report ([3520b5d](https://github.com/muslewski/memory-atlas/commit/3520b5de6fdf321c782255fe075b05150f229069))
+* **cli:** atlas migrate command + doctor pending-migration awareness ([5f9afe8](https://github.com/muslewski/memory-atlas/commit/5f9afe83aa4ed54bd6946cbed09a420d558cc43c))
+* **config:** add optional reports module defaults ([2ee09ce](https://github.com/muslewski/memory-atlas/commit/2ee09ce296d46fca5b4917d77614dfee9e93dbb5))
+* **config:** full v1 atlas.config.json schema, folder indirection, kill switch, routines ([6dde575](https://github.com/muslewski/memory-atlas/commit/6dde575d85fe4ff9b0e4a3d803c10a452a178982))
+* ctx-search adapter ([a836949](https://github.com/muslewski/memory-atlas/commit/a836949540be9e0dd8a54a1052f1ea57b5039dd0))
+* **doctor:** dry-run provenance + wiring inventory ([fdab5dc](https://github.com/muslewski/memory-atlas/commit/fdab5dc5572a6a4ca392703359fbd34692282ea3))
+* dogfood vault (atlas/) ([36ff101](https://github.com/muslewski/memory-atlas/commit/36ff101d133acc2809dcba486fea583c73ca34f8))
+* examples — oracle budget hint + session-planning routine ([faff18c](https://github.com/muslewski/memory-atlas/commit/faff18cc0fb2afe8079c343eeb99088f51db3bf5))
+* examples — sage atlas adapter ([08ea5c4](https://github.com/muslewski/memory-atlas/commit/08ea5c4491e8fc6aa729b7e2248b5cd3ee3a60c8))
+* frontmatter parser ([04912b0](https://github.com/muslewski/memory-atlas/commit/04912b0d594ab826ccf6da2a87261d5cc3d413fb))
+* git resolvers + note loading ([69bf144](https://github.com/muslewski/memory-atlas/commit/69bf1444454fbc35efe310034d5a3cb62ade8015))
+* **index:** ledger section — status counts + 10 most recent ([696c740](https://github.com/muslewski/memory-atlas/commit/696c7405b32db510bbabc91b8f938400bba6f1d9))
+* **init:** scaffold reports/ module with README stub ([6877cc7](https://github.com/muslewski/memory-atlas/commit/6877cc7743a1f80fb8d61d933f7ce6d3ccdadf61))
+* **init:** stamp .atlas-state.json at vault creation ([c3f8b23](https://github.com/muslewski/memory-atlas/commit/c3f8b237ee169bab0cd9e0a92872eeb06b8948b0))
+* **migrate:** versioned migration framework — dry-run default, --write opt-in ([e8679dd](https://github.com/muslewski/memory-atlas/commit/e8679dd9fde99f14809206c60b8ccbc2d6db391e))
+* **migrations:** 0001 backfill provenance for pre-A2 vaults ([2bab022](https://github.com/muslewski/memory-atlas/commit/2bab02272fa32a4d2122944da7189e59ed58d25d))
+* **reports:** report lifecycle, ledger lint walk, note template ([25b20d7](https://github.com/muslewski/memory-atlas/commit/25b20d7d5444e7a778fac639281c5555a58e95d2))
+* scaffold package ([6ef762a](https://github.com/muslewski/memory-atlas/commit/6ef762ad4ddff8d4a0d9b4b00845b8034aa57308))
+* **state:** .atlas-state.json provenance lockfile ([b563328](https://github.com/muslewski/memory-atlas/commit/b563328f3be232c3cf080a80a7c01e5f2372b876))
+* **status:** offline update nudge — installed vs wired version ([6e56b33](https://github.com/muslewski/memory-atlas/commit/6e56b338aebfc84c88c490eab3f3ec8d3b59b5b7))
+* **update:** atlas-update skill + wire vendors package skills ([300ca9e](https://github.com/muslewski/memory-atlas/commit/300ca9ed6b6a95f4f186f4235c7f52531c4badb2))
+* validate core + index renderer ([2ac1759](https://github.com/muslewski/memory-atlas/commit/2ac1759be9c87a232c283c6bf7f8464e39fdcc27))
+* **wire:** atlas wire — dual-CLI SessionStart hooks + managed on-ramp blocks ([ed1e8b0](https://github.com/muslewski/memory-atlas/commit/ed1e8b09aa114465a79826456c20b239e556ab64))
+
+
+### Bug Fixes
+
+* **check:** --strict never hardens staleness — config strictFreshness only ([b7ff7d1](https://github.com/muslewski/memory-atlas/commit/b7ff7d166e8b2f5ec802d7ec9dc463bd860ed8c4))
+* **cli:** subcommands honor --help instead of executing ([a723b2e](https://github.com/muslewski/memory-atlas/commit/a723b2ed47fa9867225f6f9e1e93122642e16f4f))
+* close npm-pack log leak, flaky test cleanup, README TODO markers ([4893a05](https://github.com/muslewski/memory-atlas/commit/4893a05cea9b3102b2850efeaf951bbb64ba26ee))
+* **core:** decisions reach validate() in build/check/status ([1242075](https://github.com/muslewski/memory-atlas/commit/1242075e0d063fc187a6f18f1a70e6dcd7c67e0e))
+* exempt unmounted zones from all anchor checks; fix index gaps + --report ([df2d040](https://github.com/muslewski/memory-atlas/commit/df2d0401cde3fd583690ad5560328d5b9ddd0e1e))
+* replace brain glyph with compass in atlas status ([0381fa9](https://github.com/muslewski/memory-atlas/commit/0381fa9d6ca00d268a9ea974efc43f0373e825b9))
+* resolve stamp's zone-card path through config.folders.zones ([35e7163](https://github.com/muslewski/memory-atlas/commit/35e716346367b141d02cf572c11df456b35339ba))
+* scrub remaining origin vocabulary from on-ramp and skills ([4492845](https://github.com/muslewski/memory-atlas/commit/449284562738b9182de0a3f9522a5d05f990b37d))
+* **stamp:** warn when stamping over uncommitted owned files + document stamp order ([47c6c40](https://github.com/muslewski/memory-atlas/commit/47c6c40465786ad49984f0c5131ea72433da3eff))
+* **template:** block-style invariant example + honest missing-rule warning ([5dd0a70](https://github.com/muslewski/memory-atlas/commit/5dd0a700d0efbccd7033228b4a6aa69493672eee))
+* **validate:** accept YAML-numeric all-digit verifiedAt SHAs ([c441c42](https://github.com/muslewski/memory-atlas/commit/c441c42080475ab0cd69e01027561172ad98922a))
+* **vault:** enabled optional modules join the vault walk and wikilink graph ([3662905](https://github.com/muslewski/memory-atlas/commit/366290536e7bd14fe9bf52d1c222c8a7c2b26437))
+
 ## [0.3.0] - 2026-07-17
 
 ### Added
