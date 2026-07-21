@@ -3,6 +3,7 @@
 <p align="center">
   <a href="https://atlas.muslewski.com"><img src="https://img.shields.io/badge/website-atlas.muslewski.com-c45c26?style=flat-square" alt="Website"></a>
   <a href="https://www.npmjs.com/package/memory-atlas"><img src="https://img.shields.io/npm/v/memory-atlas?style=flat-square" alt="npm"></a>
+  <a href="https://github.com/muslewski/memory-atlas/discussions"><img src="https://img.shields.io/badge/discussions-join-c45c26?style=flat-square" alt="Discussions"></a>
 </p>
 
 <p align="center">
@@ -274,3 +275,15 @@ project's own Atlas, built with the same CLI documented above.
 
 <sub>Footnote, not headline copy: ATLAS also unpacks to <strong>Agentic
 Terrain &amp; Lore Archive System</strong>, if you like backronyms.</sub>
+
+## Community
+
+- **Website:** [atlas.muslewski.com](https://atlas.muslewski.com)
+- **Questions & ideas:** [Discussions](https://github.com/muslewski/memory-atlas/discussions)
+- **Bugs & features:** [Issues](https://github.com/muslewski/memory-atlas/issues/new/choose)
+- **Contributing:** [CONTRIBUTING.md](./CONTRIBUTING.md)
+- **Code of Conduct:** [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)
+- **Security:** [SECURITY.md](./SECURITY.md) (private reports only)
+- **Support matrix:** [SUPPORT.md](./SUPPORT.md)
+
+If you're not sure whether something is a bug, **start a Discussion** — maintainers can promote it to an issue when it is.

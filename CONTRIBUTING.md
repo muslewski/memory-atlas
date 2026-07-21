@@ -2,6 +2,17 @@
 
 Thanks for considering a contribution to memory-atlas.
 
+
+## Community
+
+| Kind | Where |
+|---|---|
+| Questions, ideas, show-and-tell | [Discussions](https://github.com/muslewski/memory-atlas/discussions) |
+| Bugs & concrete feature requests | [Issues](https://github.com/muslewski/memory-atlas/issues/new/choose) |
+| Security | [SECURITY.md](./SECURITY.md) — private only |
+
+Please follow the [Code of Conduct](./CODE_OF_CONDUCT.md).
+
 ## Ground rules
 
 - **Zero runtime dependencies.** Nothing may be added under `dependencies`
