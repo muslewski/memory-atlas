@@ -42,6 +42,14 @@ what was **verified** — and tells you when.
 ## Install
 
 ```bash
+npm install -g memory-atlas   # or: npx memory-atlas …
+# bins: atlas | memory-atlas
+atlas init
+```
+
+Dev / per-repo:
+
+```bash
 npm i -D memory-atlas
 npx atlas init
 ```
