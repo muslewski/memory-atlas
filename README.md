@@ -1,5 +1,17 @@
 # memory-atlas
 
+<p align="center">
+  <a href="https://atlas.muslewski.com"><img src="https://img.shields.io/badge/website-atlas.muslewski.com-c45c26?style=flat-square" alt="Website"></a>
+  <a href="https://www.npmjs.com/package/memory-atlas"><img src="https://img.shields.io/npm/v/memory-atlas?style=flat-square" alt="npm"></a>
+</p>
+
+<p align="center">
+  <a href="https://atlas.muslewski.com"><img src="https://raw.githubusercontent.com/muslewski/memory-atlas-website/main/public/atlas1.webp" alt="memory-atlas brand — Titan holds the vault" width="820"></a>
+</p>
+
+<p align="center"><b>Site:</b> <a href="https://atlas.muslewski.com">atlas.muslewski.com</a> · marketing one-pager for this tool</p>
+
+
 **Code-verified memory for coding agents.** *A per-repo knowledge atlas for agent fleets — verified architecture cards with an honest freshness signal.*
 
 [![CI](https://github.com/muslewski/memory-atlas/actions/workflows/ci.yml/badge.svg)](https://github.com/muslewski/memory-atlas/actions/workflows/ci.yml)
