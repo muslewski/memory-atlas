@@ -28,3 +28,9 @@ npx memory-atlas check
 ```
 
 Convention: [SPEC.md](../SPEC.md) · site: [atlas.muslewski.com](https://atlas.muslewski.com).
+
+## Contributing with the mind
+
+Updating this vault when you change architecture is an **informal** habit that
+improves PR quality for the next human or agent — not a formal review gate.
+See the repo **CONTRIBUTING.md** (Project mind section). Skip for pure typos.

@@ -35,4 +35,10 @@ own package’s `files` field if you publish a library on npm.
 
 Site: [atlas.muslewski.com](https://atlas.muslewski.com).
 
+## Contributing with the mind
+
+Updating this vault when architecture moves is an **informal** habit that
+improves PR quality for the next human or agent — not a formal review gate.
+See the repository **CONTRIBUTING.md** if present. Skip for pure typos.
+
 Do not hand-edit generated `map/index.md`.

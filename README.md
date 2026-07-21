@@ -34,6 +34,13 @@
 
 This repository’s own `atlas/` folder is **dogfood** (how we map *this* tool’s code). It is **excluded** from the published package (`package.json` → `files`: no `atlas/`). Same idea when other OSS projects keep `project-mind/`: that directory is **git documentation for agents**, not an npm dependency of those projects.
 
+### For contributors (and for projects adopting Atlas)
+
+Keeping a mind in **git** is an **informal convention**, not bureaucracy. It raises
+overall quality: humans and agents orient faster, PRs land with less rediscovery,
+and architecture stays legible as the codebase grows. Typo PRs need not touch it;
+structural PRs are better when they do. Details: [CONTRIBUTING.md](./CONTRIBUTING.md).
+
 Most agent-memory tools persist what the agent *believed*. An Atlas records
 what was **verified** — and tells you when.
 
