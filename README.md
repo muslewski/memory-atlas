@@ -21,6 +21,19 @@
 ![license](https://img.shields.io/badge/license-MIT-blue)
 ![dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
 
+## What is what (npm vs git — do not confuse)
+
+| Artifact | Where it lives | What `npm install memory-atlas` gives you |
+|----------|----------------|-------------------------------------------|
+| **CLI + skills + templates** | this package (`bin/`, `lib/`, `skills/`, `templates/`, …) | **Yes** — the tool only |
+| **Your project mind** (`*-mind/`, or dogfood `atlas/` in *this* repo) | **inside each adopting repository** as markdown | **No** — never downloaded via npm |
+| **Other open-source repos’ minds** (e.g. `agentic-sage-mind/`) | those repos’ **git** trees (optional dogfood) | **No** — only if you clone that repo |
+| **work-kb / personal fleet diary** | separate private vaults | **No** — not part of this package |
+
+**npm ships the engine.** A mind vault is **data** that `atlas init` / agents create **in your repo**, committed next to your code if you want agents and CI to see it. Installing or updating `memory-atlas` never pulls someone else’s architecture notes, session diary, or fleet work-kb.
+
+This repository’s own `atlas/` folder is **dogfood** (how we map *this* tool’s code). It is **excluded** from the published package (`package.json` → `files`: no `atlas/`). Same idea when other OSS projects keep `project-mind/`: that directory is **git documentation for agents**, not an npm dependency of those projects.
+
 Most agent-memory tools persist what the agent *believed*. An Atlas records
 what was **verified** — and tells you when.
 
@@ -81,18 +94,24 @@ created: my-repo-atlas/templates/zone.md
 created: atlas.config.json
 
 Next steps:
-  - Seed 4-8 zone cards, one per coherent subsystem, under map/zones/.
-  - Keep status: seeded + verifiedAt: unverified until a human verifies each card.
-  - Add a short CLAUDE.md/AGENTS.md on-ramp block pointing agents at map/index.md.
+  - Seed 4–8 zone cards, one per coherent subsystem, under `map/zones/`.
+  - Keep `status: seeded` + `verifiedAt: unverified` until a human verifies each card.
+  - Add a short CLAUDE.md/AGENTS.md on-ramp block pointing agents at `map/index.md`.
   - Run `atlas stamp <slug>` once a card is reviewed, then `atlas build` / `atlas check`.
 ```
 
-Write those first zone cards (by hand, or agent-drafted from a fresh reading
-of the code — either way they start `status: seeded` / `verifiedAt:
-unverified` until reviewed), then run `atlas wire` (see
-[`docs/ONRAMP.md`](docs/ONRAMP.md)) so SessionStart hooks and managed
-CLAUDE.md/AGENTS.md on-ramp blocks point agents at the vault before they
-explore code directly. Once a card or two exist:
+**Agent-first bootstrap.** After `atlas init` + `atlas wire`, have the agent
+run skill **`atlas-seed`** (vendored into `.claude/skills/atlas-seed/`) or
+print the prompt with `atlas routine seed`. That skill partitions the
+codebase into 4–8 honest `seeded` cards with real `owns.globs`, then
+`atlas build`. Summaries follow **`writing-for-retrieval`**. Never self-promote
+to `active` / commit SHA — only `atlas stamp` after review.
+
+Write first zones by hand or via **atlas-seed** (either way they start
+`status: seeded` / `verifiedAt: unverified` until reviewed), then run
+`atlas wire` (see [`docs/ONRAMP.md`](docs/ONRAMP.md)) so SessionStart hooks
+and managed CLAUDE.md/AGENTS.md on-ramp blocks point agents at the vault
+before they explore code directly. Once a card or two exist:
 
 ```
 $ atlas check

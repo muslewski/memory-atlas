@@ -1,13 +1,30 @@
-# Atlas
+# Atlas dogfood vault (this repository)
 
-This is an Atlas: a code-verified knowledge base for this repository — an
-architecture map, a decision ledger, and (optionally) vision notes, kept in
-sync with the code they describe.
+This folder is the **memory-atlas** project’s own mind: code-verified map of
+`bin/`, `lib/`, skills, and config. Agents working on **this** codebase start
+at [`map/index.md`](./map/index.md).
 
-**Orient**: start at `map/index.md`, then read the zone card(s) relevant to
-your task before exploring code directly.
+## npm vs this vault
 
-**Recollect**: when you finish a change, update the zone cards you touched,
-re-stamp their `verifiedAt`, and regenerate the index.
+| | |
+|--|--|
+| **Published on npm** | CLI (`atlas` / `memory-atlas`), `lib/`, `skills/`, `templates/`, `schema/`, docs — see root `package.json` → `files` |
+| **Not on npm** | This `atlas/` directory (dogfood data only) |
 
-See the repository's `SPEC.md` for the full convention this vault follows.
+Installing `memory-atlas` from npm never includes this vault or any other
+repo’s `*-mind/`. Adopting projects create their own vault with `atlas init`
+and optionally commit it in **git**.
+
+## Agent loop
+
+1. Orient → `map/index.md` → zone → code  
+2. Work  
+3. Recollect → `atlas stamp <slug>` → `atlas build` / `atlas check`
+
+```bash
+npx memory-atlas status
+npx memory-atlas build
+npx memory-atlas check
+```
+
+Convention: [SPEC.md](../SPEC.md) · site: [atlas.muslewski.com](https://atlas.muslewski.com).
