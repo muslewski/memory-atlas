@@ -1,20 +1,18 @@
 name: Publish to npm
 
-# release-please prepares the release PR + CHANGELOG + version tag. To publish, a human
-# pushes the tag (`git push origin vX.Y.Z`) — a human-pushed tag triggers this workflow —
-# or runs it manually via workflow_dispatch. A tag auto-pushed by release-please's
-# GITHUB_TOKEN will NOT trigger this; add a PAT/GitHub-App token to release-please for
-# full release automation.
+# Canonical publish paths (no per-repo NPM_TOKEN required):
+#   1. Local:  ship-npm                 # or: ship-npm <pkg>  after ship-npm --setup
+#   2. Fleet:  gh workflow run "Fleet npm publish" -R muslewski/agentic-sage
+#              (only agentic-sage holds NPM_TOKEN; secrets are write-only)
+#
+# This workflow is manual-only so tag pushes do not fail red without a secret.
+# Prefer ship-npm / fleet over re-adding a tag trigger here.
 on:
-  push:
-    tags:
-      - 'v*'
-      - 'memory-atlas-v*'
   workflow_dispatch:
 
 permissions:
   contents: read
-  id-token: write  # Required for --provenance attestation
+  id-token: write
 
 jobs:
   publish:
@@ -26,10 +24,17 @@ jobs:
         with:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
-          cache: npm
 
-      - name: Install dependencies
-        run: npm install --ignore-scripts
+      - name: Require NPM_TOKEN (prefer ship-npm / fleet)
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "${NODE_AUTH_TOKEN}" ]; then
+            echo "::error::No NPM_TOKEN on this repo. Use one of:"
+            echo "  ship-npm                 # local, after ship-npm --setup"
+            echo "  gh workflow run 'Fleet npm publish' -R muslewski/agentic-sage"
+            exit 1
+          fi
 
       - name: Publish with provenance
         run: npm publish --provenance --access public
