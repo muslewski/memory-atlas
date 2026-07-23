@@ -34,3 +34,14 @@ Convention: [SPEC.md](../SPEC.md) · site: [atlas.muslewski.com](https://atlas.m
 Updating this vault when you change architecture is an **informal** habit that
 improves PR quality for the next human or agent — not a formal review gate.
 See the repo **CONTRIBUTING.md** (Project mind section). Skip for pure typos.
+
+
+## Internal notes (not public docs)
+
+| Path | What |
+|------|------|
+| `reports/LAUNCH-CHECKLIST.md` | Launch checklist (moved from `docs/`) |
+| `reference/RELEASING.md` | Release process (moved from `docs/`) |
+| `specs/` · `plans/` | Design & implementation notes |
+
+Public guides remain in [`../docs/`](../docs/).
