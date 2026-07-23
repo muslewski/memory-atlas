@@ -1,8 +1,20 @@
+---
+title: "CI recipe"
+description: "Run atlas check and an index-in-sync gate in GitHub Actions."
+section: recipes
+order: 40
+---
+
 # CI recipe — `atlas check` in GitHub Actions
 
 Copy-paste workflow to keep the vault honest on every push and pull request:
 structural / ownership / lifecycle checks (and corpus when enabled) fail the
 build; the committed `map/index.md` must match a fresh `atlas build`.
+
+Fleet note: when a repo also uses **agentic-sage**, this `atlas check` gate
+is independent of sage's board/doctor — sage may *read* the vault via an
+optional adapter; CI honesty for the mind still runs through Atlas. See
+[Works with](./works-with.md).
 
 ## Workflow
 

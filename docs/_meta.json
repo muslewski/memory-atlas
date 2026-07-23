@@ -1,0 +1,12 @@
+{
+  "title": "memory-atlas",
+  "description": "Code-verified architecture vaults for agent fleets",
+  "sidebar": [
+    { "title": "Home", "href": "index.md" },
+    { "title": "On-ramp", "href": "ONRAMP.md" },
+    { "title": "Adoption", "href": "ADOPTION.md" },
+    { "title": "Configuration", "href": "CONFIG.md" },
+    { "title": "CI recipe", "href": "CI.md" },
+    { "title": "Works with", "href": "works-with.md" }
+  ]
+}

@@ -19,6 +19,13 @@ code it describes.
   record for any non-obvious why; file a `tech-debt/` note for anything
   deliberately deferred; run `atlas check` and commit the regenerated
   `map/index.md` together with the code change, not as a follow-up.
+  **Public product docs** live under `docs/` with fleet **docs-kit**
+  frontmatter; validate with `npm run docs:health` (or
+  `node ../docs-kit/bin/docs-kit.mjs health docs/`). **On finish:** after
+  zone recollection, always run the **docs soft-nudge** (skill
+  `atlas-recollection`): report docs health, update public docs when
+  user-facing surface or real fleet interop changed, or state docs N/A.
+  Soft — does not hard-block finish.
 - **Pipeline.** Route spec-writing output to `atlas/specs/` and
   plan-writing output to `atlas/plans/`.
 - **Author for retrieval.** Crisp `summary`, one concept per `##`,
@@ -63,6 +70,11 @@ code it describes.
   (it anchors `verifiedAt` to the committed HEAD — stamping before the
   commit leaves the zone stale), `atlas build`, and fold stamp + index
   into the same commit (`git commit --amend`).
+  **Public product docs** live under `docs/` with fleet **docs-kit**
+  frontmatter; validate with `npm run docs:health`. **On finish:** after
+  zone recollection, run the **docs soft-nudge** (`atlas-recollection`):
+  report docs health; update public docs when user-facing surface or real
+  fleet interop changed; or state docs N/A. Soft — does not hard-block finish.
 - **Pipeline.** Route spec-writing output to `atlas/specs/` and
   plan-writing output to `atlas/plans/`.
 - **Author for retrieval.** Crisp `summary`, one concept per `##`,

@@ -1,3 +1,10 @@
+---
+title: "Configuration"
+description: "atlas.config.json field reference — vault layout, modules, anchors, checks, hooks."
+section: reference
+order: 30
+---
+
 # `atlas.config.json` reference
 
 `atlas.config.json` lives at the **repository root** (not inside the vault)

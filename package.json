@@ -42,7 +42,9 @@
   ],
   "scripts": {
     "test": "node --test",
-    "lint": "npx @biomejs/biome check ."
+    "lint": "npx @biomejs/biome check .",
+    "docs:check": "node ../docs-kit/bin/docs-kit.mjs check docs/",
+    "docs:health": "node ../docs-kit/bin/docs-kit.mjs health docs/"
   },
   "license": "MIT",
   "devDependencies": {

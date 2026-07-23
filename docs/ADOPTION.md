@@ -1,3 +1,10 @@
+---
+title: "Adoption"
+description: "Brownfield migrate existing docs, ADRs, and mind trees into Atlas shape without faking verification."
+section: guide
+order: 20
+---
+
 # Adopting the Atlas convention in an existing repository
 
 `docs/ONRAMP.md` is the copy-paste kit for wiring a repo into the

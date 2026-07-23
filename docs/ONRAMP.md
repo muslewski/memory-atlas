@@ -1,3 +1,10 @@
+---
+title: "On-ramp"
+description: "Wire CLAUDE.md, AGENTS.md, SessionStart hooks, and skills after atlas init."
+section: guide
+order: 10
+---
+
 # On-ramp: adopting the Atlas convention
 
 This is the kit for wiring a repository into the Atlas convention once
@@ -120,6 +127,13 @@ Optional extras you may still hand-wire alongside (not managed by
 `atlas.config.json` → `hooks.sessionStartStatus`, so a repo can turn off the
 automatic summary without touching hook wiring. Running `atlas status` by
 hand (no `--hook`) always prints — see `docs/CONFIG.md` → `hooks`.
+
+**With agentic-sage:** wiring both `atlas status --hook` and sage's own
+SessionStart entry side by side is safe — neither reads the other's config,
+and both stay fail-open when the other is missing. An optional sage adapter
+can map paths to zone names from this vault; see
+[`examples/with-agentic-sage/`](../examples/with-agentic-sage/) and
+[Works with](./works-with.md).
 
 A repo's `atlas.config.json` → `enabled: false` silences atlas subcommands
 except `init` — the master kill switch, independent of the per-hook toggles
