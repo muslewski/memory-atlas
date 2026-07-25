@@ -20,6 +20,12 @@
       "default": true,
       "description": "Master kill switch. false: every `atlas` subcommand except `init` prints nothing and exits 0, and adapter scripts (e.g. the ctx-search index refresher) exit immediately. Safe default behavior for a repo that vendored the convention but paused it."
     },
+    "profile": {
+      "type": "string",
+      "enum": ["code", "operator"],
+      "default": "code",
+      "description": "Dual-dogfood profile. code: product minds — owns.globs required (HARD). operator: ops/design vaults — empty globs warn only (policy zones); ledger modules preferred at init."
+    },
     "vaultDir": {
       "type": ["string", "null"],
       "default": null,

@@ -17,15 +17,21 @@ function fakeResolvers(overrides = {}) {
 }
 
 function zone(overrides = {}) {
+  // Code-profile zones need ≥1 glob (profile code hard-requires owns.globs).
+  const baseOwns = { globs: ['src/**'] }
+  const owns =
+    overrides.owns === undefined
+      ? baseOwns
+      : { ...baseOwns, ...overrides.owns, globs: overrides.owns.globs ?? baseOwns.globs }
   return {
     id: 'checkout',
     type: 'zone',
     summary: 'the checkout flow',
     status: 'active',
     verifiedAt: 'abc1234',
-    owns: {},
     invariants: [],
     ...overrides,
+    owns,
   }
 }
 
@@ -202,6 +208,19 @@ describe('validate — verifiedAt encoding + freshness tri-state', () => {
     const { errors, rows } = validate([z], [], r)
     assert.equal(errors.length, 0)
     assert.equal(rows[0].freshness, 'ok')
+  })
+
+  test('code profile: empty owns.globs is a hard error', () => {
+    const z = zone({ owns: { globs: [] } })
+    const { errors } = validate([z], [], fakeResolvers(), { profile: 'code' })
+    assert.ok(errors.some((e) => e.includes('owns.globs is empty')))
+  })
+
+  test('operator profile: empty owns.globs is a warning only', () => {
+    const z = zone({ owns: { globs: [] } })
+    const { errors, warnings } = validate([z], [], fakeResolvers(), { profile: 'operator' })
+    assert.equal(errors.filter((e) => e.includes('owns.globs is empty')).length, 0)
+    assert.ok(warnings.some((w) => w.includes('operator profile')))
   })
 
   test('active + all-digit short SHA coerced from YAML Number is accepted', () => {

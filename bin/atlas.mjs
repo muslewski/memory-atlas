@@ -18,6 +18,7 @@ import { runRoutine } from '../lib/routine.mjs'
 import { runStamp } from '../lib/stamp.mjs'
 import { runStatus } from '../lib/status.mjs'
 import { renderIndex, validate } from '../lib/validate.mjs'
+import { runSearch } from '../lib/search.mjs'
 import { runWire } from '../lib/wire.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -29,11 +30,13 @@ Usage:
   atlas <command> [options]
 
 Commands:
-  atlas init              Scaffold a new Atlas vault in this repository
+  atlas init [--profile code|operator] [--vault name] [--modules a,b]
+                          Scaffold a new Atlas vault (profile defaults modules + glob policy)
   atlas build             Rebuild map/index.md from zone/flow cards
   atlas check [--strict] [--report] [--ledger-only]
                           Verify zone claims, the committed index, and the ledger
   atlas stamp <slug...>   Re-stamp verifiedAt for reviewed zones (no blanket re-stamp)
+  atlas search <query>    Search vault markdown (rg-first; grep fallback). Portable retrieval floor.
   atlas status [--hook]   One-line vault health summary (safe as a hook). --hook marks
                           a SessionStart-hook call site, honoring hooks.sessionStartStatus
                           in atlas.config.json; a plain human/script call always prints.
@@ -98,6 +101,7 @@ function buildCore(cwd, stderr) {
     pillars: vault.pillars,
     decisions: vault.decisions,
     check: config.check ?? {},
+    profile: config.profile ?? 'code',
   })
 
   const indexPath = path.join(vaultDir, 'map', 'index.md')
@@ -254,6 +258,7 @@ const COMMANDS = {
   build: (args) => runBuild(args, { cwd: process.cwd() }),
   check: (args) => runCheck(args, { cwd: process.cwd() }),
   stamp: (args) => runStamp(args, { cwd: process.cwd() }),
+  search: (args) => runSearch(args, { cwd: process.cwd() }),
   status: (args) => runStatus(args, { cwd: process.cwd() }),
   wire: (args) => runWire(args, { cwd: process.cwd() }),
   doctor: (args) => runDoctor(args, { cwd: process.cwd() }),

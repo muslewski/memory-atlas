@@ -6,14 +6,17 @@
 |------|--------|-----------|---------|
 | agent-onramp | active | ⚠ stale | The copy-paste kit that wires an adopting repo's agents into the convention: three portable skills, the ctx-search and Obsidian retrieval adapters, and docs/ONRAMP.md's instruction-file blocks. |
 | cli | active | ⚠ stale | The atlas command-line entry point: bin/atlas.mjs's dispatch table plus the four subcommand implementations it delegates to (init, stamp, status, routine). |
-| config | active | ok | atlas.config.json's loader: the v1 default shape, a tolerant deep merge (missing/partial/unknown-key configs never crash a command), and the JSON schema that gives editors autocomplete. |
-| vault-io | active | ok | Turning the vault's files on disk into the plain note objects the verifier consumes: the zero-dependency YAML-subset frontmatter parser, recursive note loading, structural vault detection, and the specs/plans ledger linter. |
-| verifier-core | active | ok | The verification engine: lib/validate.mjs's pure core (anchor checks, verifiedAt lifecycle rules, the graph pass, index rendering) plus lib/resolvers.mjs, the git-backed factory that implements the Resolvers interface the core is driven by. |
+| config | active | ⚠ stale | atlas.config.json's loader: the v1 default shape, a tolerant deep merge (missing/partial/unknown-key configs never crash a command), and the JSON schema that gives editors autocomplete. |
+| vault-io | active | ⚠ stale | Turning the vault's files on disk into the plain note objects the verifier consumes: the zero-dependency YAML-subset frontmatter parser, recursive note loading, structural vault detection, and the specs/plans ledger linter. |
+| verifier-core | active | ⚠ stale | The verification engine: lib/validate.mjs's pure core (anchor checks, verifiedAt lifecycle rules, the graph pass, index rendering) plus lib/resolvers.mjs, the git-backed factory that implements the Resolvers interface the core is driven by. |
 
 ## ⚠ Verification gaps
 
 - zone agent-onramp: ⚠ stale — code changed since verifiedAt, review and re-stamp
 - zone cli: ⚠ stale — code changed since verifiedAt, review and re-stamp
+- zone config: ⚠ stale — code changed since verifiedAt, review and re-stamp
+- zone vault-io: ⚠ stale — code changed since verifiedAt, review and re-stamp
+- zone verifier-core: ⚠ stale — code changed since verifiedAt, review and re-stamp
 - zone agent-onramp: invariant "the skill names and script paths docs/ONRAMP.md's install flow references (atlas-nav, writing-for-retrieval, atlas-recollection under skills/; adapters/ctx-search/nav-refresh-index.mjs) must stay in sync with what actually ships under skills/ and adapters/" has no enforcedBy → file tech-debt
 
 ## ⚠ Graph coherence
@@ -23,3 +26,7 @@ _none_
 ## Attic (unmounted)
 
 _none_
+
+## Ledger
+
+- decisions: 5 (accepted 2 · active 3)

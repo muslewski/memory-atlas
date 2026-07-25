@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.5.0] — 2026-07-25
+
+### Added
+
+- **`atlas search <query>`** — portable retrieval floor (`rg` first, `grep -R` fallback); respects `retrieval.excludeFromSearch`
+- **`profile: code | operator`** in `atlas.config.json` + `atlas init --profile`
+  - `code` (default): product minds — empty `owns.globs` is a **hard** check error
+  - `operator`: ops/design vaults — empty globs **warn** only; init enables ledger modules (reference, drafts, backlog, reports, archive)
+- Dual-dogfood support for Hermes-style operator vaults without diluting code-profile honesty
+
+### Changed
+
+- Package version **0.5.0** (pre-1.0 minor may add commands; no intended break for existing code vaults with non-empty globs)
+
 ## [0.4.1] — 2026-07-23
 
 ### Added
