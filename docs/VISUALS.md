@@ -7,18 +7,22 @@ order: 35
 
 # Optional visuals companion
 
+[![npm memory-atlas](https://img.shields.io/npm/v/memory-atlas?label=memory-atlas)](https://www.npmjs.com/package/memory-atlas)
+[![npm memory-atlas-visuals](https://img.shields.io/npm/v/memory-atlas-visuals?label=memory-atlas-visuals)](https://www.npmjs.com/package/memory-atlas-visuals)
+
 `memory-atlas` is the **data plane**: plain-markdown vaults, a zero-dependency
 CLI, and verifier invariants. A **presentation plane** over those vaults is
 optional and lives in a separate package.
 
-| Package | Role | Runtime deps |
-|---------|------|--------------|
-| **`memory-atlas`** | Vault layout, `atlas` CLI, check/build/stamp/wire | **None** (Node only) |
-| **`memory-atlas-visuals`** | Gallery app, digests, typeset/derived presentation | Heavy UI (React, Vite, etc.) |
+| Package | Role | Runtime deps | npm |
+|---------|------|--------------|-----|
+| **`memory-atlas`** | Vault layout, `atlas` CLI, check/build/stamp/wire | **None** (Node only) | [memory-atlas](https://www.npmjs.com/package/memory-atlas) |
+| **`memory-atlas-visuals`** | Gallery app, digests, typeset/derived presentation | Heavy UI (React, Vite, etc.) | [memory-atlas-visuals](https://www.npmjs.com/package/memory-atlas-visuals) |
 
 Installing `memory-atlas` never pulls React, a bundler, or a gallery. The
 companion is opt-in, separately versioned, and never imported by the core
-package.
+package. Wire it when you want humans to *read* the vault as digests + diagrams —
+not when you only need `atlas check`.
 
 ## Zero-dependency rule (load-bearing)
 

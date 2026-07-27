@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Docs
+- Website + docs surface for optional **memory-atlas-visuals** (enable, wire, gallery)
+
 ### Added
 
 - **`visuals` block in `atlas.config.json`** — optional companion hook for
