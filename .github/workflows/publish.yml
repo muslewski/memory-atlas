@@ -24,7 +24,22 @@ jobs:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Publish with provenance
+      - name: Publish memory-atlas with provenance
         run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # Optional presentation companion (skip if version already on registry)
+      - name: Publish memory-atlas-visuals with provenance
+        working-directory: packages/memory-atlas-visuals
+        run: |
+          set -euo pipefail
+          name=$(node -p "require('./package.json').name")
+          ver=$(node -p "require('./package.json').version")
+          if npm view "$name@$ver" version >/dev/null 2>&1; then
+            echo "already on registry: $name@$ver"
+            exit 0
+          fi
+          npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
