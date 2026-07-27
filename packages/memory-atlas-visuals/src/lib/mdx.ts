@@ -1,34 +1,44 @@
 /**
- * mdx.ts — Vite glob loader for MDX digests.
+ * mdx.ts — Vite glob loader for MDX digests under the consumer vault visuals/.
  *
- * The digests live in syndcast-mind/visuals/<folder>/, i.e. one level ABOVE
- * the app/ root. This file is at app/src/lib/mdx.ts, so the path back to a
- * digest is THREE `../` (lib → src → app → visuals):
- *   ../../../ideas/my-idea.mdx
- *   ../../../tech-debt/some-debt.mdx
- *
- * import.meta.glob resolves these relative to THIS file, exactly as the dev
- * server and the production build do. The app/ sub-tree (including its own
- * node_modules) is excluded so we never pull a packaged .mdx (Ouroboros guard).
- *
- * loadByRoute(folder, slug) resolves the matching lazy import.
+ * Legacy in-tree: ../../../illustrated/... relative to this file.
+ * Package: Vite plugin rewrites the glob to absolute ATLAS_VISUALS_ROOT paths;
+ * we rekey by illustrated/... for stable lookup.
  */
-
 import type { ComponentType } from 'react'
+import { toVisualsRelativeKey } from './content-keys'
 
 // import.meta.glob returns { [key]: () => Promise<module> } by default (lazy).
-const modules = import.meta.glob(['../../../**/*.mdx', '!../../../app/**'])
+// Plugin may rewrite to absolute vault path; we index by illustrated/… suffix.
+const modulesRaw = import.meta.glob(['../../../**/*.mdx', '!../../../app/**'])
 
-/** All digest content lives under illustrated/<skin>/; `default` is the base/fallback tree. */
+/** Map visuals-relative key → loader (and keep raw keys for fallback). */
+function buildModuleIndex(): Record<string, () => Promise<unknown>> {
+  const out: Record<string, () => Promise<unknown>> = {}
+  for (const [k, loader] of Object.entries(modulesRaw)) {
+    out[k] = loader
+    out[toVisualsRelativeKey(k)] = loader
+  }
+  return out
+}
+
+const modules = buildModuleIndex()
+
 export const DEFAULT_SKIN_DIR = 'default'
 
 /**
- * Convert a folder+slug pair to the module key used by import.meta.glob.
- * Keys are relative to this file (src/lib/mdx.ts):
- *   ../../../illustrated/<skin>/<folder>/<slug>.mdx   (skin defaults to `default`)
- * Every skin — including the fallback `default` — has its own tree, grouped by skin,
- * so an origin folder is never cluttered with one file per skin.
+ * Visuals-relative key for a digest (preferred lookup).
+ * illustrated/<skin>/<folder>/<slug>.mdx
  */
+export function routeToVisualsKey(
+  folder: string,
+  slug: string,
+  skin: string = DEFAULT_SKIN_DIR,
+): string {
+  return `illustrated/${skin}/${folder}/${slug}.mdx`
+}
+
+/** @deprecated use routeToVisualsKey — kept for tests that assert legacy shape */
 export function routeToModuleKey(
   folder: string,
   slug: string,
@@ -37,49 +47,42 @@ export function routeToModuleKey(
   return `../../../illustrated/${skin}/${folder}/${slug}.mdx`
 }
 
-/**
- * Lazily import the MDX module for a given route.
- *
- * Many mode: pass the active `skin` to try `illustrated/<skin>/…` first and fall back to
- * `illustrated/default/…`. Single mode: omit `skin` (default tree only). Returns the
- * dynamic-import promise or null if neither key exists in the glob map.
- */
 export async function loadByRoute(
   folder: string,
   slug: string,
   skin?: string,
 ): Promise<{ default: ComponentType } | null> {
-  const keys =
-    skin && skin !== DEFAULT_SKIN_DIR
-      ? [routeToModuleKey(folder, slug, skin), routeToModuleKey(folder, slug)]
-      : [routeToModuleKey(folder, slug)]
+  const keys: string[] = []
+  if (skin && skin !== DEFAULT_SKIN_DIR) {
+    keys.push(routeToVisualsKey(folder, slug, skin), routeToModuleKey(folder, slug, skin))
+  }
+  keys.push(routeToVisualsKey(folder, slug), routeToModuleKey(folder, slug))
   for (const key of keys) {
     const loader = modules[key]
     if (loader) return (await loader()) as { default: ComponentType }
   }
+  // Suffix search (absolute glob keys after rewrite)
+  const suffix = `illustrated/${skin && skin !== DEFAULT_SKIN_DIR ? skin : DEFAULT_SKIN_DIR}/${folder}/${slug}.mdx`
+  const suffixDefault = `illustrated/${DEFAULT_SKIN_DIR}/${folder}/${slug}.mdx`
+  for (const s of [suffix, suffixDefault]) {
+    for (const [k, loader] of Object.entries(modules)) {
+      if (k.endsWith(s) || k.endsWith('/' + s)) {
+        return (await loader()) as { default: ComponentType }
+      }
+    }
+  }
   return null
 }
 
-/**
- * All available module keys (for debugging / route generation).
- */
 export function availableModuleKeys(): string[] {
   return Object.keys(modules)
 }
 
-/**
- * Actionable message for "route is in the manifest but its .mdx module is absent
- * from the glob map". This only happens in dev: digests live OUTSIDE app/, so a
- * `.mdx` added after the server booted isn't in the boot-time import.meta.glob
- * snapshot. The `watch-external-digests` plugin (vite.config.ts) normally
- * full-reloads to re-glob; this hint is the defense-in-depth fallback if a reader
- * still hits the gap. Says WHY + the one-step fix, not just "not found".
- */
 export function missingModuleHint(folder: string, slug: string): string {
   return (
     `Digest /${folder}/${slug} is in the manifest but not in the running dev ` +
-    `server's module graph — a new .mdx added since the server booted. Digests ` +
-    `live outside app/, so Vite doesn't always hot-watch them. Restart the dev ` +
-    `server (pnpm dev) to re-scan, then reload.`
+    `server's module graph — a new .mdx added since the server booted, or the ` +
+    `gallery cannot see ATLAS_VISUALS_ROOT / ATLAS_VAULT. Restart with ` +
+    `ATLAS_VAULT=<vault> atlas-visuals dev after content changes.`
   )
 }
