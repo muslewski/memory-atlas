@@ -1,0 +1,26 @@
+/* Tailwind v4, layered — theme + utilities ONLY.
+   Preflight is deliberately NOT imported: it would reset the element styling that
+   kit.css and the skins already own, breaking the zero-visual-change contract of
+   the Typeset migration (see [[2026-07-11-visuals-typeset-migration-design]]).
+   The `components` layer must be declared here because typeset.css ships inside it. */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+/* Theme barrel — import once in main.tsx or App.tsx.
+   One @import per skin (blog is the default/house voice). */
+
+/* Per-skin typefaces. Each skin owns a distinct display/body/mono trio (wired via
+   the --skin-font* tokens below); they are loaded once here so every skin has its
+   family available the moment data-theme flips. @import must precede other rules. */
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@400;600&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&family=DM+Serif+Display&family=Lora:wght@400;600&family=Orbitron:wght@500;700;900&family=Sora:wght@400;600&family=IBM+Plex+Mono:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
+
+@import "./tokens.css";
+@import "./typeset.css";
+@import "./presets.css";
+@import "./skins/blog.css";
+@import "./skins/brutalist.css";
+@import "./skins/magazine.css";
+@import "./skins/frontier.css";
+@import "./skins/blueprint.css";
+@import "./skins/tor.css";

@@ -1,0 +1,41 @@
+/* ─── Futuristic skin ─────────────────────────────────────────────────────
+   Dark sci-fi console. Deep navy void, electric cyan glow, crisp grotesk.
+   Reads like a mission-control terminal or deep-space HUD.
+   ──────────────────────────────────────────────────────────────────────── */
+
+:root[data-theme="frontier"] {
+  --background: #0a0e16;
+  --muted: #111726;
+  --card: #131c2e;
+  --border: rgba(58, 214, 255, 0.18);
+  --skin-border-w: 1px;
+  --foreground: #e6f0ff;
+  --muted-foreground: #8ba8cc;
+  --skin-faint: #4a6080;
+  --radius: 4px;
+  --skin-radius-lg: 8px;
+  /* Wide techno display (Orbitron) headlines, sleek geometric Sora for the body. */
+  --font-sans: "Sora", ui-sans-serif, "Helvetica Neue", Arial, sans-serif;
+  --font-heading: "Orbitron", "Sora", ui-sans-serif, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --skin-shadow: 0 0 24px rgba(58, 214, 255, 0.15);
+  --skin-shadow-popover: 0 0 40px rgba(58, 214, 255, 0.2), 0 8px 32px rgba(0, 0, 0, 0.6);
+  --primary: #3ad6ff;
+  --ring: #3ad6ff;
+
+  /* Chip tokens — neon palette against dark bg */
+  --chip-program-bg: rgba(110, 60, 255, 0.25);
+  --chip-program-text: #c0a8ff;
+  --chip-debt-bg: rgba(255, 60, 60, 0.2);
+  --chip-debt-text: #ff9999;
+  --chip-idea-bg: rgba(255, 180, 0, 0.2);
+  --chip-idea-text: #ffd060;
+  --chip-done-bg: rgba(0, 255, 160, 0.15);
+  --chip-done-text: #60ffbb;
+  --chip-next-bg: rgba(58, 214, 255, 0.15);
+  --chip-next-text: #3ad6ff;
+  --chip-risk-bg: rgba(255, 100, 0, 0.2);
+  --chip-risk-text: #ff9940;
+  --chip-neutral-bg: rgba(100, 130, 160, 0.2);
+  --chip-neutral-text: #90aac0;
+}

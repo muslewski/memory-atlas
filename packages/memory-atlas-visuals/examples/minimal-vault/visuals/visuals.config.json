@@ -1,0 +1,13 @@
+{
+  "skins": ["default"],
+  "defaultSkin": "default",
+  "content": {
+    "mode": "single",
+    "shareDiagram": true
+  },
+  "features": {
+    "hero": true,
+    "diagram": true
+  },
+  "motion": {}
+}

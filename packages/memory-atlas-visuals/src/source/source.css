@@ -1,0 +1,191 @@
+/* Source markdown reader — first-class note view. Token-only so it reads on every skin.
+   Measure MUST match .snap-root (860px) and .note-page-chrome so Illustrated ↔ Source
+   toggles do not jump column width. .typeset-measure on the article further caps prose. */
+.source-view {
+  box-sizing: border-box;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0.5rem 24px 5rem;
+}
+
+.note-breadcrumb {
+  font-size: 0.8rem;
+  color: var(--skin-faint, #888);
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+.note-breadcrumb a {
+  color: var(--skin-accent, #6366f1);
+  text-decoration: none;
+}
+.note-breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.note-header {
+  border-bottom: 1px solid var(--skin-border, #e5e7eb);
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.75rem;
+}
+.note-title {
+  font-size: 2rem;
+  line-height: 1.15;
+  margin: 0 0 0.75rem;
+  color: var(--skin-text, #111);
+}
+.note-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+.note-chip {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: var(--skin-surface, rgba(0, 0, 0, 0.06));
+  color: var(--skin-text, #333);
+}
+.note-chip--status {
+  background: var(--chip-done-bg, #d1fae5);
+  color: var(--chip-done-text, #065f46);
+}
+.note-date {
+  font-size: 0.75rem;
+  color: var(--skin-faint, #888);
+}
+.note-visual-link {
+  margin-left: auto;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--skin-accent, #6366f1);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.note-visual-link:hover {
+  text-decoration: underline;
+}
+.note-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+.note-tag {
+  font-size: 0.72rem;
+  color: var(--skin-faint, #888);
+}
+.note-path {
+  display: block;
+  margin-top: 0.75rem;
+  font-size: 0.72rem;
+  color: var(--skin-faint, #999);
+}
+
+/* ---- markdown body prose ---- */
+/* .note-md container kept for layout context; Typeset now owns all bare-element styling
+   (h1–h6, p, ul/ol/li, a, code, pre, blockquote, table, hr, img, etc.) via .typeset.
+   The descendant .note-md <el> rules were stripped in Task 4. */
+.note-md {
+  /* container only — rhythm and element rules moved to typeset.css */
+}
+
+/* ── Tier 2 derived chrome (SourceView only) ────────────────────────────────
+   Uses CANON tokens exclusively (no --skin-*). Matches visual weight of kit
+   Hero + Metrics so tier-2 and tier-3 notes feel continuous. */
+.derived-hero {
+  margin-bottom: 0.75rem;
+}
+.derived-hero__title {
+  font-family: var(--font-heading);
+  font-size: 1.75rem;
+  line-height: 1.15;
+  color: var(--foreground);
+  margin: 0 0 0.5rem;
+}
+/* The note's own `summary` (83% of the vault has one). A hero that is only a headline
+   is the "headline with no hook" the kit forbids — and tier 2 has to carry the 95% of
+   notes that will never earn a hand-authored digest. */
+.derived-hero__hook {
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--muted-foreground);
+  max-width: 60ch;
+  margin: 0 0 0.9rem;
+}
+.derived-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  margin: 0 0 0.75rem;
+}
+.derived-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.6rem;
+}
+.derived-tags li {
+  font-size: 0.7rem;
+  color: var(--muted-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.05rem 0.4rem;
+}
+.derived-path {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--muted-foreground);
+  opacity: 0.7;
+}
+.derived-metric {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+.derived-metric dt {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.65rem;
+}
+.derived-metric dd {
+  font-family: var(--font-heading);
+  color: var(--foreground);
+  font-size: 0.85rem;
+}
+.derived-toc {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 0.8rem;
+}
+.derived-toc ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.derived-toc li {
+  margin: 0.15rem 0;
+}
+.derived-toc li[data-depth="3"] {
+  padding-left: 1rem;
+}
+.derived-toc a {
+  color: var(--foreground);
+  text-decoration: none;
+}
+.derived-toc a:hover {
+  text-decoration: underline;
+}

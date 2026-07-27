@@ -1,0 +1,139 @@
+/* ─── Token Contract ──────────────────────────────────────────────────────
+   CANON = the shadcn semantic vocabulary. Every shadcn theme generator in the
+   ecosystem emits exactly these names, which is what makes the Mind re-themable
+   by a stranger (see [[0074-visuals-as-forkable-template]]).
+
+   --skin-* are ALIASES kept so the existing kit.css keeps resolving while it
+   shrinks. They are deleted as kit.css shrinks; do NOT author new --skin-* refs.
+   ──────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* canon — shadcn semantic tokens */
+  --background: #fff;
+  --foreground: #1f1f1d;
+  --card: #fff;
+  --card-foreground: #1f1f1d;
+  --muted: #f7f6f3;
+  --muted-foreground: #5f5e5a;
+  --border: rgba(0, 0, 0, 0.12);
+  --primary: #185fa5;
+  --primary-foreground: #fff;
+  --ring: #185fa5;
+  --radius: 8px;
+
+  /* color- aliases for Typeset contract (shadcn Typeset and consumers read
+     --color-foreground etc directly; @theme inline makes the Tailwind side
+     understand `text-foreground` etc, these make the vars resolve on :root) */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-ring: var(--ring);
+
+  /* canon — fonts. Editorial: literary serif headlines over a humanist sans body. */
+  --font-sans: "Source Sans 3", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-heading: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  /* aliases — legacy --skin-* names, resolved from the canon above */
+  --skin-bg: var(--background);
+  --skin-surface: var(--muted);
+  --skin-card: var(--card);
+  --skin-border: var(--border);
+  --skin-text: var(--foreground);
+  --skin-muted: var(--muted-foreground);
+  --skin-radius: var(--radius);
+  --skin-font: var(--font-sans);
+  --skin-font-display: var(--font-heading);
+  --skin-font-mono: var(--font-mono);
+  --skin-accent: var(--primary);
+
+  /* bespoke — no shadcn equivalent, stays ours */
+  --skin-faint: #888780;
+  --skin-measure: 70ch;
+
+  --skin-border-w: 1px;
+  --skin-radius-lg: 12px;
+  --skin-shadow: none;
+  --skin-shadow-popover:
+    0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06); /* popover/dropdown shadow; skins override for neon/offset effects */
+  --skin-grid: transparent; /* skins that want a background grid set this */
+  --header-h: 52px; /* sticky nav height; consumed by main padding-top */
+
+  /* chip: program / purple */
+  --chip-program-bg: #eeedfe;
+  --chip-program-text: #26215c;
+
+  /* chip: debt / coral */
+  --chip-debt-bg: #faece7;
+  --chip-debt-text: #4a1b0c;
+
+  /* chip: idea / amber */
+  --chip-idea-bg: #faeeda;
+  --chip-idea-text: #412402;
+
+  /* chip: done / teal */
+  --chip-done-bg: #e1f5ee;
+  --chip-done-text: #04342c;
+
+  /* chip: next / blue */
+  --chip-next-bg: #e6f1fb;
+  --chip-next-text: #042c53;
+
+  /* chip: risk / amber (same palette as idea) */
+  --chip-risk-bg: #faeeda;
+  --chip-risk-text: #412402;
+
+  /* chip: neutral / gray */
+  --chip-neutral-bg: #f1efe8;
+  --chip-neutral-text: #2c2c2a;
+
+  /* type accents — the vivid colour for a note-type LINE/BORDER drawn ON the
+     surface (gallery card edge, callout rule, gist rule). Defaults to the chip
+     FOREGROUND, which is a saturated dark in light skins so it reads as a line.
+     A skin whose chip-*-text flips toward its own background (e.g. brutalist →
+     white) MUST override the affected --type-* here, or the line vanishes
+     (white-on-white). chip-*-text stays for TEXT-on-chip; --type-* is for lines. */
+  --type-program: var(--chip-program-text);
+  --type-debt: var(--chip-debt-text);
+  --type-idea: var(--chip-idea-text);
+  --type-done: var(--chip-done-text);
+  --type-next: var(--chip-next-text);
+  --type-risk: var(--chip-risk-text);
+  --type-neutral: var(--chip-neutral-text);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: var(--skin-bg);
+  color: var(--skin-text);
+  font-family: var(--skin-font);
+  line-height: 1.7;
+}
+
+/* Typeset consumes --color-foreground / --color-muted / --color-muted-foreground /
+   --color-border / --color-ring / --color-primary, plus --font-heading, --font-mono and
+   --radius. Tailwind v4's `@theme inline` publishes the --color-* forms from our canon
+   (and, as a bonus, makes `bg-background`/`text-muted-foreground` utilities available). */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-ring: var(--ring);
+}

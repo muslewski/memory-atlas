@@ -318,4 +318,144 @@ describe('runWire', () => {
     const text = out.join('')
     assert.match(text, /⚠ skills\/atlas-nav\/SKILL\.md: locally edited/)
   })
+
+  test('visuals disabled: wire does not require peer and does not log visuals skip', () => {
+    const repo = mkRepo()
+    const grokHooksDir = mkGrokDir()
+    const io = silentIo()
+    const code = runWire(['claude'], { cwd: repo, grokHooksDir, ...io })
+    assert.equal(code, 0)
+    assert.ok(!io.out.some((l) => /visuals skills/.test(l)))
+    assert.ok(!fs.existsSync(path.join(repo, '.claude', 'skills', 'atlas-skin')))
+  })
+
+  test('visuals enabled + peer missing → fail-open, logs skip, exit 0', () => {
+    const repo = mkRepo()
+    const grokHooksDir = mkGrokDir()
+    fs.writeFileSync(
+      path.join(repo, 'atlas.config.json'),
+      `${JSON.stringify({ visuals: { enabled: true } }, null, 2)}\n`,
+    )
+    const io = silentIo()
+    const code = runWire(['claude'], { cwd: repo, grokHooksDir, ...io })
+    assert.equal(code, 0)
+    assert.ok(
+      io.out.some((l) =>
+        /visuals skills: peer memory-atlas-visuals missing — skip/.test(l),
+      ),
+      `expected skip log, got: ${io.out.join('')}`,
+    )
+    // Core skills still vendored
+    assert.ok(fs.existsSync(path.join(repo, '.claude', 'skills', 'atlas-nav', 'SKILL.md')))
+    assert.ok(!fs.existsSync(path.join(repo, '.claude', 'skills', 'atlas-skin')))
+  })
+
+  test('visuals enabled + peer skills → vendors peer skills + records hashes', () => {
+    const repo = mkRepo()
+    const grokHooksDir = mkGrokDir()
+    fs.writeFileSync(
+      path.join(repo, 'atlas.config.json'),
+      `${JSON.stringify({ visuals: { enabled: true } }, null, 2)}\n`,
+    )
+
+    const peerSkills = path.join(repo, 'node_modules', 'memory-atlas-visuals', 'skills')
+    for (const name of ['atlas-skin', 'atlas-visuals-kit']) {
+      const d = path.join(peerSkills, name)
+      fs.mkdirSync(d, { recursive: true })
+      fs.writeFileSync(path.join(d, 'SKILL.md'), `# ${name} from peer\n`)
+    }
+    fs.writeFileSync(
+      path.join(repo, 'node_modules', 'memory-atlas-visuals', 'package.json'),
+      `${JSON.stringify({ name: 'memory-atlas-visuals', version: '9.9.9' })}\n`,
+    )
+
+    const io = silentIo()
+    const code = runWire(['all'], { cwd: repo, grokHooksDir, ...io })
+    assert.equal(code, 0)
+
+    const skillsRoot = path.join(repo, '.claude', 'skills')
+    assert.ok(fs.existsSync(path.join(skillsRoot, 'atlas-skin', 'SKILL.md')))
+    assert.ok(fs.existsSync(path.join(skillsRoot, 'atlas-visuals-kit', 'SKILL.md')))
+    assert.equal(
+      fs.readFileSync(path.join(skillsRoot, 'atlas-skin', 'SKILL.md'), 'utf8'),
+      '# atlas-skin from peer\n',
+    )
+
+    const state = readState(repo)
+    assert.ok(state.vendored['skills/atlas-skin/SKILL.md']?.sha256)
+    assert.ok(state.vendored['skills/atlas-visuals-kit/SKILL.md']?.sha256)
+
+    // Second wire: no skill rewrites
+    const before = fs.readFileSync(path.join(skillsRoot, 'atlas-skin', 'SKILL.md'), 'utf8')
+    const stateBefore = fs.readFileSync(path.join(repo, STATE_FILE), 'utf8')
+    runWire(['all'], {
+      cwd: repo,
+      grokHooksDir,
+      stdout: { write: () => {} },
+      stderr: { write: () => {} },
+    })
+    assert.equal(fs.readFileSync(path.join(skillsRoot, 'atlas-skin', 'SKILL.md'), 'utf8'), before)
+    assert.equal(fs.readFileSync(path.join(repo, STATE_FILE), 'utf8'), stateBefore)
+  })
+
+  test('visuals.skills false → peer present but skills not vendored', () => {
+    const repo = mkRepo()
+    const grokHooksDir = mkGrokDir()
+    fs.writeFileSync(
+      path.join(repo, 'atlas.config.json'),
+      `${JSON.stringify({ visuals: { enabled: true, skills: false } }, null, 2)}\n`,
+    )
+    const peerSkill = path.join(
+      repo,
+      'node_modules',
+      'memory-atlas-visuals',
+      'skills',
+      'atlas-skin',
+    )
+    fs.mkdirSync(peerSkill, { recursive: true })
+    fs.writeFileSync(path.join(peerSkill, 'SKILL.md'), '# should not vendor\n')
+
+    const io = silentIo()
+    const code = runWire(['claude'], { cwd: repo, grokHooksDir, ...io })
+    assert.equal(code, 0)
+    assert.ok(!io.out.some((l) => /visuals skills/.test(l)))
+    assert.ok(!fs.existsSync(path.join(repo, '.claude', 'skills', 'atlas-skin')))
+  })
+
+  test('visuals peer skill locally edited is left byte-identical on rewire', () => {
+    const repo = mkRepo()
+    const grokHooksDir = mkGrokDir()
+    fs.writeFileSync(
+      path.join(repo, 'atlas.config.json'),
+      `${JSON.stringify({ visuals: { enabled: true } }, null, 2)}\n`,
+    )
+    const peerSkill = path.join(
+      repo,
+      'node_modules',
+      'memory-atlas-visuals',
+      'skills',
+      'atlas-skin',
+    )
+    fs.mkdirSync(peerSkill, { recursive: true })
+    fs.writeFileSync(path.join(peerSkill, 'SKILL.md'), '# peer original\n')
+
+    runWire(['claude'], {
+      cwd: repo,
+      grokHooksDir,
+      stdout: { write: () => {} },
+      stderr: { write: () => {} },
+    })
+
+    const dest = path.join(repo, '.claude', 'skills', 'atlas-skin', 'SKILL.md')
+    const edited = '# peer original\n\n<!-- local -->\n'
+    fs.writeFileSync(dest, edited)
+
+    runWire(['claude'], {
+      cwd: repo,
+      grokHooksDir,
+      stdout: { write: () => {} },
+      stderr: { write: () => {} },
+    })
+    assert.equal(fs.readFileSync(dest, 'utf8'), edited)
+  })
 })

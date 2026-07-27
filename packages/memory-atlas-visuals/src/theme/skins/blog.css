@@ -1,0 +1,35 @@
+/* ─── Editorial skin ──────────────────────────────────────────────────────
+   Light = tokens.css defaults; nothing to override.
+   Editorial is the only skin that honours OS dark-mode preference.
+   ──────────────────────────────────────────────────────────────────────── */
+
+:root[data-theme="blog"] {
+  /* light = tokens.css defaults; nothing to override */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="blog"] {
+    --background: #1a1a18;
+    --muted: #232320;
+    --card: #1f1f1d;
+    --border: rgba(255, 255, 255, 0.14);
+    --foreground: #ececea;
+    --muted-foreground: #a8a7a0;
+    --skin-faint: #7d7c76;
+
+    --chip-program-bg: #3c3489;
+    --chip-program-text: #cecbf6;
+    --chip-debt-bg: #993c1d;
+    --chip-debt-text: #f5c4b3;
+    --chip-idea-bg: #854f0b;
+    --chip-idea-text: #fac775;
+    --chip-done-bg: #0f6e56;
+    --chip-done-text: #9fe1cb;
+    --chip-next-bg: #185fa5;
+    --chip-next-text: #b5d4f4;
+    --chip-risk-bg: #854f0b;
+    --chip-risk-text: #fac775;
+    --chip-neutral-bg: #444441;
+    --chip-neutral-text: #d3d1c7;
+  }
+}

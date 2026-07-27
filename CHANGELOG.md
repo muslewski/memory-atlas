@@ -1,5 +1,27 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- **`visuals` block in `atlas.config.json`** — optional companion hook for
+  `memory-atlas-visuals` (digests / gallery under the vault). Defaults off
+  (`enabled: false`); paths are vault-relative. Config-only in this package —
+  zero runtime deps, no React, never loads the companion. Schema, init
+  template, and `loadConfig` deep-merge ship the full default shape (`dir`,
+  `package`, `configFile`, `illustrated`, `files`, `skills`, `port`,
+  `concurrentDev`).
+- **`docs/VISUALS.md`** — optional presentation plane: package split, zero-dep
+  rule, Ouroboros (`.mdx` digests only under `visuals/`), three tiers
+  (typeset / derived / digest), enable path (`visuals.enabled`,
+  `npm i -D memory-atlas-visuals`, `atlas visuals init --write`,
+  `atlas wire all`, `atlas-visuals dev` / `atlas visuals dev`).
+- **`atlas visuals` CLI surface** (companion forward) — documents
+  `atlas visuals init` / `atlas visuals dev`; presentation runtime lives in
+  `memory-atlas-visuals`.
+- Field reference for `visuals.*` in `docs/CONFIG.md`; sidebar + works-with
+  row; SPEC reserved-name note for companion under separate versioning.
+
 ## [0.5.0] — 2026-07-25
 
 ### Added

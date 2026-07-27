@@ -18,6 +18,7 @@ Site: [atlas.muslewski.com](https://atlas.muslewski.com) · npm: [`memory-atlas`
 | [On-ramp](./ONRAMP.md) | Wire CLAUDE.md / AGENTS.md, SessionStart hooks, skills after `atlas init` |
 | [Adoption](./ADOPTION.md) | Brownfield migrate: existing docs/ADRs/mind → Atlas shape |
 | [Configuration](./CONFIG.md) | `atlas.config.json` field reference |
+| [Visuals companion](./VISUALS.md) | Optional presentation plane (`memory-atlas-visuals`) — not part of this package |
 | [CI recipe](./CI.md) | `atlas check` + index-in-sync in GitHub Actions |
 | [Works with](./works-with.md) | Fleet siblings (sage, herald, oracle, armory, ferry) |
 

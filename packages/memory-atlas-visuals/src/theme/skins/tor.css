@@ -1,0 +1,66 @@
+/* ─── Tor skin ────────────────────────────────────────────────────────────
+   Tor-the-browser identity, on white. Clean paper, near-black ink, onion-purple
+   accent (#7D4698). A declassified-but-clean exhibit: stamped mono headings,
+   sans body, purple underlined cross-references, a faint concentric onion-ring
+   watermark. Light theme — high contrast, calm, unmistakably Tor.
+   ──────────────────────────────────────────────────────────────────────── */
+
+:root[data-theme="tor"] {
+  --background: #faf8fc; /* faint warm-purple white */
+  --muted: #f1ecf6; /* purple-tinted panel */
+  --card: #ffffff;
+  --border: rgba(125, 70, 152, 0.22);
+  --skin-border-w: 1px;
+  --foreground: #1a1523; /* near-black, a hair of purple */
+  --muted-foreground: #5a4a6a;
+  --skin-faint: #8a7d9a;
+  --radius: 4px;
+  --skin-radius-lg: 8px;
+  /* Stamped mono display (the file-stamp heading) + clean sans body — Tor's own feel. */
+  --font-sans: "Source Sans 3", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-heading: "Space Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --skin-shadow: 0 1px 2px rgba(26, 21, 35, 0.06);
+  --skin-shadow-popover: 0 8px 28px rgba(89, 49, 107, 0.18);
+  --primary: #7d4698; /* Tor onion-purple */
+  --ring: #7d4698;
+
+  /* Faint concentric onion rings — the Tor mark, dialled way down so text wins. */
+  --skin-grid: radial-gradient(
+    circle at 88% 12%,
+    rgba(125, 70, 152, 0.06) 0,
+    rgba(125, 70, 152, 0.06) 1px,
+    transparent 1px,
+    transparent 22px
+  );
+
+  /* Chip tokens — light tints on white, readable dark text */
+  --chip-program-bg: rgba(125, 70, 152, 0.14);
+  --chip-program-text: #59316b;
+  --chip-debt-bg: rgba(190, 60, 60, 0.12);
+  --chip-debt-text: #a13030;
+  --chip-idea-bg: rgba(190, 150, 0, 0.16);
+  --chip-idea-text: #8a6500;
+  --chip-done-bg: rgba(40, 150, 90, 0.14);
+  --chip-done-text: #1f7a4d;
+  --chip-next-bg: rgba(125, 70, 152, 0.14);
+  --chip-next-text: #7d4698;
+  --chip-risk-bg: rgba(200, 110, 30, 0.14);
+  --chip-risk-text: #b5600f;
+  --chip-neutral-bg: rgba(90, 74, 106, 0.12);
+  --chip-neutral-text: #5a4a6a;
+}
+
+/* Apply the onion watermark to body, scoped to tor so it never leaks. */
+:root[data-theme="tor"] body {
+  background-image: var(--skin-grid);
+  background-repeat: repeat;
+}
+
+/* Purple underlined cross-references — the hyperlinked-exhibit feel. Scoped to tor. */
+:root[data-theme="tor"] a {
+  color: var(--skin-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+}

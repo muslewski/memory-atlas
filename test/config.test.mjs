@@ -54,6 +54,23 @@ describe('loadConfig', () => {
     assert.deepEqual(config.check, DEFAULTS.check)
   })
 
+  test('DEFAULT_VISUALS shape: companion opt-in off, path/port defaults', () => {
+    assert.deepEqual(DEFAULTS.visuals, {
+      enabled: false,
+      dir: 'visuals',
+      package: 'memory-atlas-visuals',
+      configFile: 'visuals/visuals.config.json',
+      illustrated: 'visuals/illustrated',
+      files: 'visuals/files',
+      skills: true,
+      port: 4555,
+      concurrentDev: true,
+    })
+    const repo = mkRepo()
+    const config = loadConfig(repo)
+    assert.deepEqual(config.visuals, DEFAULTS.visuals)
+  })
+
   test('check.ownership and check.corpus merge from a partial override', () => {
     const repo = mkRepo()
     writeConfig(repo, { check: { ownership: false, corpus: { enabled: true } } })
@@ -62,6 +79,24 @@ describe('loadConfig', () => {
     assert.equal(config.check.corpus.enabled, true)
     assert.equal(config.check.corpus.maxSummaryLen, 500)
     assert.equal(config.check.strictFreshness, false)
+  })
+
+  test('visuals merges from a partial override; unknown nested key warns and is dropped', () => {
+    const repo = mkRepo()
+    writeConfig(repo, {
+      visuals: { enabled: true, port: 9999, bogus: 'nope' },
+    })
+    const { stderr, lines } = silentStderr()
+
+    const config = loadConfig(repo, { stderr })
+
+    assert.equal(config.visuals.enabled, true)
+    assert.equal(config.visuals.port, 9999)
+    assert.equal(config.visuals.dir, 'visuals')
+    assert.equal(config.visuals.package, 'memory-atlas-visuals')
+    assert.equal(config.visuals.concurrentDev, true)
+    assert.equal(config.visuals.bogus, undefined)
+    assert.ok(lines.some((l) => l.includes('unknown config key "visuals.bogus"')))
   })
 
   test('deep merge: a partial folders override keeps every other folders default', () => {

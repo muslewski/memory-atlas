@@ -1,0 +1,41 @@
+/* ─── Magazine skin ───────────────────────────────────────────────────────
+   Warm editorial print. Cream paper, serif headlines, thin ink rules.
+   Feels like a beautifully typeset 1960s design annual.
+   ──────────────────────────────────────────────────────────────────────── */
+
+:root[data-theme="magazine"] {
+  --background: #f6f1e7;
+  --muted: #ede8d8;
+  --card: #fffdf8;
+  --border: rgba(60, 40, 10, 0.18);
+  --skin-border-w: 1px;
+  --foreground: #1c1409;
+  --muted-foreground: #5a4530;
+  --skin-faint: #9a8060;
+  --radius: 2px;
+  --skin-radius-lg: 4px;
+  /* High-contrast didone headlines (DM Serif Display) over a warm Lora body serif. */
+  --font-sans: "Lora", Georgia, "Times New Roman", Times, serif;
+  --font-heading: "DM Serif Display", Georgia, "Times New Roman", Times, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Courier New", Courier, monospace;
+  --skin-shadow: 0 1px 4px rgba(60, 40, 10, 0.1);
+  --skin-shadow-popover: 0 4px 16px rgba(60, 40, 10, 0.18);
+  --primary: #8b3a1a;
+  --ring: #8b3a1a;
+
+  /* Chip tokens — warm sepia palette */
+  --chip-program-bg: #e8d8f0;
+  --chip-program-text: #3a1a50;
+  --chip-debt-bg: #f5ddd5;
+  --chip-debt-text: #5a1a0a;
+  --chip-idea-bg: #f5e8c0;
+  --chip-idea-text: #4a2800;
+  --chip-done-bg: #d0ead8;
+  --chip-done-text: #0a3018;
+  --chip-next-bg: #d5e5f5;
+  --chip-next-text: #0a2840;
+  --chip-risk-bg: #f5e8c0;
+  --chip-risk-text: #4a2800;
+  --chip-neutral-bg: #e8e0cc;
+  --chip-neutral-text: #2a200e;
+}

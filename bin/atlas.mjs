@@ -19,6 +19,7 @@ import { runStamp } from '../lib/stamp.mjs'
 import { runStatus } from '../lib/status.mjs'
 import { renderIndex, validate } from '../lib/validate.mjs'
 import { runSearch } from '../lib/search.mjs'
+import { runVisuals } from '../lib/visuals.mjs'
 import { runWire } from '../lib/wire.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -49,6 +50,10 @@ Commands:
   atlas adopt [--write] [--json]
                           Normalize an existing (brownfield) vault + adoption report
   atlas routine [name]    Print a maintenance-routine prompt (no name: list available)
+  atlas visuals [init|status|dev|preview] ...
+                          Scaffold vault visuals/ content tree, peer status, or
+                          spawn memory-atlas-visuals (install the companion to use
+                          dev/preview)
 
 Options:
   --help, -h        Show this help
@@ -265,6 +270,7 @@ const COMMANDS = {
   migrate: (args) => runMigrate(args, { cwd: process.cwd() }),
   adopt: (args) => runAdopt(args, { cwd: process.cwd() }),
   routine: (args) => runRoutine(args, { cwd: process.cwd() }),
+  visuals: (args) => runVisuals(args, { cwd: process.cwd() }),
 }
 
 /**

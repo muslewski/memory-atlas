@@ -1,0 +1,51 @@
+/* ─── Brutalist skin ──────────────────────────────────────────────────────
+   Loud, structural, uncompromising. Zero curves. Max contrast.
+   Black on white, thick rules, monospace display. No shadow, no polish.
+   ──────────────────────────────────────────────────────────────────────── */
+
+:root[data-theme="brutalist"] {
+  --background: #ffffff;
+  --muted: #f0f0f0;
+  --card: #ffffff;
+  --border: #000000;
+  --skin-border-w: 2px;
+  --foreground: #000000;
+  --muted-foreground: #333333;
+  --skin-faint: #666666;
+  --radius: 0px;
+  --skin-radius-lg: 0px;
+  /* Raw geometric grotesque headlines, plain-spoken Space Mono for code/labels. */
+  --font-sans: "Space Grotesk", ui-sans-serif, "Helvetica Neue", Arial, sans-serif;
+  --font-heading: "Space Grotesk", ui-sans-serif, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --skin-shadow: none;
+  --skin-shadow-popover: 4px 4px 0px #000000;
+  --primary: #000000;
+  --ring: #000000;
+  /* Gallery hero band: brutalist treats the photo as stark grayscale duotone. */
+  --glry-hero-filter: grayscale(1) contrast(1.08);
+
+  /* Chip tokens — flat, high contrast for brutalist */
+  --chip-program-bg: #000000;
+  --chip-program-text: #ffffff;
+  --chip-debt-bg: #ff0000;
+  --chip-debt-text: #ffffff;
+  --chip-idea-bg: #ffff00;
+  --chip-idea-text: #000000;
+  --chip-done-bg: #00ff00;
+  --chip-done-text: #000000;
+  --chip-next-bg: #0000ff;
+  --chip-next-text: #ffffff;
+  --chip-risk-bg: #ff6600;
+  --chip-risk-text: #000000;
+  --chip-neutral-bg: #e0e0e0;
+  --chip-neutral-text: #000000;
+
+  /* Type accent lines: program/debt/next chip-text is WHITE here (foreground on
+     a coloured chip), which is invisible as a line on the white card surface.
+     Use the loud chip BACKGROUNDS instead. idea/done/risk/neutral chip-text is
+     already black, so they inherit the base default (= visible) unchanged. */
+  --type-program: var(--chip-program-bg); /* black */
+  --type-debt: var(--chip-debt-bg); /* red */
+  --type-next: var(--chip-next-bg); /* blue */
+}

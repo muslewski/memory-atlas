@@ -1,0 +1,1421 @@
+/*
+ * kit.css — shared layout + typographic primitives.
+ * RULE: zero hard-coded colours, fonts, radii, or shadows — only var(--skin-*).
+ * Imported once by kit/index.ts; applies globally across all skins.
+ */
+
+/* ── Hero ──────────────────────────────────────────────────────────────── */
+
+.skin-hero {
+  padding: clamp(2rem, 8vh, 5rem) 0 2rem;
+  max-width: var(--skin-measure);
+}
+
+/* Banner hero: a stock image leads, headline directly beneath — one hero unit,
+   so the title is visible at the top without scrolling past a detached image. */
+.skin-hero--banner {
+  max-width: none;
+  padding-top: clamp(0.5rem, 2vh, 1.25rem);
+}
+.skin-hero-banner-img {
+  margin: 0 0 1.75rem;
+  border-radius: var(--skin-radius-lg, 12px);
+  overflow: hidden;
+  border: var(--skin-border-w, 1px) solid var(--skin-border);
+  background: var(--skin-surface);
+}
+.skin-hero-banner-img img {
+  display: block;
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+}
+
+.skin-hero-eyebrow {
+  font-family: var(--skin-font);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--skin-accent);
+  margin: 0 0 1rem;
+}
+
+.skin-hero-title {
+  font-family: var(--skin-font-display);
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--skin-text);
+  margin: 0.25em 0;
+}
+
+.skin-hero-hook {
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
+  line-height: 1.6;
+  color: var(--skin-muted);
+  max-width: 60ch;
+  margin: 0.75rem 0 0;
+}
+
+.skin-hero-visual {
+  margin-top: 2rem;
+}
+
+/* ── Section ───────────────────────────────────────────────────────────── */
+
+.skin-section {
+  position: relative;
+  padding: clamp(2rem, 5vh, 3.5rem) 0;
+  /* Full column width (bounded by the snap-root). Prose/paragraphs self-cap at
+     --skin-measure for readability; grids (Cards/Metrics/Ledger) get the full
+     width so card columns are consistent inside and outside a Section. */
+}
+
+.skin-section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.skin-section-marker {
+  font-family: var(--skin-font-mono, var(--skin-font));
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--skin-faint);
+  flex-shrink: 0;
+}
+
+/* svg.* beats the generic .skin-i { width:1em } sizing rule (same class
+   specificity, but .skin-i wins on source order). Track the section title's
+   clamp so the icon reads as part of the heading, not a tiny afterthought. */
+svg.skin-section-icon {
+  align-self: center;
+  flex-shrink: 0;
+  color: var(--skin-accent);
+  width: clamp(1.5rem, 2.8vw, 2rem);
+  height: clamp(1.5rem, 2.8vw, 2rem);
+}
+
+.skin-section-title {
+  font-family: var(--skin-font-display);
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  color: var(--skin-text);
+  margin: 0;
+}
+
+/* ── Prose ─────────────────────────────────────────────────────────────── */
+
+/* ── NoteLink (inline body-level connection nav) ───────────────────────── */
+
+/* inline variant — reads like a prose link with a trailing connection glyph */
+.skin-notelink {
+  color: var(--skin-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: opacity 0.15s ease;
+  cursor: pointer;
+}
+.skin-notelink:hover {
+  opacity: 0.75;
+}
+
+/* button variant — a compact pill CTA. Keep labels SHORT ("View →"); a long
+   label is capped with an ellipsis so it never blows out a card. */
+.skin-notelink--button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 99px;
+  background: var(--chip-done-bg, #e1f5ee);
+  color: var(--chip-done-text, #04342c);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  border: var(--skin-border-w, 1px) solid transparent;
+  max-width: 18ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: baseline;
+}
+.skin-notelink--button:hover {
+  opacity: 0.8;
+}
+
+/* declared but the target note is missing — greyed, non-interactive */
+.skin-notelink--missing {
+  color: var(--skin-faint);
+  text-decoration: none;
+  opacity: 0.55;
+  cursor: default;
+}
+.skin-notelink--missing.skin-notelink--button {
+  background: var(--skin-surface);
+  border-color: var(--skin-border);
+}
+.skin-notelink--missing:hover {
+  opacity: 0.55;
+}
+
+/* not a declared connection — render as plain inherited text (no link affordance) */
+.skin-notelink--plain {
+  color: inherit;
+  text-decoration: none;
+  cursor: inherit;
+}
+
+/* ── PullQuote ─────────────────────────────────────────────────────────── */
+
+.skin-pullquote {
+  position: relative;
+  margin: 2.5rem 0;
+  padding: 1.5rem 2rem 1.5rem 2.5rem;
+  border-left: calc(var(--skin-border-w, 1px) * 4) solid var(--skin-accent);
+  background: var(--skin-surface);
+  border-radius: 0 var(--skin-radius) var(--skin-radius) 0;
+}
+
+.skin-pullquote::before {
+  content: "\201C";
+  position: absolute;
+  top: -0.25rem;
+  left: 0.75rem;
+  font-family: var(--skin-font-display);
+  font-size: 4rem;
+  line-height: 1;
+  color: var(--skin-accent);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.skin-pullquote-inner {
+  font-family: var(--skin-font-display);
+  font-size: clamp(1.125rem, 2vw, 1.5rem);
+  font-weight: 500;
+  line-height: 1.45;
+  font-style: italic;
+  color: var(--skin-text);
+}
+
+/* ── DropCap ───────────────────────────────────────────────────────────── */
+
+.kit-dropcap {
+  /* wraps the first paragraph; first-letter floats */
+}
+
+.kit-dropcap::first-letter {
+  font-family: var(--skin-font-display);
+  font-size: 4.25em;
+  font-weight: 800;
+  line-height: 0.85;
+  float: left;
+  margin: 0.05em 0.12em 0 0;
+  color: var(--skin-accent);
+}
+
+/* ── Divider ───────────────────────────────────────────────────────────── */
+
+.kit-divider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 2.5rem 0;
+  color: var(--skin-faint);
+}
+
+.kit-divider::before,
+.kit-divider::after {
+  content: "";
+  flex: 1;
+  height: var(--skin-border-w, 1px);
+  background: var(--skin-border);
+}
+
+.kit-divider__label {
+  font-family: var(--skin-font-mono, var(--skin-font));
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--skin-faint);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── B2: Cards ─────────────────────────────────────────────────────────── */
+
+.skin-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin: 1.75rem 0;
+}
+
+.skin-card {
+  background: var(--skin-card);
+  border: var(--skin-border-w, 1px) solid var(--skin-border);
+  border-radius: var(--skin-radius-lg);
+  padding: 20px 18px;
+  box-shadow: var(--skin-shadow);
+  transition:
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+  /* grid items default to min-width:auto → a long child overflows the track.
+     Allow the card to shrink so its content wraps within the column. */
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.skin-card:hover {
+  box-shadow: var(--skin-shadow-popover);
+  transform: translateY(-2px);
+}
+
+.skin-card-heading {
+  font-family: var(--skin-font-display);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--skin-text);
+  margin: 0 0 8px;
+  letter-spacing: -0.01em;
+}
+
+.skin-card-body {
+  font-family: var(--skin-font);
+  font-size: 0.8125rem;
+  color: var(--skin-muted);
+  line-height: 1.6;
+}
+
+/* Accent icon tile — feature-card affordance. Adapts per skin via tokens
+   (square + hard border in brutalist, rounded + tinted elsewhere). */
+.skin-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin-bottom: 12px;
+  border-radius: var(--skin-radius, 8px);
+  background: var(--skin-surface);
+  border: var(--skin-border-w, 1px) solid var(--skin-border);
+  color: var(--skin-accent);
+}
+
+/* ── B2: Chip ───────────────────────────────────────────────────────────── */
+
+.skin-chip {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--skin-font);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  padding: 3px 8px;
+  border-radius: calc(var(--skin-radius) * 0.75);
+  white-space: nowrap;
+}
+
+.skin-chip--program {
+  background: var(--chip-program-bg);
+  color: var(--chip-program-text);
+}
+.skin-chip--debt {
+  background: var(--chip-debt-bg);
+  color: var(--chip-debt-text);
+}
+.skin-chip--idea {
+  background: var(--chip-idea-bg);
+  color: var(--chip-idea-text);
+}
+.skin-chip--done {
+  background: var(--chip-done-bg);
+  color: var(--chip-done-text);
+}
+.skin-chip--next {
+  background: var(--chip-next-bg);
+  color: var(--chip-next-text);
+}
+.skin-chip--risk {
+  background: var(--chip-risk-bg);
+  color: var(--chip-risk-text);
+}
+.skin-chip--neutral {
+  background: var(--chip-neutral-bg);
+  color: var(--chip-neutral-text);
+}
+
+/* ── B2: Callout ────────────────────────────────────────────────────────── */
+
+.skin-callout {
+  position: relative;
+  margin: 1.75rem 0;
+  padding: 14px 20px 14px 48px;
+  border-radius: var(--skin-radius);
+  background: var(--skin-surface);
+  border: var(--skin-border-w, 1px) solid var(--skin-border);
+  border-left-width: calc(var(--skin-border-w, 1px) * 4);
+  border-left-color: var(--skin-accent);
+}
+
+/* Variant accent overrides via CSS custom property bridging */
+.skin-callout--info {
+  border-left-color: var(--skin-accent);
+}
+.skin-callout--warn {
+  border-left-color: var(--type-risk);
+}
+.skin-callout--key-insight {
+  border-left-color: var(--type-done);
+}
+.skin-callout--pitfall {
+  border-left-color: var(--type-debt);
+}
+.skin-callout--in-practice {
+  border-left-color: var(--type-program);
+}
+
+.skin-callout-gutter {
+  position: absolute;
+  left: 15px;
+  top: 14px;
+  display: inline-flex;
+  color: var(--skin-accent);
+}
+
+.skin-callout-label {
+  display: block;
+  font-family: var(--skin-font-mono, var(--skin-font));
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--skin-accent);
+  margin-bottom: 6px;
+}
+
+/* Variant accent colours the label AND the gutter icon together. */
+.skin-callout--warn :is(.skin-callout-label, .skin-callout-gutter) {
+  color: var(--type-risk);
+}
+.skin-callout--key-insight :is(.skin-callout-label, .skin-callout-gutter) {
+  color: var(--type-done);
+}
+.skin-callout--pitfall :is(.skin-callout-label, .skin-callout-gutter) {
+  color: var(--type-debt);
+}
+.skin-callout--in-practice :is(.skin-callout-label, .skin-callout-gutter) {
+  color: var(--type-program);
+}
+
+.skin-callout-body {
+  font-family: var(--skin-font);
+  font-size: 0.9rem;
+  color: var(--skin-text);
+  line-height: 1.7;
+}
+
+.skin-callout-body > *:last-child {
+  margin-bottom: 0;
+}
+
+/* Decorative bar fill (left gutter icon-area) */
+.skin-callout::before {
+  content: "";
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 60%;
+  background: currentColor;
+  opacity: 0;
+}
+
+/* ── B2: Metrics ────────────────────────────────────────────────────────── */
+
+.skin-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin: 1.75rem 0;
+}
+
+.skin-metric {
+  flex: 1 1 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px 24px;
+  background: var(--skin-card);
+  border: var(--skin-border-w, 1px) solid var(--skin-border);
+  border-radius: var(--skin-radius);
+}
+
+.skin-metric-icon {
+  display: inline-flex;
+  color: var(--skin-accent);
+  margin-bottom: 2px;
+}
+
+.skin-metric-value {
+  font-family: var(--skin-font-display);
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--skin-text);
+}
+
+.skin-metric-label {
+  font-family: var(--skin-font);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--skin-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ── B2: Ledger ─────────────────────────────────────────────────────────── */
+
+.skin-ledger {
+  list-style: none;
+  margin: 1.5rem 0;
+  padding: 0;
+  border: var(--skin-border-w, 1px) solid var(--skin-border);
+  border-radius: var(--skin-radius-lg);
+  overflow: hidden;
+}
+
+.skin-ledger-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: var(--skin-border-w, 1px) solid var(--skin-border);
+  transition: background 0.12s ease;
+}
+
+.skin-ledger-row:last-child {
+  border-bottom: none;
+}
+
+.skin-ledger-row:hover {
+  background: var(--skin-surface);
+}
+
+.skin-ledger-icon-wrap {
+  flex-shrink: 0;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.skin-ledger-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.skin-ledger-icon--done {
+  color: var(--chip-done-text);
+}
+
+.skin-ledger-icon--open {
+  color: var(--skin-faint);
+}
+
+.skin-ledger-row--risk .skin-ledger-icon--open {
+  color: var(--chip-risk-text);
+}
+
+.skin-ledger-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.skin-ledger-title {
+  font-family: var(--skin-font);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--skin-text);
+  line-height: 1.4;
+}
+
+.skin-ledger-row--done .skin-ledger-title {
+  color: var(--skin-muted);
+  text-decoration: line-through;
+  text-decoration-color: var(--skin-faint);
+}
+
+.skin-ledger-sub {
+  font-family: var(--skin-font);
+  font-size: 0.75rem;
+  color: var(--skin-faint);
+  line-height: 1.4;
+}
+
+/* ── B2: Timeline ───────────────────────────────────────────────────────── */
+
+.skin-timeline {
+  list-style: none;
+  margin: 1.75rem 0;
+  padding: 0 0 0 28px;
+  position: relative;
+}
+
+/* Vertical spine */
+.skin-timeline::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--skin-border) 0,
+    var(--skin-border) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+}
+
+.skin-timeline > li {
+  position: relative;
+  padding: 4px 0 16px;
+  font-family: var(--skin-font);
+  font-size: 0.9rem;
+  color: var(--skin-text);
+  line-height: 1.6;
+}
+
+.skin-timeline > li:last-child {
+  padding-bottom: 0;
+}
+
+/* Node dot */
+.skin-timeline > li::before {
+  content: "";
+  position: absolute;
+  left: -24px;
+  top: 9px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--skin-accent);
+  border: 2px solid var(--skin-bg);
+  box-shadow: 0 0 0 1.5px var(--skin-accent);
+}
+
+/* ── B2: CodeBlock ──────────────────────────────────────────────────────── */
+
+/* Code blocks use a FIXED dark "terminal" panel across all 5 skins (same
+   fixed-palette rationale as diagrams) so highlight.js tokens stay legible on
+   both light and dark skins. Only the frame radius follows the skin token. */
+.skin-codeblock {
+  margin: 1.75rem 0;
+  border: 1px solid #30363d;
+  border-radius: var(--skin-radius-lg);
+  overflow: hidden;
+  background: #0d1117;
+}
+
+.skin-codeblock-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  border-bottom: 1px solid #30363d;
+  background: #161b22;
+  min-height: 36px;
+}
+
+.skin-codeblock-lang {
+  font-family: var(--skin-font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+  color: #8b949e;
+}
+
+.skin-codeblock-copy {
+  font-family: var(--skin-font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
+  color: #79c0ff;
+  background: none;
+  border: 1px solid #30363d;
+  border-radius: calc(var(--skin-radius) * 0.5);
+  padding: 3px 8px;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.skin-codeblock-copy:hover {
+  background: #21262d;
+  opacity: 0.85;
+}
+
+.skin-codeblock-pre {
+  margin: 0;
+  padding: 20px 20px;
+  overflow-x: auto;
+  background: #0d1117;
+}
+
+.skin-codeblock-code {
+  font-family: var(--skin-font-mono);
+  font-size: 0.8125rem;
+  color: #c9d1d9;
+  line-height: 1.7;
+  tab-size: 2;
+  white-space: pre;
+}
+
+/* highlight.js token palette — github-dark, fixed across skins */
+.skin-codeblock .hljs-comment,
+.skin-codeblock .hljs-quote {
+  color: #8b949e;
+  font-style: italic;
+}
+.skin-codeblock .hljs-keyword,
+.skin-codeblock .hljs-selector-tag,
+.skin-codeblock .hljs-literal,
+.skin-codeblock .hljs-doctag {
+  color: #ff7b72;
+}
+.skin-codeblock .hljs-string,
+.skin-codeblock .hljs-regexp,
+.skin-codeblock .hljs-meta .hljs-string {
+  color: #a5d6ff;
+}
+.skin-codeblock .hljs-number,
+.skin-codeblock .hljs-symbol,
+.skin-codeblock .hljs-variable.constant_ {
+  color: #79c0ff;
+}
+.skin-codeblock .hljs-title,
+.skin-codeblock .hljs-title.function_,
+.skin-codeblock .hljs-section {
+  color: #d2a8ff;
+}
+.skin-codeblock .hljs-attr,
+.skin-codeblock .hljs-attribute,
+.skin-codeblock .hljs-property,
+.skin-codeblock .hljs-variable {
+  color: #79c0ff;
+}
+.skin-codeblock .hljs-built_in,
+.skin-codeblock .hljs-title.class_,
+.skin-codeblock .hljs-type {
+  color: #ffa657;
+}
+.skin-codeblock .hljs-tag,
+.skin-codeblock .hljs-name {
+  color: #7ee787;
+}
+.skin-codeblock .hljs-meta {
+  color: #8b949e;
+}
+.skin-codeblock .hljs-emphasis {
+  font-style: italic;
+}
+.skin-codeblock .hljs-strong {
+  font-weight: 600;
+}
+
+/* ── B2: Gist ───────────────────────────────────────────────────────────── */
+
+.skin-gist {
+  margin: 1.75rem 0;
+  padding: 18px 20px 18px 20px;
+  background: var(--skin-surface);
+  border: var(--skin-border-w, 1px) solid var(--skin-border);
+  border-radius: var(--skin-radius-lg);
+  border-left-width: calc(var(--skin-border-w, 1px) * 3);
+  border-left-color: var(--type-idea);
+}
+
+.skin-gist-bulb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.skin-gist-bulb-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--chip-idea-text);
+}
+
+.skin-gist-label {
+  font-family: var(--skin-font-mono, var(--skin-font));
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--chip-idea-text);
+}
+
+.skin-gist-body {
+  font-family: var(--skin-font);
+  font-size: 0.9rem;
+  color: var(--skin-text);
+  line-height: 1.7;
+}
+
+.skin-gist-body ul {
+  margin: 0;
+  padding: 0 0 0 1.25rem;
+  list-style: disc;
+}
+
+.skin-gist-body li {
+  margin-bottom: 6px;
+  line-height: 1.6;
+}
+
+.skin-gist-body li:last-child {
+  margin-bottom: 0;
+}
+
+/* ── B3: ReadingProgress ────────────────────────────────────────────────── */
+
+.skin-reading-progress {
+  position: fixed;
+  top: var(--header-h, 52px);
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--skin-border);
+  z-index: 1000;
+  pointer-events: none;
+}
+
+/* CSS-native scroll-driven animation (Chromium 115+, Firefox 110+) */
+@supports (animation-timeline: scroll()) {
+  .skin-reading-progress::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--skin-accent);
+    transform-origin: left center;
+    transform: scaleX(0);
+    animation: skin-progress-fill linear;
+    animation-timeline: scroll(root);
+    animation-fill-mode: both;
+  }
+}
+
+@keyframes skin-progress-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* JS fallback: sets --_progress via scroll listener */
+@supports not (animation-timeline: scroll()) {
+  .skin-reading-progress::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--skin-accent);
+    transform-origin: left center;
+    transform: scaleX(var(--_progress, 0));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skin-reading-progress::after {
+    /* biome-ignore lint/complexity/noImportantStyles: overriding third-party styles requires !important */
+    animation: none !important;
+    /* biome-ignore lint/complexity/noImportantStyles: overriding third-party styles requires !important */
+    transform: none !important;
+    display: none;
+  }
+}
+
+/* ── Skin-switch crossfade ──────────────────────────────────────────────────
+   On a real skin change the content re-voices (heights differ) and the page
+   smooth-scrolls to the top. This soft opacity dip makes the swap read as an
+   intentional transition rather than a jump. Driven by scroll-smoother.ts adding
+   `.is-skin-switching` to #smooth-content for ~460ms. Reduced-motion: no class is
+   added (the JS path skips it), so this never animates. */
+#smooth-content {
+  transition: opacity 0.18s ease;
+}
+#smooth-content.is-skin-switching {
+  opacity: 0.4;
+}
+
+/* ── B3: StickyTOC ──────────────────────────────────────────────────────── */
+
+/* The TOC portals into this fixed overlay (App renders it OUTSIDE #smooth-wrapper)
+   so its position:fixed is viewport-relative — ScrollSmoother transforms the content
+   wrapper, which would otherwise drag a fixed descendant along. Click-through. */
+#toc-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+}
+
+/* Hidden on narrow viewports (no gutter room); a fixed rail in the left gutter on
+   wide ones, beside the centred 860px column. left = (50vw − 430) − 220 − 16.
+   Note-page chrome (breadcrumb + view toggle) shares the 860px column measure so
+   it never paints under this rail — see note/note-page.css. */
+.skin-toc {
+  display: none;
+}
+@media (min-width: 1364px) {
+  .skin-toc {
+    display: block;
+    position: fixed;
+    top: calc(var(--header-h, 52px) + 2rem);
+    left: calc(50vw - 430px - 236px);
+    width: 220px;
+    max-height: calc(100vh - var(--header-h, 52px) - 4rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    pointer-events: auto;
+    /* Below sticky site nav (Nav is higher); above digest body; never cover chrome. */
+    z-index: 40;
+  }
+}
+
+.skin-toc-label {
+  display: block;
+  font-family: var(--skin-font-mono, var(--skin-font));
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--skin-faint);
+  padding: 0 12px 10px;
+  border-bottom: var(--skin-border-w, 1px) solid var(--skin-border);
+  margin-bottom: 8px;
+}
+
+.skin-toc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.skin-toc-item {
+  margin: 0;
+}
+
+.skin-toc-link {
+  display: block;
+  font-family: var(--skin-font);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--skin-muted);
+  padding: 5px 12px;
+  border-left: 2px solid transparent;
+  text-decoration: none;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
+  border-radius: 0 var(--skin-radius) var(--skin-radius) 0;
+}
+
+.skin-toc-link:hover {
+  color: var(--skin-text);
+  background: var(--skin-surface);
+}
+
+.skin-toc-link--active {
+  color: var(--skin-accent);
+  border-left-color: var(--skin-accent);
+  font-weight: 500;
+  background: var(--skin-surface);
+}
+
+/* Nested sections (e.g. td-pq3 inside high-priority) read as quieter sub-items —
+   indent comes from the inline paddingLeft (depth-scaled). */
+.skin-toc-link--child {
+  font-size: 0.78125rem;
+  color: var(--skin-faint);
+}
+.skin-toc-link--child.skin-toc-link--active {
+  color: var(--skin-accent);
+}
+
+/* ── B3: Concept ────────────────────────────────────────────────────────── */
+
+.skin-concept {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.skin-concept-term {
+  font-weight: 500;
+  color: var(--skin-text);
+  border-bottom: var(--skin-border-w, 1px) dashed var(--skin-accent);
+  /* Subtle underline distinguishes defined terms from plain text */
+  text-underline-offset: 3px;
+  cursor: default;
+}
+
+.skin-concept-copy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--skin-faint);
+  cursor: pointer;
+  border-radius: calc(var(--skin-radius) * 0.375);
+  opacity: 0;
+  transition:
+    opacity 0.15s ease,
+    color 0.15s ease,
+    background 0.12s ease;
+  vertical-align: middle;
+  flex-shrink: 0;
+  /* Sits baseline-aligned with the term; slight lift */
+  transform: translateY(-1px);
+}
+
+.skin-concept:hover .skin-concept-copy,
+.skin-concept:focus-within .skin-concept-copy {
+  opacity: 1;
+}
+
+.skin-concept-copy:hover,
+.skin-concept-copy:focus-visible {
+  color: var(--skin-accent);
+  background: var(--skin-surface);
+  outline: none;
+}
+
+.skin-concept-icon {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+/* ── B5: Icon ───────────────────────────────────────────────────────────── */
+
+.skin-i {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+  vertical-align: middle;
+  /* strokes use currentColor — inherits from surrounding text / var(--skin-*) */
+}
+
+/* ── B5: More (Radix Collapsible) ───────────────────────────────────────── */
+
+.skin-more {
+  margin: 1.5rem 0;
+  border: var(--skin-border-w, 1px) solid var(--skin-border);
+  border-radius: var(--skin-radius-lg);
+  overflow: hidden;
+}
+
+.skin-more-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 18px;
+  background: var(--skin-surface);
+  border: none;
+  cursor: pointer;
+  color: var(--skin-text);
+  text-align: left;
+  transition: background 0.14s ease;
+}
+
+.skin-more-trigger:hover {
+  background: var(--skin-card);
+}
+
+.skin-more-trigger:focus-visible {
+  outline: 2px solid var(--skin-accent);
+  outline-offset: -2px;
+}
+
+.skin-more-summary {
+  font-family: var(--skin-font);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--skin-text);
+}
+
+.skin-more-chevron {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--skin-muted);
+  transition:
+    transform 0.22s ease,
+    color 0.14s ease;
+}
+
+.skin-more-chevron--open {
+  transform: rotate(90deg);
+  color: var(--skin-accent);
+}
+
+/* Radix Collapsible Content: animate height open/close */
+.skin-more-content {
+  overflow: hidden;
+}
+
+.skin-more-content[data-state="open"] {
+  animation: skin-more-open 0.22s ease;
+}
+
+.skin-more-content[data-state="closed"] {
+  animation: skin-more-close 0.18s ease;
+}
+
+@keyframes skin-more-open {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes skin-more-close {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.skin-more-body {
+  padding: 16px 18px 18px;
+  background: var(--skin-bg);
+  border-top: var(--skin-border-w, 1px) solid var(--skin-border);
+}
+
+.skin-more-body > *:first-child {
+  margin-top: 0;
+}
+.skin-more-body > *:last-child {
+  margin-bottom: 0;
+}
+
+/* ── B5: ReadingMode toggle ─────────────────────────────────────────────── */
+
+/* Skim hides any element the author marks data-reading-detail */
+:root[data-reading-mode="skim"] [data-reading-detail] {
+  display: none;
+}
+
+.skin-reading-mode {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px 6px 8px;
+  border: var(--skin-border-w, 1px) solid var(--skin-border);
+  border-radius: calc(var(--skin-radius) * 2);
+  background: var(--skin-surface);
+  cursor: pointer;
+  color: var(--skin-text);
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+  /* Layout/sizing literals — no colour token available for these */
+}
+
+.skin-reading-mode:hover {
+  border-color: var(--skin-accent);
+  background: var(--skin-card);
+}
+
+.skin-reading-mode:focus-visible {
+  outline: 2px solid var(--skin-accent);
+  outline-offset: 2px;
+}
+
+.skin-reading-mode--placeholder {
+  width: 108px;
+  height: 32px;
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* The pill toggle track */
+.skin-reading-mode-track {
+  position: relative;
+  width: 28px;
+  height: 16px;
+  border-radius: 8px;
+  background: var(--skin-border);
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+
+.skin-reading-mode--skim .skin-reading-mode-track {
+  background: var(--skin-accent);
+}
+
+.skin-reading-mode-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--skin-bg);
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.skin-reading-mode--skim .skin-reading-mode-thumb {
+  transform: translateX(12px);
+}
+
+/* Deep / Skim labels */
+.skin-reading-mode-labels {
+  display: flex;
+  gap: 6px;
+}
+
+.skin-reading-mode-label {
+  font-family: var(--skin-font-mono, var(--skin-font));
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--skin-faint);
+  transition: color 0.15s ease;
+}
+
+.skin-reading-mode-label--active {
+  color: var(--skin-text);
+}
+
+/* ── B5: Takeaways ──────────────────────────────────────────────────────── */
+
+.skin-takeaways {
+  position: relative;
+  margin: 2.5rem 0;
+  padding: 24px 24px 20px;
+  border: var(--skin-border-w, 1px) solid var(--skin-border);
+  border-radius: var(--skin-radius-lg);
+  background: var(--skin-surface);
+  overflow: hidden;
+}
+
+/* Subtle accent stripe on the left edge */
+.skin-takeaways::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: calc(var(--skin-border-w, 1px) * 3);
+  background: var(--skin-accent);
+  border-radius: var(--skin-radius-lg) 0 0 var(--skin-radius-lg);
+}
+
+/* One-shot flourish: a brief shimmer sweep on mount */
+@keyframes skin-takeaways-shimmer {
+  0% {
+    opacity: 0;
+    transform: translateX(-100%) skewX(-12deg);
+  }
+  40% {
+    opacity: 0.12;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(200%) skewX(-12deg);
+  }
+}
+
+.skin-takeaways--flourish::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--skin-accent);
+  animation: skin-takeaways-shimmer 0.85s ease forwards;
+  pointer-events: none;
+}
+
+.skin-takeaways-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.skin-takeaways-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--skin-accent);
+}
+
+.skin-takeaways-heading {
+  font-family: var(--skin-font-mono, var(--skin-font));
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--skin-accent);
+}
+
+.skin-takeaways-list {
+  margin: 0 0 0 4px;
+  padding: 0 0 0 1.25rem;
+  list-style: disc;
+}
+
+.skin-takeaways-list li {
+  font-family: var(--skin-font);
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--skin-text);
+  margin-bottom: 6px;
+}
+
+.skin-takeaways-list li:last-child {
+  margin-bottom: 0;
+}
+
+/* Related docs section */
+.skin-takeaways-related {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: var(--skin-border-w, 1px) solid var(--skin-border);
+}
+
+.skin-takeaways-related-label {
+  font-family: var(--skin-font-mono, var(--skin-font));
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--skin-faint);
+  margin: 0 0 10px;
+}
+
+.skin-takeaways-related-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+}
+
+.skin-takeaways-related-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: var(--skin-border-w, 1px) solid var(--skin-border);
+  border-radius: var(--skin-radius);
+  background: var(--skin-bg);
+  color: var(--skin-text);
+  font-family: var(--skin-font);
+  font-size: 0.8125rem;
+  text-decoration: none;
+  transition:
+    border-color 0.14s ease,
+    background 0.14s ease,
+    color 0.14s ease;
+}
+
+.skin-takeaways-related-link:hover {
+  border-color: var(--skin-accent);
+  background: var(--skin-surface);
+  color: var(--skin-accent);
+}
+
+.skin-takeaways-related-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--skin-muted);
+}
+
+.skin-takeaways-related-link:hover .skin-takeaways-related-icon {
+  color: var(--skin-accent);
+}
+
+.skin-takeaways-related-link span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.skin-takeaways-related-arrow {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  color: var(--skin-faint);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition:
+    opacity 0.14s ease,
+    transform 0.14s ease,
+    color 0.14s ease;
+}
+
+.skin-takeaways-related-link:hover .skin-takeaways-related-arrow {
+  opacity: 1;
+  transform: translateX(0);
+  color: var(--skin-accent);
+}
+
+/* ── GSAP cinematic primitives ─────────────────────────────────────────────
+   Token-only: GSAP animates transform/opacity/clip only — colour stays in tokens.
+   SplitText needs inline-block wrappers to measure word/char geometry. */
+.skin-split,
+.skin-split > span {
+  display: inline-block;
+}
+
+.skin-scrollscene {
+  position: relative;
+}
+/* No permanent will-change here: it kept EVERY ScrollScene inner layer-promoted for
+   the life of the page (memory + compositing that grows with scene count). ScrollScene
+   sets will-change only for the duration of the reveal tween, then clears it. */

@@ -9,3 +9,9 @@ advisor-plans/
 !.env.example
 !.env*.example
 
+
+# monorepo companion packages
+packages/*/node_modules/
+packages/*/dist/
+packages/*/.vite/
+packages/*/tsconfig.tsbuildinfo

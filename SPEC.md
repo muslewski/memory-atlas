@@ -68,7 +68,10 @@ the vault.
   dashboards).
 - `visuals/` — reserved name, NOT part of this standard. A downstream
   presentation layer over Atlas data may use it under separate development;
-  this spec defines no contract for it.
+  this spec defines no contract for it. The companion package
+  **`memory-atlas-visuals`** MAY provide presentation under separate
+  versioning; there is **no SPEC contract for digests**, gallery layout, or
+  skin formats.
 
 ## Note types
 
@@ -483,8 +486,10 @@ parse them without a YAML library.
 
 ## Non-goals
 
-- **Visuals/presentation layers.** A rendering or dashboard layer over Atlas
-  data is a separate, future project — not part of this standard.
+- **Visuals/presentation layers in this standard.** A rendering or dashboard
+  layer over Atlas data is **not** part of this standard or of the
+  `memory-atlas` package. An optional companion (`memory-atlas-visuals`) may
+  exist under its own versioning; it does not extend this SPEC.
 - **Cross-repo "parent atlas" aggregation.** Aggregating multiple repos'
   Atlases into one parent view is a future exploration, out of scope for
   v0.1.

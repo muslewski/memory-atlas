@@ -1,0 +1,108 @@
+.notes-index {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 6rem;
+}
+.notes-head {
+  margin-bottom: 1.75rem;
+}
+.notes-head h1 {
+  font-size: 2rem;
+  margin: 0 0 0.35rem;
+  color: var(--skin-text);
+}
+.notes-sub {
+  color: var(--skin-faint, #888);
+  font-size: 0.85rem;
+  margin: 0 0 1rem;
+}
+.notes-search {
+  width: 100%;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.95rem;
+  border: 1px solid var(--skin-border, #e5e7eb);
+  border-radius: 8px;
+  background: var(--skin-bg, #fff);
+  color: var(--skin-text, #111);
+}
+.notes-search:focus {
+  outline: 2px solid var(--skin-accent, #6366f1);
+  outline-offset: 1px;
+}
+.notes-empty {
+  color: var(--skin-faint, #888);
+}
+
+.notes-group {
+  margin-bottom: 1.75rem;
+}
+.notes-group-title {
+  font-family: var(--skin-font-mono, monospace);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--skin-faint, #888);
+  border-bottom: 1px solid var(--skin-border, #eee);
+  padding-bottom: 0.35rem;
+  margin: 0 0 0.5rem;
+}
+.notes-group-count {
+  opacity: 0.6;
+  margin-left: 0.4rem;
+}
+
+.notes-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.notes-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--skin-border, rgba(127, 127, 127, 0.12));
+}
+.notes-row-link {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 0.4rem;
+  text-decoration: none;
+  color: var(--skin-text, #222);
+  border-radius: 6px;
+}
+.notes-row-link:hover {
+  background: var(--skin-surface, rgba(127, 127, 127, 0.08));
+}
+.notes-row-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.notes-chip {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  background: var(--skin-surface, rgba(0, 0, 0, 0.06));
+  color: var(--skin-faint, #777);
+  flex-shrink: 0;
+}
+.notes-chip--status {
+  background: var(--chip-done-bg, #d1fae5);
+  color: var(--chip-done-text, #065f46);
+}
+.notes-visual-badge {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  color: var(--skin-accent, #6366f1);
+  text-decoration: none;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+}
+.notes-visual-badge:hover {
+  text-decoration: underline;
+}

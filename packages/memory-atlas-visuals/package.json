@@ -1,0 +1,121 @@
+{
+  "name": "memory-atlas-visuals",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "description": "Optional presentation gallery for memory-atlas vaults (MDX digests, kit, diagrams)",
+  "author": "muslewski <10kento10@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "memory-atlas",
+    "visuals",
+    "mdx",
+    "knowledge-base",
+    "atlas"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/muslewski/memory-atlas.git",
+    "directory": "packages/memory-atlas-visuals"
+  },
+  "homepage": "https://github.com/muslewski/memory-atlas/tree/main/packages/memory-atlas-visuals",
+  "bugs": {
+    "url": "https://github.com/muslewski/memory-atlas/issues"
+  },
+  "bin": {
+    "atlas-visuals": "bin/atlas-visuals.mjs"
+  },
+  "exports": {
+    ".": "./lib/paths.mjs",
+    "./paths": "./lib/paths.mjs",
+    "./package.json": "./package.json"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "src",
+    "scripts",
+    "skills",
+    "files",
+    "examples",
+    "kit-catalog.json",
+    "visuals.config.ts",
+    "vite.config.ts",
+    "vitest.config.ts",
+    "tsconfig.json",
+    "tsconfig.node.json",
+    "index.html",
+    "components.json",
+    "biome.json",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "dev": "pnpm manifest && vite",
+    "build": "pnpm manifest && tsc -b && vite build",
+    "preview": "pnpm build && vite preview --host 0.0.0.0",
+    "preview:only": "vite preview --host 0.0.0.0",
+    "test": "vitest run",
+    "test:gallery": "pnpm manifest && vitest run",
+    "lint": "biome lint src scripts",
+    "format": "biome format --write src scripts",
+    "check:biome": "biome check src scripts",
+    "check:icons": "tsx scripts/check-icons.ts",
+    "check:illustrated": "tsx scripts/check-illustrated.ts",
+    "check:diagrams": "tsx scripts/check-diagrams.ts",
+    "check:stale": "tsx scripts/check-stale.ts",
+    "check:conflict-markers": "tsx scripts/check-conflict-markers.ts",
+    "manifest": "tsx scripts/build-manifest.ts && tsx scripts/build-notes-manifest.ts",
+    "notes:manifest": "tsx scripts/build-notes-manifest.ts",
+    "prerender:diagrams": "tsx scripts/prerender-diagrams.ts",
+    "catalog": "tsx scripts/build-catalog.ts",
+    "stock": "tsx scripts/fetch-stock.ts"
+  },
+  "dependencies": {
+    "@excalidraw/excalidraw": "^0.18.1",
+    "@gsap/react": "^2.1.2",
+    "@mdx-js/react": "^3.1.0",
+    "@radix-ui/react-collapsible": "^1.1.2",
+    "@radix-ui/react-dropdown-menu": "^2.1.4",
+    "@radix-ui/react-separator": "^1.1.11",
+    "@radix-ui/react-slot": "^1.3.0",
+    "framer-motion": "^11.15.0",
+    "gsap": "^3.15.0",
+    "highlight.js": "^11.11.1",
+    "lucide-react": "^1.21.0",
+    "next-themes": "^0.4.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "^7.1.0",
+    "rehype-sanitize": "^6.0.0",
+    "rehype-slug": "^6.0.0",
+    "remark-gfm": "^4.0.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.1",
+    "@mdx-js/mdx": "3.1.1",
+    "@mdx-js/rollup": "^3.1.0",
+    "@tailwindcss/vite": "^4",
+    "@testing-library/react": "^16.3.2",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "gray-matter": "^4.0.3",
+    "jsdom": "^29.1.1",
+    "remark-frontmatter": "^5.0.0",
+    "remark-mdx-frontmatter": "^5.2.0",
+    "tailwind-merge": "^3.6.0",
+    "tailwindcss": "^4",
+    "tsx": "^4.22.4",
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0",
+    "vitest": "^2.1.0"
+  }
+}

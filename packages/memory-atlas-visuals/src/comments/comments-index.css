@@ -1,0 +1,214 @@
+.comments-index {
+  max-width: 76rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 6rem;
+}
+
+/* Header — mono eyebrow is the signature voice (annotation / margin) */
+.comments-head {
+  margin-bottom: 0.5rem;
+}
+.comments-eyebrow {
+  font-family: var(--skin-font-mono, monospace);
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--skin-accent, #6366f1);
+  margin: 0 0 0.4rem;
+}
+.comments-head h1 {
+  font-family: var(--skin-font-display, inherit);
+  font-size: 2.4rem;
+  line-height: 1;
+  margin: 0 0 0.5rem;
+  color: var(--skin-text, #111);
+}
+.comments-sub {
+  color: var(--skin-faint, #888);
+  font-size: 0.85rem;
+  margin: 0 0 1rem;
+}
+.comments-search {
+  width: 100%;
+  max-width: 26rem;
+  padding: 0.55rem 0.85rem;
+  font-size: 0.9rem;
+  border: 1px solid var(--skin-border, #e5e7eb);
+  border-radius: 8px;
+  background: var(--skin-bg, #fff);
+  color: var(--skin-text, #111);
+}
+.comments-search:focus {
+  outline: 2px solid var(--skin-accent, #6366f1);
+  outline-offset: 1px;
+}
+.comments-empty {
+  color: var(--skin-faint, #888);
+  margin-top: 1.5rem;
+}
+
+/* Masonry feed — CSS columns pack variable-height threads with no ragged gaps */
+.comments-grid {
+  margin-top: 1.75rem;
+  column-width: 340px;
+  column-gap: 1.1rem;
+}
+.cmt-card {
+  break-inside: avoid;
+  width: 100%;
+  margin: 0 0 1.1rem;
+  background: var(--skin-surface, #fff);
+  border: 1px solid var(--skin-border, #e5e7eb);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+/* Header: compact thumbnail + title — content-forward, NOT a gallery hero band */
+.cmt-head {
+  display: flex;
+  gap: 0.7rem;
+  align-items: center;
+  padding: 0.8rem 0.9rem;
+  text-decoration: none;
+  color: inherit;
+  border-bottom: 1px solid var(--skin-border, rgba(127, 127, 127, 0.12));
+}
+.cmt-thumb {
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+  filter: var(--glry-hero-filter, none);
+}
+.cmt-thumb--blank {
+  display: grid;
+  place-items: center;
+  background: var(--skin-bg, rgba(127, 127, 127, 0.08));
+  color: var(--skin-faint, #999);
+  font-size: 1rem;
+}
+.cmt-headbox {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+.cmt-card-title {
+  font-family: var(--skin-font-display, inherit);
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.2;
+  color: var(--skin-text, #111);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cmt-head:hover .cmt-card-title {
+  color: var(--skin-accent, #6366f1);
+}
+.cmt-card-meta {
+  font-family: var(--skin-font-mono, monospace);
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  color: var(--skin-faint, #888);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cmt-type {
+  text-transform: uppercase;
+  color: var(--skin-accent, #6366f1);
+}
+
+/* Thread of notes — the signature: each note hangs off a vertical spine */
+.cmt-thread {
+  list-style: none;
+  margin: 0;
+  padding: 0.85rem 0.95rem 0.4rem 1.5rem;
+  position: relative;
+}
+.cmt-thread::before {
+  content: "";
+  position: absolute;
+  left: 1.05rem;
+  top: 0.95rem;
+  bottom: 0.7rem;
+  width: 2px;
+  background: var(--skin-border, rgba(127, 127, 127, 0.3));
+  border-radius: 2px;
+}
+.cmt-note {
+  position: relative;
+  padding: 0 0 0.75rem;
+}
+.cmt-note:last-child {
+  padding-bottom: 0.25rem;
+}
+.cmt-note::before {
+  content: "";
+  position: absolute;
+  left: -0.55rem;
+  top: 0.4rem;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--skin-accent, #6366f1);
+  box-shadow: 0 0 0 3px var(--skin-surface, #fff);
+}
+.cmt-note-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+.cmt-note-link:hover .cmt-note-title {
+  color: var(--skin-accent, #6366f1);
+}
+.cmt-note-link:hover .cmt-note-body {
+  color: var(--skin-text, #222);
+}
+.cmt-note-link:focus-visible {
+  outline: 2px solid var(--skin-accent, #6366f1);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+/* biome-ignore lint/style/noDescendingSpecificity: CSS cascade order matches visual intent, reordering would break layout */
+.cmt-note-title {
+  display: block;
+  font-family: var(--skin-font-mono, monospace);
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--skin-text, #222);
+  margin-bottom: 0.15rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* biome-ignore lint/style/noDescendingSpecificity: CSS cascade order matches visual intent, reordering would break layout */
+.cmt-note-body {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--skin-faint, #666);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cmt-more {
+  margin: 0.1rem 0.95rem 0.9rem 1.5rem;
+  padding: 0;
+  background: none;
+  border: none;
+  font-family: var(--skin-font-mono, monospace);
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  color: var(--skin-accent, #6366f1);
+  cursor: pointer;
+}
+.cmt-more:hover {
+  text-decoration: underline;
+}

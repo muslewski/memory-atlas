@@ -6,6 +6,7 @@
     { "title": "On-ramp", "href": "ONRAMP.md" },
     { "title": "Adoption", "href": "ADOPTION.md" },
     { "title": "Configuration", "href": "CONFIG.md" },
+    { "title": "Visuals companion", "href": "VISUALS.md" },
     { "title": "CI recipe", "href": "CI.md" },
     { "title": "Works with", "href": "works-with.md" }
   ]

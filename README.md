@@ -192,8 +192,11 @@ when someone actually reviewed it.
 - **Not an indexer.** Bring your own retrieval; reference adapters ship for
   context-mode's `ctx_search`, Obsidian's official agent skills, and plain
   grep always works with zero setup.
-- **No visuals here.** A presentation or dashboard layer over an Atlas is
-  explicitly a separate concern — this package is the data plane only.
+- **No visuals in THIS package.** A presentation or dashboard layer over an
+  Atlas is explicitly a separate concern — this package is the data plane
+  only (zero React, zero gallery). **Optional companion:**
+  [`memory-atlas-visuals`](https://www.npmjs.com/package/memory-atlas-visuals)
+  — see [`docs/VISUALS.md`](docs/VISUALS.md).
 
 ## Works with
 

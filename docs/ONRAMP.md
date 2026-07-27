@@ -155,17 +155,31 @@ Inventory without writing: `atlas doctor`.
 3. Run `atlas wire` (or `atlas wire claude` / `atlas wire grok`) to install
    SessionStart hooks, managed CLAUDE.md / AGENTS.md on-ramp blocks, and
    package skills under `config.skills.dir` (default `.claude/skills/`).
-4. Optional: copy `adapters/ctx-search/nav-refresh-index.mjs` to
+4. **Optional: enable visuals (`memory-atlas-visuals`).** The core package is
+   the data plane only — a presentation layer is a separate companion. Full
+   writeup: [VISUALS.md](./VISUALS.md). To opt in after wire:
+   1. Install the companion (`npm i -D memory-atlas-visuals`, or a local
+      `file:` / workspace path while dogfooding).
+   2. Set `atlas.config.json` → `visuals.enabled: true` (defaults ship in
+      the init template with `enabled: false`, vault-relative `dir` /
+      `illustrated` / `files`, port `4555`).
+   3. Scaffold and run: `atlas visuals init --write`, then
+      `atlas-visuals dev` / `atlas visuals dev`. Content stays under
+      `<vault>/visuals/` (`illustrated/`, `files/`). Core never imports the
+      package (zero runtime deps stay intact);
+      `retrieval.excludeFromSearch` already omits `visuals/` from agent
+      search.
+5. Optional: copy `adapters/ctx-search/nav-refresh-index.mjs` to
    `scripts/` and add it next to the status hook — only if this repo uses the
    context-mode MCP plugin. Repos that lean on Obsidian tooling instead can
    use Obsidian's own official agent skills for vault navigation; see
    `adapters/obsidian-skills/README.md` for what that covers and where it
    still falls short of a full retrieval adapter.
-5. Skills are vendored by `atlas wire` (`atlas-nav`, `writing-for-retrieval`,
+6. Skills are vendored by `atlas wire` (`atlas-nav`, `writing-for-retrieval`,
    `atlas-recollection`, `atlas-update`, `atlas-adopt`). Locally edited skill
    copies are left alone and flagged by `atlas doctor` until the
    `atlas-update` skill merges them.
-6. Add `atlas check` to CI so the vault can't silently drift from the code
+7. Add `atlas check` to CI so the vault can't silently drift from the code
    it describes. Copy-paste recipe: [`docs/CI.md`](CI.md) (strict structural
    check + index-in-sync gate). Staleness stays advisory under `--strict`;
    set `check.strictFreshness: true` only when you want merges blocked on

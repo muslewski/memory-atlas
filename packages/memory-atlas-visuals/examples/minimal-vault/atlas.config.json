@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "enabled": true,
+  "vaultDir": ".",
+  "folders": {
+    "zones": "map/zones",
+    "decisions": "map/decisions",
+    "specs": "specs",
+    "plans": "plans"
+  },
+  "modules": {
+    "flows": false,
+    "programs": false,
+    "vision": false,
+    "reference": false,
+    "archive": false,
+    "backlog": false,
+    "drafts": false
+  },
+  "retrieval": {
+    "excludeFromSearch": ["visuals/"]
+  },
+  "visuals": {
+    "enabled": true,
+    "dir": "visuals",
+    "package": "memory-atlas-visuals",
+    "configFile": "visuals/visuals.config.json",
+    "illustrated": "visuals/illustrated",
+    "files": "visuals/files",
+    "skills": true,
+    "port": 4555,
+    "concurrentDev": true
+  }
+}

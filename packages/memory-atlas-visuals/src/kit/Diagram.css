@@ -1,0 +1,283 @@
+/**
+ * Diagram.css — frame chrome for the Excalidraw embed.
+ * The diagram interior keeps its own fixed hand-drawn palette (same across all
+ * skins); the frame uses skin tokens so the PLATE blends, and a light ground
+ * keeps the diagram legible on dark skins (frontier).
+ */
+.skin-diagram {
+  margin: 2.25rem 0;
+}
+
+/* The inline frame is a <button> (whole diagram is clickable to open fullscreen). */
+.skin-diagram-frame--clickable {
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  padding: 0;
+  margin: 0;
+  cursor: zoom-in;
+}
+.skin-diagram-frame--clickable:focus-visible {
+  outline: 2px solid var(--skin-accent);
+  outline-offset: 2px;
+}
+.skin-diagram-frame--clickable:hover .skin-diagram-expand {
+  opacity: 1;
+}
+
+.skin-diagram-frame {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  /* Excalidraw renders position:fixed overlay layers (SVGLayer / laser) that
+     escape overflow:hidden and extend to the viewport → page-level horizontal
+     overflow. `contain` makes the frame a containing block for those fixed
+     descendants (positioned relative to the frame) AND clips them. */
+  contain: layout paint;
+  background: #ffffff; /* light ground — fixed, intentional */
+  border: var(--skin-border-w, 1px) solid var(--skin-border);
+  border-radius: var(--skin-radius, 8px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+/* Excalidraw paints its own canvas; keep its host background transparent so the
+   frame's light ground shows through. */
+.skin-diagram-frame :is(.excalidraw, .excalidraw__canvas) {
+  /* biome-ignore lint/complexity/noImportantStyles: overriding Excalidraw library styles requires !important */
+  background: transparent !important;
+}
+/* Read-only embed: KEEP it interactive (drag pans, zoom controls work) — only hide
+   the editing menu, help icon, and scrollback chrome. The zoom controls (footer)
+   stay. `contain: layout paint` on the frame clips any fixed overlay overflow. */
+.skin-diagram-frame
+:is(
+  .main-menu-trigger,
+  .App-menu_top__left,
+  .excalidraw .help-icon,
+  .excalidraw .scroll-back-to-content
+) {
+  /* biome-ignore lint/complexity/noImportantStyles: overriding Excalidraw library styles requires !important */
+  display: none !important;
+}
+
+.skin-diagram-svg {
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+}
+.skin-diagram-svg svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Inline static-SVG render (no live canvas → cheap under the scroll transform). */
+.skin-diagram-static {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+.skin-diagram-static svg {
+  max-width: 100%;
+  max-height: 100%;
+  height: auto;
+}
+
+.skin-diagram-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-family: var(--skin-font-mono, monospace);
+  font-size: 12px;
+  color: var(--skin-faint);
+  letter-spacing: 0.04em;
+}
+
+.skin-diagram-frame--missing {
+  height: auto;
+  padding: 16px 18px;
+  font-family: var(--skin-font-mono, monospace);
+  font-size: 12px;
+  color: var(--chip-debt-text, #4a1b0c);
+  background: var(--chip-debt-bg, #faece7);
+}
+
+.skin-diagram-caption {
+  margin-top: 0.6rem;
+  text-align: center;
+  font-family: var(--skin-font-mono, monospace);
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  color: var(--skin-muted);
+}
+
+/* ── Expand affordance ─────────────────────────────────────────────────── */
+/* biome-ignore lint/style/noDescendingSpecificity: CSS cascade order matches visual intent for hover-reveal pattern */
+.skin-diagram-expand {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  background: var(--skin-card, #fff);
+  border: var(--skin-border-w, 1px) solid var(--skin-border);
+  border-radius: var(--skin-radius, 6px);
+  color: var(--skin-text);
+  cursor: pointer;
+  opacity: 0.82;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+  transition:
+    opacity 0.15s,
+    transform 0.12s;
+}
+.skin-diagram-expand:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
+/* ── Fullscreen modal ──────────────────────────────────────────────────── */
+.skin-diagram-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  /* top clears the absolute close button; tight bottom so the stage owns the height */
+  padding: 56px 32px 20px;
+  background: rgba(10, 10, 12, 0.82);
+  backdrop-filter: blur(3px);
+  animation: skin-diagram-modal-in 0.18s ease;
+}
+@keyframes skin-diagram-modal-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.skin-diagram-modal-stage {
+  position: relative;
+  /* Fill ALL leftover column height (after padding/gap/caption) instead of a fixed
+     86vh — and `min-height: 0` lets a long caption stop stealing from the stage
+     (a flex-shrink default on a fixed height let the caption squeeze it). So the
+     diagram occupies almost the entire viewport in fullscreen. */
+  flex: 1 1 auto;
+  min-height: 0;
+  width: min(1400px, 95vw);
+  background: #ffffff; /* same fixed light ground as the inline plate */
+  border-radius: 8px;
+  overflow: hidden;
+  /* Anchor Excalidraw's position:fixed layers (canvas + zoom controls) to the
+     stage rather than the viewport, so the zoom UI sits inside the modal. */
+  contain: layout paint;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+}
+.skin-diagram-modal-stage :is(.excalidraw, .excalidraw__canvas) {
+  /* biome-ignore lint/complexity/noImportantStyles: overriding Excalidraw library styles requires !important */
+  background: transparent !important;
+}
+
+/* ── Fullscreen pan/zoom of the SVG (no Excalidraw) ──────────────────────── */
+.skin-diagram-zoom {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none; /* we own wheel + drag gestures */
+  user-select: none;
+}
+.skin-diagram-zoom:active {
+  cursor: grabbing;
+}
+.skin-diagram-zoom-layer {
+  position: absolute;
+  top: 0;
+  left: 0; /* sized to its SVG; positioned via translate */
+  transform-origin: 0 0; /* exact zoom-around-cursor math */
+  will-change: transform;
+  transition: opacity 0.12s ease; /* fade in once fitted (avoids a pre-fit flash) */
+}
+/* The SVG width is driven imperatively (px = k × fit) so it re-rasterizes crisply on
+   zoom instead of scaling a cached bitmap. pointer-events:none → drag anywhere. */
+.skin-diagram-zoom-layer svg {
+  display: block;
+  pointer-events: none;
+}
+.skin-diagram-zoom-ctrls {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  display: flex;
+  gap: 6px;
+  cursor: default;
+}
+.skin-diagram-zoom-ctrls button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  color: #1e1e1e;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  transition: background 0.12s;
+}
+.skin-diagram-zoom-ctrls button:hover {
+  background: #fff;
+}
+
+.skin-diagram-modal-caption {
+  flex: 0 0 auto;
+  margin: 0;
+  max-width: 60ch;
+  text-align: center;
+  /* Cap the caption to ~3 lines (scroll past) so it can never balloon and shrink
+     the stage; the stage gets the rest of the height. */
+  max-height: 4.6em;
+  overflow-y: auto;
+  font-family: var(--skin-font-mono, monospace);
+  font-size: 12px;
+  line-height: 1.5;
+  letter-spacing: 0.03em;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.skin-diagram-modal-close {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px 7px 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 99px;
+  color: #fff;
+  cursor: pointer;
+  font-family: var(--skin-font-mono, monospace);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  transition: background 0.15s;
+}
+.skin-diagram-modal-close:hover {
+  background: rgba(255, 255, 255, 0.18);
+}

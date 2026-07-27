@@ -1,0 +1,85 @@
+/**
+ * Note page chrome (breadcrumb + Illustrated/Source toggle).
+ *
+ * MUST share the same measure as digests (.snap-root = 860px). Without that,
+ * breadcrumb/toggle sit at the left of the viewport and collide with the
+ * fixed StickyTOC rail (left gutter at ≥1364px). Atlas-safe: chrome lives
+ * with the note, TOC stays beside it.
+ */
+
+.note-page {
+  /* no full-bleed chrome */
+}
+
+.note-page-chrome {
+  box-sizing: border-box;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 1rem 24px 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.25rem;
+}
+
+/* Override source.css breadcrumb when inside chrome — no extra bottom margin
+   that fights the row layout. */
+.note-page-chrome .note-breadcrumb {
+  margin-bottom: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.note-view-toggle {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: stretch;
+  border: var(--skin-border-w, 1px) solid var(--skin-border, #e5e7eb);
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--skin-surface, rgba(0, 0, 0, 0.04));
+}
+
+.note-view-toggle button {
+  appearance: none;
+  border: 0;
+  margin: 0;
+  background: transparent;
+  color: var(--skin-muted, #666);
+  font-family: var(--skin-font, system-ui, sans-serif);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.85rem;
+  cursor: pointer;
+  line-height: 1.2;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
+}
+
+.note-view-toggle button + button {
+  border-left: var(--skin-border-w, 1px) solid var(--skin-border, #e5e7eb);
+}
+
+.note-view-toggle button[aria-pressed='true'] {
+  background: var(--skin-accent, #6366f1);
+  /* accent is typically a saturated brand colour — light text reads on every skin */
+  color: #fff;
+}
+
+.note-view-toggle button:hover:not([aria-pressed='true']) {
+  color: var(--skin-text, #111);
+  background: var(--skin-surface-hover, rgba(0, 0, 0, 0.06));
+}
+
+.note-view-toggle button:focus-visible {
+  outline: 2px solid var(--skin-accent, #6366f1);
+  outline-offset: 2px;
+  z-index: 1;
+}
+
+/* Give StickyTOC a clear band under the site nav; chrome scrolls away with content
+   so TOC does not need to clear note-page-chrome height. */

@@ -1,6 +1,6 @@
 ---
 title: "Configuration"
-description: "atlas.config.json field reference — vault layout, modules, anchors, checks, hooks."
+description: "atlas.config.json field reference — vault layout, modules, anchors, checks, hooks, visuals companion."
 section: reference
 order: 30
 ---
@@ -53,7 +53,18 @@ per-field descriptions and autocomplete.
   },
   "skills": { "dir": ".claude/skills", "nav": "atlas-nav" },
   "hooks": { "sessionStartStatus": true, "sessionStartIndexRefresh": true },
-  "routines": { "enabled": false, "cadenceDays": 7, "tasks": ["gardening"] }
+  "routines": { "enabled": false, "cadenceDays": 7, "tasks": ["gardening"] },
+  "visuals": {
+    "enabled": false,
+    "dir": "visuals",
+    "package": "memory-atlas-visuals",
+    "configFile": "visuals/visuals.config.json",
+    "illustrated": "visuals/illustrated",
+    "files": "visuals/files",
+    "skills": true,
+    "port": 4555,
+    "concurrentDev": true
+  }
 }
 ```
 
@@ -179,6 +190,34 @@ Type `object`. Configuration for `atlas routine` — see below. This package
 never schedules anything; `enabled`/`cadenceDays`/`tasks` describe how a
 repo *wants* to run routines, for the human (or the human's own scheduler)
 to act on.
+
+### `visuals`
+
+Type `object`. Optional **companion** package (`memory-atlas-visuals`) for a
+presentation plane over the vault (gallery, digests, typeset/derived views).
+**Off by default.** Paths are vault-relative. This package never requires or
+loads the companion — config is declarative only so zero runtime deps stay
+intact. Full enable path: [docs/VISUALS.md](./VISUALS.md).
+
+| Key | Type | Default | Meaning |
+|-----|------|---------|---------|
+| `enabled` | `boolean` | `false` | Master switch. When `false`, digests/gallery tooling is not expected; companions and scripts should no-op. |
+| `dir` | `string` | `"visuals"` | Vault-relative root for the visuals tree (digests, app, static assets). Always excluded from agent search by default (`retrieval.excludeFromSearch`). |
+| `package` | `string` | `"memory-atlas-visuals"` | npm name of the companion. Informational for install docs and discovery — **memory-atlas never imports it**. |
+| `configFile` | `string` | `"visuals/visuals.config.json"` | Vault-relative path to the companion’s own config. |
+| `illustrated` | `string` | `"visuals/illustrated"` | Vault-relative directory for illustrated (skinned) note digests (`.mdx` only). |
+| `files` | `string` | `"visuals/files"` | Vault-relative directory for companion-owned binary assets (diagrams, hero images, etc.). |
+| `skills` | `boolean` | `true` | Whether companion navigation/skinning skills may be offered or vendored alongside Atlas skills when visuals are enabled. |
+| `port` | `integer` | `4555` | Local dev server port for the visuals gallery app. |
+| `concurrentDev` | `boolean` | `true` | Hint that dogfood/dev scripts **may** start the gallery alongside the product app. **Consumer responsibility** — core does not spawn product servers. |
+
+```json
+"visuals": {
+  "enabled": true,
+  "port": 4555,
+  "concurrentDev": true
+}
+```
 
 ## `atlas routine`
 

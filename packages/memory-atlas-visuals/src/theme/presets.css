@@ -1,0 +1,68 @@
+/* .typeset-<skin> — the rhythm half of a skin (see [[0046-skins-as-tone-archetypes]]).
+   Colour lives in the skin's cssVars; motion lives in kit/gsap/motion-profile.ts.
+   Three knobs drive everything Typeset does: size, leading, flow. */
+
+/* Editorial default (blog) — roomy, serif headings, long measure. */
+.typeset-default {
+  --typeset-font-body: var(--font-sans);
+  --typeset-font-heading: var(--font-heading);
+  --typeset-font-mono: var(--font-mono);
+  --typeset-size: 1.0625em;
+  --typeset-leading: 1.75;
+  --typeset-flow: 1.35em;
+}
+
+/* Terminal/brutalist — tight, mono-leaning, dense. */
+.typeset-brutalist {
+  --typeset-font-body: var(--font-mono);
+  --typeset-font-heading: var(--font-mono);
+  --typeset-font-mono: var(--font-mono);
+  --typeset-size: 0.9375em;
+  --typeset-leading: 1.55;
+  --typeset-flow: 1em;
+}
+
+/* Tor — quiet, plain, high-contrast reading. */
+.typeset-tor {
+  --typeset-font-body: var(--font-sans);
+  --typeset-font-heading: var(--font-sans);
+  --typeset-font-mono: var(--font-mono);
+  --typeset-size: 1em;
+  --typeset-leading: 1.8;
+  --typeset-flow: 1.25em;
+}
+
+/* Magazine — warm editorial print, serif body and display. */
+.typeset-magazine {
+  --typeset-font-body: var(--font-sans);
+  --typeset-font-heading: var(--font-heading);
+  --typeset-font-mono: var(--font-mono);
+  --typeset-size: 1.0625em;
+  --typeset-leading: 1.7;
+  --typeset-flow: 1.3em;
+}
+
+/* Frontier — futuristic, clean grotesque with display headings. */
+.typeset-frontier {
+  --typeset-font-body: var(--font-sans);
+  --typeset-font-heading: var(--font-heading);
+  --typeset-font-mono: var(--font-mono);
+  --typeset-size: 1em;
+  --typeset-leading: 1.65;
+  --typeset-flow: 1.2em;
+}
+
+/* Blueprint — technical mono drafting annotation, precise and compact. */
+.typeset-blueprint {
+  --typeset-font-body: var(--font-mono);
+  --typeset-font-heading: var(--font-mono);
+  --typeset-font-mono: var(--font-mono);
+  --typeset-size: 0.95em;
+  --typeset-leading: 1.5;
+  --typeset-flow: 0.9em;
+}
+
+/* Measure is the layout's job — Typeset deliberately sets no max-width. */
+.typeset-measure {
+  max-width: var(--skin-measure);
+}

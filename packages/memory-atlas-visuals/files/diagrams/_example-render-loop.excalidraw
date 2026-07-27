@@ -1,0 +1,14 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "memory-atlas-visuals fixture (from syndcast-mind/visuals)",
+  "elements": [
+    { "id": "n1", "type": "rectangle", "x": 40, "y": 80, "width": 140, "height": 60, "strokeColor": "#1e1e1e", "backgroundColor": "#ffec99", "fillStyle": "solid", "strokeWidth": 2, "roughness": 1, "seed": 11 },
+    { "id": "t1", "type": "text", "x": 70, "y": 100, "width": 80, "height": 20, "text": "Script", "fontSize": 16, "fontFamily": 1, "strokeColor": "#1e1e1e", "seed": 12 },
+    { "id": "n2", "type": "rectangle", "x": 280, "y": 80, "width": 140, "height": 60, "strokeColor": "#1e1e1e", "backgroundColor": "#b2f2bb", "fillStyle": "solid", "strokeWidth": 2, "roughness": 1, "seed": 13 },
+    { "id": "t2", "type": "text", "x": 312, "y": 100, "width": 80, "height": 20, "text": "Render", "fontSize": 16, "fontFamily": 1, "strokeColor": "#1e1e1e", "seed": 14 },
+    { "id": "a1", "type": "arrow", "x": 184, "y": 110, "width": 92, "height": 0, "strokeColor": "#1e1e1e", "strokeWidth": 2, "roughness": 1, "points": [[0, 0], [92, 0]], "seed": 15 }
+  ],
+  "appState": { "viewBackgroundColor": "#ffffff", "gridSize": null },
+  "files": {}
+}

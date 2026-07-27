@@ -1,0 +1,15 @@
+node_modules
+dist
+.vite
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
+.next
+
+# Generated manifests. Derived entirely from the vault's tracked .md/.mdx sources,
+# so tracking them buys nothing and costs a merge conflict on every parallel branch
+# that skins a note — gallery/manifest.json carries a wall-clock `generated` stamp on
+# line 2, so it conflicts even when the content is identical. `pnpm dev|build|test`
+# regenerate them first. See [[0100-generated-visuals-manifests-are-not-tracked]].
+src/gallery/manifest.json
+src/notes/notes-manifest.json

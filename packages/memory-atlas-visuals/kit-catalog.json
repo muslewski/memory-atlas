@@ -1,0 +1,325 @@
+{
+  "generated": "2026-07-11T19:51:29.139Z",
+  "primitives": [
+    {
+      "name": "Divider",
+      "category": "typography",
+      "useWhen": "Separating content blocks with a full-width rule; optionally labelled with a short string.",
+      "props": {
+        "label": "string? — optional centred text label; omitting it renders a clean full-width rule"
+      },
+      "example": "<Divider label=\"continued\" />"
+    },
+    {
+      "name": "DropCap",
+      "category": "typography",
+      "useWhen": "Opening a long-form piece with an editorial drop-capital on the first paragraph.",
+      "props": {
+        "children": "ReactNode — wraps a paragraph; the CSS ::first-letter pseudo-element is applied to the first <p>"
+      },
+      "example": "<DropCap>\n  <p>A skin is not a theme file — it is an atmosphere.</p>\n</DropCap>"
+    },
+    {
+      "name": "Hero",
+      "category": "typography",
+      "useWhen": "Opening a note or article page — sets the title, optional eyebrow label, and a lead hook sentence.",
+      "props": {
+        "title": "string — required; the primary headline",
+        "hook": "ReactNode? — the 1–2 sentence stakes line below the title (canonical)",
+        "summary": "ReactNode? — forgiving alias for hook; renders identically (hook wins if both set). Use either, never neither.",
+        "eyebrow": "string? — small all-caps label above the title",
+        "frontmatter passthrough": "source/commit/generated/type/status are accepted and ignored — the provenance strip renders them, not Hero.",
+        "children": "ReactNode? — optional inline visual or decorative element"
+      },
+      "example": "<Hero\n  eyebrow=\"Segment 03\"\n  title=\"The immersive layer\"\n  hook=\"Five coherent atmospheres, one token contract.\"\n/>"
+    },
+    {
+      "name": "Prose",
+      "category": "typography",
+      "useWhen": "Wrapping free-form body text to apply --skin-measure width constraint and vertical rhythm.",
+      "props": {
+        "children": "ReactNode — any text content; headings, paragraphs, lists and blockquotes receive token-driven styles"
+      },
+      "example": "<Prose>\n  <p>A skin is not a theme file that swaps hex values.</p>\n</Prose>"
+    },
+    {
+      "name": "PullQuote",
+      "category": "typography",
+      "useWhen": "Surfacing a key insight or memorable phrase with typographic weight, distinct from an inline blockquote.",
+      "props": {
+        "children": "ReactNode — the quote text; displayed in a large display-font italic with an accent left-border"
+      },
+      "example": "<PullQuote>\n  Radius, border weight, typeface personality, and shadow depth all move together.\n</PullQuote>"
+    },
+    {
+      "name": "Section",
+      "category": "typography",
+      "useWhen": "Dividing a long note into named blocks with optional fractional markers (e.g. \"02 / 07\").",
+      "props": {
+        "id": "string? — anchor id for deep-linking",
+        "title": "string? — section heading text",
+        "marker": "string? — fractional label like \"02 / 07\" shown beside the title",
+        "icon": "string? — any lucide kebab name; renders before the title to anchor the section. Choose by the section topic (e.g. \"shield-check\", \"database\", \"list-checks\").",
+        "animateTitle": "boolean? — reveal the title word-by-word on scroll-enter (GSAP SplitReveal). Use on a marquee section or two, not every section.",
+        "children": "ReactNode — section body content"
+      },
+      "example": "<Section marker=\"02 / 07\" title=\"Token contract\" icon=\"shield-check\">\n  Content goes here.\n</Section>"
+    },
+    {
+      "name": "Callout",
+      "category": "data",
+      "useWhen": "Drawing attention to a notable aside, warning, best-practice, or cautionary note inline with prose.",
+      "props": {
+        "variant": "'info'|'warn'|'key-insight'|'pitfall'|'in-practice' — controls accent colour, default label, AND a default gutter icon (info/triangle-alert/lightbulb/octagon-alert/wrench); defaults to info",
+        "title": "string? — override the auto-generated label",
+        "icon": "string? — override the variant default gutter icon (any lucide kebab name)",
+        "children": "ReactNode — callout body"
+      },
+      "example": "<Callout variant=\"key-insight\">\n  Selectors must return stable references — never project objects inside useShallow.\n</Callout>"
+    },
+    {
+      "name": "Card",
+      "category": "data",
+      "useWhen": "A single card cell inside a Cards grid; use h for a short heading and icon for a feature-grid glyph. Prefer giving every card in a grid an icon — they make the grid scannable and carry meaning at a glance.",
+      "props": {
+        "h": "string? — optional card heading",
+        "icon": "string? — any lucide kebab name; renders as an accent tile above the heading. Choose by meaning (e.g. \"database\", \"shield\", \"rocket\"). See the visuals-kit concept→icon table.",
+        "children": "ReactNode — card body content"
+      },
+      "example": "<Card h=\"Atomic SQL\" icon=\"database\">Single UPDATE … RETURNING; no read-modify-write race.</Card>"
+    },
+    {
+      "name": "Cards",
+      "category": "data",
+      "useWhen": "Displaying a scannable grid of related items, each with an optional heading and body content.",
+      "props": {
+        "children": "ReactNode — one or more <Card> elements"
+      },
+      "example": "<Cards>\n  <Card h=\"Performance\">Token-driven shadow lifts on hover.</Card>\n  <Card h=\"Tokens\">Zero hardcoded values — all var(--skin-*).</Card>\n</Cards>"
+    },
+    {
+      "name": "Chip",
+      "category": "data",
+      "useWhen": "Inline status or classification badge; use tone to signal semantic meaning at a glance.",
+      "props": {
+        "tone": "'program'|'debt'|'idea'|'done'|'next'|'risk'|'neutral' — controls colour palette; defaults to neutral",
+        "children": "ReactNode — short label text"
+      },
+      "example": "<Chip tone=\"done\">Shipped</Chip>  <Chip tone=\"risk\">Breaking change</Chip>"
+    },
+    {
+      "name": "CodeBlock",
+      "category": "data",
+      "useWhen": "Displaying a multi-line code snippet with language label and a one-click clipboard copy button.",
+      "props": {
+        "lang": "string? — language label shown in the header (e.g. \"tsx\", \"bash\")",
+        "children": "ReactNode — raw code string or pre-formatted content"
+      },
+      "example": "<CodeBlock lang=\"tsx\">\n  {codeString}\n</CodeBlock>"
+    },
+    {
+      "name": "Gist",
+      "category": "data",
+      "useWhen": "Surfacing the distilled takeaway of a section; wraps a <ul> of key points under a bulb icon.",
+      "props": {
+        "children": "ReactNode — typically a <ul> of concise bullet points (canonical)",
+        "items": "optional ReactNode[] — forgiving alias for children; each renders as a bullet <li>. Use EITHER children OR items, never empty."
+      },
+      "example": "<Gist>\n  <ul>\n    <li>Selectors must return stable references.</li>\n    <li>Never project objects inside useShallow.</li>\n  </ul>\n</Gist>"
+    },
+    {
+      "name": "Ledger",
+      "category": "data",
+      "useWhen": "Listing tracked items with completion or risk status; rows carry icons that adapt across skins.",
+      "props": {
+        "children": "ReactNode — one or more <Row> elements (canonical)",
+        "items": "optional { done?: boolean; risk?: boolean; title: ReactNode; sub?: ReactNode }[] — forgiving alias for children; renders the same <Row>s. Use EITHER children OR items, never empty."
+      },
+      "example": "<Ledger>\n  <Row done title=\"Shipped\" sub=\"Merged to main 2026-06-20\" />\n  <Row risk title=\"Under review\" sub=\"Awaiting adversarial sign-off\" />\n  <Row title=\"Next up\" />\n</Ledger>"
+    },
+    {
+      "name": "Metric",
+      "category": "data",
+      "useWhen": "A single stat cell inside a Metrics row; value renders large, label renders small beneath.",
+      "props": {
+        "label": "string — descriptive label beneath the value",
+        "value": "string — the headline number or string",
+        "icon": "string? — any lucide kebab name; renders small above the value. Choose by what the metric counts (e.g. \"git-branch\" for threads, \"database\" for rows).",
+        "count": "boolean? — count the value up from 0 on scroll-enter (GSAP). Safe on any value (non-numeric renders unchanged)."
+      },
+      "example": "<Metric label=\"Token savings\" value=\"87%\" icon=\"trending-up\" />"
+    },
+    {
+      "name": "Metrics",
+      "category": "data",
+      "useWhen": "Displaying a row of key/value statistics or measurements with large display numerals.",
+      "props": {
+        "children": "ReactNode — one or more <Metric> elements (canonical)",
+        "items": "optional { label: string; value: string }[] — forgiving alias for children; renders the same <Metric> cells. Use EITHER children OR items, never empty."
+      },
+      "example": "<Metrics>\n  <Metric label=\"Zones\" value=\"42\" />\n  <Metric label=\"Coverage\" value=\"100%\" />\n</Metrics>"
+    },
+    {
+      "name": "Row",
+      "category": "data",
+      "useWhen": "A single row inside a Ledger; use done or risk to apply the matching icon and accent colour.",
+      "props": {
+        "done": "boolean? — renders a circle-check icon and muted/completed styling",
+        "risk": "boolean? — renders the open-circle icon in the risk accent colour",
+        "title": "ReactNode — primary row label",
+        "sub": "ReactNode? — secondary line shown beneath the title"
+      },
+      "example": "<Row done title=\"Auth shipped\" sub=\"PR #42 merged\" />"
+    },
+    {
+      "name": "Timeline",
+      "category": "data",
+      "useWhen": "Rendering a vertical sequence of events or milestones connected by a dotted spine.",
+      "props": {
+        "children": "ReactNode — bare <li> elements; each becomes a timeline node (canonical)",
+        "items": "optional ReactNode[] — forgiving alias for children; each becomes a node. Use EITHER children OR items, never empty."
+      },
+      "example": "<Timeline>\n  <li>Spec written + committed</li>\n  <li>Plan approved</li>\n  <li>Implementation shipped</li>\n</Timeline>"
+    },
+    {
+      "name": "Concept",
+      "category": "orientation",
+      "useWhen": "Marking a defined term inline so readers can link directly to it and hover to copy a deep-link to that specific concept.",
+      "props": {
+        "id": "string — anchor id; used as the fragment in the copied URL",
+        "children": "ReactNode — the term text to display inline"
+      },
+      "example": "<p>The <Concept id=\"token-contract\">token contract</Concept> governs all skin overrides.</p>"
+    },
+    {
+      "name": "Diagram",
+      "category": "orientation",
+      "useWhen": "Default-on: every digest gets ONE diagram of its core structure so a human grasps the note at a glance — flow / relationship map / hierarchy / lifecycle / decision split / before→after. Pick the angle that most clarifies; skip only when a note has nothing structural to draw (rare). The scene is authored via the Excalidraw MCP and saved to files/diagrams/. Fixed hand-drawn palette, same across all skins (not themed). See the excalidraw-diagrams skill for the authoring workflow.",
+      "props": {
+        "src": "string — visuals-relative path to the scene, e.g. \"files/diagrams/render-loop.excalidraw\"",
+        "caption": "string? — short caption under the diagram",
+        "maxHeight": "number? — frame height in px (default 460)"
+      },
+      "example": "<Diagram src=\"files/diagrams/render-loop.excalidraw\" caption=\"Script → Render pipeline\" />"
+    },
+    {
+      "name": "ReadingProgress",
+      "category": "orientation",
+      "useWhen": "Long-form articles or reference notes where showing scroll progress helps readers gauge depth and stay oriented.",
+      "props": {},
+      "example": "<ReadingProgress />"
+    },
+    {
+      "name": "StickyTOC",
+      "category": "orientation",
+      "useWhen": "Documents with multiple named sections where readers benefit from a persistent, active-highlighted navigation sidebar.",
+      "props": {
+        "items": "{id:string,label:string}[]? — explicit TOC entries; if omitted, derived from section[id] elements in the document on mount"
+      },
+      "example": "<StickyTOC />\n// Or with explicit items:\n<StickyTOC items={[\n  { id: 'intro', label: 'Introduction' },\n  { id: 'usage', label: 'Usage' },\n]} />"
+    },
+    {
+      "name": "Counter",
+      "category": "motion",
+      "useWhen": "Count a number up from 0 on scroll-enter, preserving a symbol prefix/suffix (\"~55\", \"100%\", \"18.45s\", \"~$0.50\"). For stat rows prefer Metric count. Letter-led strings (\"h264\") render unchanged. GSAP — reduced-motion shows the final value immediately.",
+      "props": {
+        "children": "string — the final value, e.g. \"100%\" or \"18.45s\""
+      },
+      "example": "<Counter>18.45s</Counter>"
+    },
+    {
+      "name": "Reveal",
+      "category": "motion",
+      "useWhen": "Fading a block of content into view as the reader scrolls to it — headings, images, or any section that benefits from a subtle entrance.",
+      "props": {
+        "y": "number? — vertical offset in px to animate from; default 16",
+        "children": "ReactNode — content to reveal"
+      },
+      "example": "<Reveal>\n  <h2>Section heading that fades in as you scroll</h2>\n</Reveal>"
+    },
+    {
+      "name": "ScrollScene",
+      "category": "motion",
+      "useWhen": "Wrap a section whose content should animate WITH scroll — scrubbed, optionally pinned. The cinematic storytelling block (GSAP ScrollTrigger). Reduced-motion → renders as a static section. Use sparingly: one or two per digest, on a section that rewards a beat.",
+      "props": {
+        "children": "ReactNode — the scene content (a single block: Cards, Diagram, Prose…)",
+        "pin": "boolean? — pin the scene while a scrubbed timeline plays (implies scrub); default false. WARNING: pin RESERVES the pin scroll-distance (~80% vh) as empty layout space (a pin-spacer) → leaves a large gap around inline content. Only use for a full-viewport deliberate scene, never an inline diagram/cards in a reading flow.",
+        "scrub": "boolean | number? — link the reveal to scroll progress; DEFAULT false = play once on enter (the reveal completes on its own; nothing stays stuck mid-scroll). Set true only for a deliberate scroll-linked scene.",
+        "effect": "'fade-through' | 'scale-in' | 'pan'? — default 'scale-in'"
+      },
+      "example": "<ScrollScene effect=\"scale-in\">\n  <Cards>…</Cards>\n</ScrollScene>"
+    },
+    {
+      "name": "SplitReveal",
+      "category": "motion",
+      "useWhen": "Reveal a short headline or emphasis line word-by-word (GSAP SplitText) on scroll-enter. For Section titles prefer Section animateTitle. Reduced-motion-safe (renders plain text). GSAP — see the gsap-* skills for idioms.",
+      "props": {
+        "children": "ReactNode — the text to split + reveal",
+        "splitBy": "'words' | 'chars'? — split unit; default 'words' (from motion-profile)",
+        "className": "string? — extra class for positioning"
+      },
+      "example": "<SplitReveal>Idea → Render in one loop</SplitReveal>"
+    },
+    {
+      "name": "Stagger",
+      "category": "motion",
+      "useWhen": "Animating a list of sibling items so they cascade into view one after another — cards, bullets, or any repeating block.",
+      "props": {
+        "gap": "number? — delay between each child animation start in seconds; default 0.1",
+        "children": "ReactNode — sibling elements to stagger (array preferred)"
+      },
+      "example": "<Stagger gap={0.12}>\n  <Card h=\"One\">First card fades in.</Card>\n  <Card h=\"Two\">Second card follows.</Card>\n  <Card h=\"Three\">Third card last.</Card>\n</Stagger>"
+    },
+    {
+      "name": "Icon",
+      "category": "structure",
+      "useWhen": "Inline glyph beside a label, card heading, list item or callout. Any lucide icon by kebab-case name; strokes inherit the skin colour automatically (currentColor) — never set a colour.",
+      "props": {
+        "name": "string — any lucide icon, kebab-case (e.g. \"git-branch\", \"circle-check\", \"sparkles\", \"shield\", \"zap\"). Legacy kit names (\"bulb\", \"alert-triangle\") still resolve. Recommended by use — status: circle-check/circle/triangle-alert/clock; nav: arrow-right/chevron-right/external-link; media: camera/image/film; data: layers/database/git-branch; emphasis: sparkles/zap/star/lightbulb.",
+        "size": "number | string? — pixel/CSS size; omit to inherit the .skin-i default sizing",
+        "strokeWidth": "number? — default 2",
+        "className": "string? — extra class for sizing/positioning"
+      },
+      "example": "<Icon name=\"git-branch\" />\n<Icon name=\"circle-check\" className=\"skin-takeaways-icon\" />"
+    },
+    {
+      "name": "More",
+      "category": "structure",
+      "useWhen": "A section has supplementary detail that most readers can skip — collapse it behind a disclosure trigger",
+      "props": {
+        "summary": "string — label shown on the trigger button (always visible)",
+        "children": "ReactNode — the expanded content (hidden until opened)"
+      },
+      "example": "<More summary=\"Implementation notes\">\n  <p>Radix Collapsible under the hood — fully accessible, keyboard-navigable.</p>\n</More>"
+    },
+    {
+      "name": "NoteLink",
+      "category": "structure",
+      "useWhen": "A prose mention in the body references another note — turn it into navigation. Resolves ONLY against the source .md's own [[]] connections (it cannot invent an edge); the source must [[]]-link the target first.",
+      "props": {
+        "to": "string — the target note's bare slug as it appears in the source [[]] (alias/#heading/^block are stripped before matching)",
+        "variant": "'inline' (default, text link) | 'button' (compact pill CTA — keep the label SHORT, e.g. \"View →\"; long labels are ellipsis-capped)",
+        "children": "ReactNode — the visible link text (short for the button variant)"
+      },
+      "example": "<NoteLink to=\"2026-06-23-syndcast-skills-v1-design\" variant=\"button\">View →</NoteLink>"
+    },
+    {
+      "name": "ReadingMode",
+      "category": "structure",
+      "useWhen": "Mount once in the layout shell to give readers a Skim/Deep toggle — Skim hides any element marked data-reading-detail",
+      "props": {},
+      "example": "{/* In layout shell, once per page */}\n<ReadingMode />\n\n{/* In note content, mark supplementary blocks */}\n<p data-reading-detail>Deep-mode only elaboration goes here.</p>"
+    },
+    {
+      "name": "Takeaways",
+      "category": "structure",
+      "useWhen": "Place at the end of a Mind note as a completion ritual — summarises key points and links related documents",
+      "props": {
+        "children": "ReactNode — takeaway list items, use <li> elements (canonical)",
+        "items": "optional ReactNode[] — forgiving alias for the children points; each renders as a <li>",
+        "related": "optional ({ href: string; title: string } | string)[] — related docs in a grid below the list. A bare string is accepted (forgiving): a link-looking string becomes its own href, otherwise it renders as a label."
+      },
+      "example": "<Takeaways related={[\n  { href: '/map/zones/auth', title: 'Auth zone' },\n  { href: '/map/decisions/0001', title: 'Decision 0001' },\n]}>\n  <li>Payload auth guards /admin; Better Auth guards all frontend routes.</li>\n  <li>BA users sync to Payload via the afterOperation hook on login.</li>\n</Takeaways>"
+    }
+  ]
+}

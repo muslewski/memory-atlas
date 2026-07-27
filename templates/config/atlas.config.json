@@ -46,5 +46,16 @@
   },
   "skills": { "dir": ".claude/skills", "nav": "atlas-nav" },
   "hooks": { "sessionStartStatus": true, "sessionStartIndexRefresh": true },
-  "routines": { "enabled": false, "cadenceDays": 7, "tasks": ["gardening"] }
+  "routines": { "enabled": false, "cadenceDays": 7, "tasks": ["gardening"] },
+  "visuals": {
+    "enabled": false,
+    "dir": "visuals",
+    "package": "memory-atlas-visuals",
+    "configFile": "visuals/visuals.config.json",
+    "illustrated": "visuals/illustrated",
+    "files": "visuals/files",
+    "skills": true,
+    "port": 4555,
+    "concurrentDev": true
+  }
 }

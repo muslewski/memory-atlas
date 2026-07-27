@@ -193,6 +193,58 @@
         "cadenceDays": { "type": "integer", "default": 7, "description": "Substituted into a routine template's {{CADENCE_DAYS}} placeholder." },
         "tasks": { "type": "array", "items": { "type": "string" }, "default": ["gardening"], "description": "Which built-in/vault routine names this repo runs on its cadence." }
       }
+    },
+    "visuals": {
+      "type": "object",
+      "description": "Optional companion package (memory-atlas-visuals) for vault digests/gallery. Off by default. Paths are vault-relative. Config-only in memory-atlas — this package never requires or loads the companion (zero runtime deps).",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Master switch for the visuals companion. false: digests/gallery tooling is not expected; companions and scripts should no-op when false."
+        },
+        "dir": {
+          "type": "string",
+          "default": "visuals",
+          "description": "Vault-relative root directory for the visuals tree (digests, app, static assets)."
+        },
+        "package": {
+          "type": "string",
+          "default": "memory-atlas-visuals",
+          "description": "npm package name of the visuals companion. Informational for install docs and companion discovery — memory-atlas never imports it."
+        },
+        "configFile": {
+          "type": "string",
+          "default": "visuals/visuals.config.json",
+          "description": "Vault-relative path to the companion's own config file."
+        },
+        "illustrated": {
+          "type": "string",
+          "default": "visuals/illustrated",
+          "description": "Vault-relative directory for illustrated (skinned) note digests."
+        },
+        "files": {
+          "type": "string",
+          "default": "visuals/files",
+          "description": "Vault-relative directory for companion-owned binary assets (diagrams, hero images, etc.)."
+        },
+        "skills": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether companion navigation/skinning skills should be offered or vendored alongside Atlas skills when visuals are enabled."
+        },
+        "port": {
+          "type": "integer",
+          "default": 4555,
+          "description": "Local dev server port for the visuals gallery app."
+        },
+        "concurrentDev": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether dogfood/dev scripts may start the visuals gallery alongside the main app."
+        }
+      }
     }
   }
 }

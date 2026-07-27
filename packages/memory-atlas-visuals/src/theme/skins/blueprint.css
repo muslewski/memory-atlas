@@ -1,0 +1,62 @@
+/* ─── Blueprint skin ──────────────────────────────────────────────────────
+   Navy schematic. Drafting-table atmosphere — technical, precise.
+   Cyan hairlines, faint engineering grid, crisp sans annotations.
+   ──────────────────────────────────────────────────────────────────────── */
+
+:root[data-theme="blueprint"] {
+  --background: #0d1b2a;
+  --muted: #0f2135;
+  --card: #112540;
+  --border: rgba(90, 209, 255, 0.35);
+  --skin-border-w: 1px;
+  --foreground: #cfe3f5;
+  --muted-foreground: #7eb8d8;
+  --skin-faint: #3a7090;
+  --radius: 2px;
+  --skin-radius-lg: 4px;
+  /* All-mono drafting annotation — IBM Plex Mono reads like a technical drawing. */
+  --font-sans: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --font-heading: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --skin-shadow: 0 0 12px rgba(90, 209, 255, 0.1);
+  --skin-shadow-popover: 0 0 24px rgba(90, 209, 255, 0.15), 0 8px 24px rgba(0, 0, 0, 0.5);
+  --primary: #5ad1ff;
+  --ring: #5ad1ff;
+  /* Faint 24px engineering grid in cyan */
+  --skin-grid:
+    repeating-linear-gradient(
+      rgba(90, 209, 255, 0.06) 0px,
+      rgba(90, 209, 255, 0.06) 1px,
+      transparent 1px,
+      transparent 24px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(90, 209, 255, 0.06) 0px,
+      rgba(90, 209, 255, 0.06) 1px,
+      transparent 1px,
+      transparent 24px
+    );
+
+  /* Chip tokens — cyan-tinted for blueprint */
+  --chip-program-bg: rgba(100, 60, 200, 0.3);
+  --chip-program-text: #b8a0ff;
+  --chip-debt-bg: rgba(200, 60, 60, 0.25);
+  --chip-debt-text: #ff9090;
+  --chip-idea-bg: rgba(200, 160, 0, 0.2);
+  --chip-idea-text: #ffd050;
+  --chip-done-bg: rgba(0, 200, 120, 0.2);
+  --chip-done-text: #50ffaa;
+  --chip-next-bg: rgba(90, 209, 255, 0.2);
+  --chip-next-text: #5ad1ff;
+  --chip-risk-bg: rgba(200, 100, 0, 0.2);
+  --chip-risk-text: #ff9030;
+  --chip-neutral-bg: rgba(90, 140, 180, 0.2);
+  --chip-neutral-text: #7eb8d8;
+}
+
+/* Apply the grid to body only when --skin-grid is set (non-transparent).
+   This rule is scoped to the blueprint skin so it never leaks. */
+:root[data-theme="blueprint"] body {
+  background-image: var(--skin-grid);
+}
