@@ -14,3 +14,4 @@
 
 - Fix consumer vault content resolution: rewrite Vite globs to ATLAS_VISUALS_ROOT so diagrams/digests/heroes load from the vault when the package runs from node_modules.
 - Normalize glob keys via content-keys helper.
+0.1.2 — virtual modules for vault diagrams/mdx/heroes

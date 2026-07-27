@@ -1,6 +1,6 @@
 {
   "name": "memory-atlas-visuals",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": false,
   "type": "module",
   "description": "Optional presentation gallery for memory-atlas vaults (MDX digests, kit, diagrams)",

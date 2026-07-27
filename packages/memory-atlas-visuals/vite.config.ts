@@ -7,9 +7,14 @@ import remarkFrontmatter from 'remark-frontmatter'
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
 import tailwindcss from '@tailwindcss/vite'
 import { resolveAtlasPaths, resolveVisualsPort, isUnder } from './scripts/lib/paths.mjs'
+import { atlasContentPlugin } from './scripts/vite-atlas-content-plugin.mjs'
 
 const atlasPaths = resolveAtlasPaths({ appDir: resolve(__dirname) })
 const visualsPort = resolveVisualsPort({ cwd: process.cwd() })
+// Log once so dogfood sessions can confirm vault binding
+console.info(
+  `[atlas-visuals] vault=${atlasPaths.vaultDir} visuals=${atlasPaths.visualsDir} port=${visualsPort} source=${atlasPaths.source}`,
+)
 
 // Digests AND the assets they reference live OUTSIDE app/ — ../illustrated/<skin>/<folder>/*.mdx,
 // ../files/stocks/*.jpg, ../files/diagrams/*.excalidraw — so Vite's default watcher, rooted at
@@ -26,47 +31,6 @@ const GLOB_OWNERS: ReadonlyArray<readonly [RegExp, string]> = [
   [/\.(jpg|jpeg|png|webp|avif)$/, 'src/lib/heroes.ts'],
   [/\.(excalidraw|svg)$/, 'src/lib/diagrams.ts'],
 ]
-
-/**
- * When the gallery runs from node_modules, relative ../../../files globs resolve
- * inside the package — never the consumer vault. Rewrite those globs to absolute
- * paths under ATLAS_VISUALS_ROOT (atlasPaths) so digests/diagrams/heroes load.
- * In-tree layout (visuals/app next to files/) keeps working: absolute paths still valid.
- */
-function rewriteContentGlobs(): PluginOption {
-  const files = atlasPaths.filesDir.replace(/\\/g, '/')
-  const visuals = atlasPaths.visualsDir.replace(/\\/g, '/')
-  const targets = ['/src/lib/diagrams.ts', '/src/lib/heroes.ts', '/src/lib/mdx.ts']
-  return {
-    name: 'atlas-rewrite-content-globs',
-    enforce: 'pre',
-    transform(code, id) {
-      const norm = id.replace(/\\/g, '/')
-      if (!targets.some((t) => norm.endsWith(t))) return null
-      let out = code
-      // diagrams + heroes
-      out = out.replaceAll(
-        "'../../../files/diagrams/**/*.excalidraw'",
-        `'${files}/diagrams/**/*.excalidraw'`,
-      )
-      out = out.replaceAll(
-        "'../../../files/diagrams/**/*.svg'",
-        `'${files}/diagrams/**/*.svg'`,
-      )
-      out = out.replaceAll(
-        "'../../../files/**/*.{jpg,jpeg,png,webp,avif}'",
-        `'${files}/**/*.{jpg,jpeg,png,webp,avif}'`,
-      )
-      // mdx: all digests under visuals root (illustrated lives there)
-      out = out.replaceAll(
-        "['../../../**/*.mdx', '!../../../app/**']",
-        `['${visuals}/**/*.mdx']`,
-      )
-      if (out === code) return null
-      return { code: out, map: null }
-    },
-  }
-}
 
 function watchExternalSources(): PluginOption {
   const roots = [atlasPaths.illustratedDir, atlasPaths.filesDir]
@@ -166,7 +130,7 @@ export default defineConfig({
   // `?raw` glob in SourceView return an MDX component (no string default → undefined),
   // breaking the markdown reader. Digests are .mdx; source notes stay raw text.
   plugins: [
-    rewriteContentGlobs(),
+    atlasContentPlugin(atlasPaths),
     tailwindcss(),
     { enforce: 'pre', ...mdx({ mdExtensions: [], remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter] }) },
     react(),

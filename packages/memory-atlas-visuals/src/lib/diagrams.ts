@@ -1,10 +1,8 @@
 /**
  * diagrams.ts — resolve a <Diagram src> path to a parsed Excalidraw scene.
  *
- * Scenes live under the consumer vault's visuals/files/diagrams/**.
- * Globs are relative ../../../files/... for in-tree layout; the Vite plugin
- * `atlas-rewrite-content-globs` rewrites them to absolute ATLAS_VISUALS_ROOT
- * paths when the package is installed from node_modules.
+ * Content comes from virtual:atlas-diagrams (consumer vault), with a relative
+ * glob fallback for in-tree visuals/app development.
  */
 import { lookupVisualsPath, rekeyByVisualsPath } from './content-keys'
 
@@ -16,20 +14,31 @@ export interface ExcalidrawScene {
   files?: Record<string, unknown>
 }
 
-const rawGlob = import.meta.glob('../../../files/diagrams/**/*.excalidraw', {
+// Prefer virtual module (package + vault). Fallback glob for monorepo in-tree app.
+import virtualDiagrams from 'virtual:atlas-diagrams'
+import virtualSvgs from 'virtual:atlas-diagram-svgs'
+
+const legacyRaw = import.meta.glob('../../../files/diagrams/**/*.excalidraw', {
   eager: true,
   query: '?raw',
   import: 'default',
 }) as Record<string, string>
 
-const svgGlob = import.meta.glob('../../../files/diagrams/**/*.svg', {
+const legacySvg = import.meta.glob('../../../files/diagrams/**/*.svg', {
   eager: true,
   query: '?raw',
   import: 'default',
 }) as Record<string, string>
 
-const raw = rekeyByVisualsPath(rawGlob)
-const svgRaw = rekeyByVisualsPath(svgGlob)
+const raw: Record<string, string> = {
+  ...rekeyByVisualsPath(legacyRaw),
+  ...(virtualDiagrams as Record<string, string>),
+}
+
+const svgRaw: Record<string, string> = {
+  ...rekeyByVisualsPath(legacySvg),
+  ...(virtualSvgs as Record<string, string>),
+}
 
 export function resolveDiagram(src?: string | null): ExcalidrawScene | null {
   const text = lookupVisualsPath(raw, src)
@@ -42,22 +51,16 @@ export function resolveDiagram(src?: string | null): ExcalidrawScene | null {
   }
 }
 
-/** The committed static SVG for a scene, or null if not prerendered yet. */
 export function resolvePrerenderedSvg(src?: string | null): string | null {
   if (!src) return null
   const clean = src.replace(/^\/+/, '').replace(/\.excalidraw$/, '.svg')
   return lookupVisualsPath(svgRaw, clean)
 }
 
-/** Every scene's `files/diagrams/...excalidraw` src — used by the prerender route. */
 export function allDiagramSrcs(): string[] {
   return Object.keys(raw).filter((k) => k.endsWith('.excalidraw'))
 }
 
-/**
- * Neutralize an Excalidraw SVG's intrinsic px size so its `viewBox` drives the
- * aspect ratio.
- */
 export function stripSvgIntrinsicSize(svg: SVGSVGElement): void {
   svg.removeAttribute('width')
   svg.removeAttribute('height')
@@ -65,11 +68,6 @@ export function stripSvgIntrinsicSize(svg: SVGSVGElement): void {
   svg.style.display = 'block'
 }
 
-/**
- * True when a scene needs the Excalidraw element transform before export:
- *  - `label: { text }` SKELETON SHORTHAND
- *  - a `text` element with degenerate width
- */
 export function sceneNeedsExpansion(elements: unknown[]): boolean {
   return elements.some((e) => {
     if (!e || typeof e !== 'object') return false

@@ -1,5 +1,24 @@
 /// <reference types="vite/client" />
 
-// Injected by vite.config.ts define → absolute path to syndcast-mind/ vault root.
-// Used in IllustratedView.tsx to build /@fs/<abs>/<source> dev view-source links.
+declare module 'virtual:atlas-diagrams' {
+  const map: Record<string, string>
+  export default map
+}
+
+declare module 'virtual:atlas-diagram-svgs' {
+  const map: Record<string, string>
+  export default map
+}
+
+declare module 'virtual:atlas-heroes' {
+  const map: Record<string, string>
+  export default map
+}
+
+declare module 'virtual:atlas-mdx-loaders' {
+  const map: Record<string, () => Promise<{ default: import('react').ComponentType }>>
+  export default map
+}
+
 declare const __VAULT_DIR__: string
+declare const __VISUALS_DIR__: string
