@@ -91,6 +91,7 @@ describe('coerceSemver / evaluate*', () => {
     assert.equal(r.lag, true)
     assert.match(r.messages[0], /0\.6\.0 available/)
     assert.match(r.messages[0], /pin \^0\.5\.0/)
+    assert.match(r.messages[0], /npm i -D memory-atlas@0\.6\.0 then atlas-update/)
   })
 
   test('registry current → no lag', () => {
