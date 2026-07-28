@@ -9,6 +9,10 @@
 * **doctor:** soft agentic-sage inventory when `sage` is on PATH (optional adapter present/missing)
 * **fleet:** default adopt TARGET 0.5.4; pair docs with agentic-sage (past + present)
 
+### Changed
+
+* **status:** registry-lag soft line on SessionStart (`atlas status --hook`) uses concrete `npm i -D memory-atlas@… then atlas-update` (OSS update-me; wired lag line unchanged)
+
 ## [0.5.3] — 2026-07-28
 
 ### Added
