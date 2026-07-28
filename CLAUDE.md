@@ -1,3 +1,7 @@
+<!-- sage-fleet-pointer -->
+**Parallel sessions** — other agent sessions may run concurrently. Before claiming work or opening a PR, use the `sage-fleet` skill (collision check → claim → merge brief). SAGE off/absent ⇒ silent no-op.
+<!-- /sage-fleet-pointer -->
+
 # CLAUDE.md
 
 Operating instructions for agents working in this repository.
@@ -70,11 +74,6 @@ code it describes.
   (it anchors `verifiedAt` to the committed HEAD — stamping before the
   commit leaves the zone stale), `atlas build`, and fold stamp + index
   into the same commit (`git commit --amend`).
-  **Public product docs** live under `docs/` with fleet **docs-kit**
-  frontmatter; validate with `npm run docs:health`. **On finish:** after
-  zone recollection, run the **docs soft-nudge** (`atlas-recollection`):
-  report docs health; update public docs when user-facing surface or real
-  fleet interop changed; or state docs N/A. Soft — does not hard-block finish.
 - **Pipeline.** Route spec-writing output to `atlas/specs/` and
   plan-writing output to `atlas/plans/`.
 - **Author for retrieval.** Crisp `summary`, one concept per `##`,
