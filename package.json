@@ -51,11 +51,11 @@
     "atlas": "atlas",
     "atlas:gate": "atlas gate",
     "atlas:doctor": "atlas doctor",
-    "atlas:wire": "atlas wire all",
-    "//sage-gate": "global only — sage gate (preferred judge) is machine-level; not chained into predev. run: sage gate"
+    "atlas:wire": "atlas wire all"
   },
   "license": "MIT",
   "devDependencies": {
     "@biomejs/biome": "^2.5.3"
-  }
+  },
+  "//sage-gate": "global only — sage gate (preferred judge) is machine-level; not chained into predev. run: sage gate"
 }
