@@ -1,0 +1,243 @@
+{
+  "target": "0.5.3",
+  "results": [
+    {
+      "name": "7-liceum-bydgoszcz",
+      "ok": false,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm"
+      ],
+      "error": "install failed: [WARN] The \"pnpm\" field in package.json is no longer read by pnpm. The following keys were ignored: \"pnpm.overrides\", \"pnpm.onlyBuiltDependencies\". See https://pnpm.io/settings for the new home of each setting.\n"
+    },
+    {
+      "name": "agentic-sage",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=npm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ stamped atlasVersion 0.5.2 → 0.5.3 (no migrations)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "agentic-sage-site",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=npm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "eve",
+      "ok": false,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm"
+      ],
+      "error": "install failed: [ERR_PNPM_ADDING_TO_ROOT] Running this command will add the dependency to the workspace root, which might not be what you want - if you really meant it, make it explicit by running this command again with the -w flag (or --workspace-root). If you don't want to see this warning anymore, you may set the ignore-workspace-root-check setting to true.\n"
+    },
+    {
+      "name": "green-ui-kit",
+      "ok": false,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm"
+      ],
+      "error": "install failed: e that bypassed the policy locally — inspect recent changes to pnpm-lock.yaml before trusting it. If the changes look expected, run \"pnpm clean --lockfile\" and then \"pnpm install\" to rebuild from a fresh resolution. Alternatively, relax the policy that flagged them.\nProgress: resolved 1, reused 0, downloaded 0, added 0\nAlready up to date\nProgress: resolved 1, reused 0, downloaded 0, added 0, done\n"
+    },
+    {
+      "name": "grzybniety",
+      "ok": false,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm"
+      ],
+      "error": "install failed: /store/v10\".\n\npnpm now wants to use the store at \"/home/kento/.local/share/pnpm/store/v11\" to link dependencies.\n\nIf you want to use the new store location, reinstall your dependencies with \"pnpm install\".\n\nYou may change the global store location by running \"pnpm config set store-dir <dir> --global\".\n(This error may happen if the node_modules was installed with a different major version of pnpm)\n"
+    },
+    {
+      "name": "hermes",
+      "ok": true,
+      "steps": [
+        "package.json pin ^0.5.3 → 0.5.3",
+        "pm=npm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "llm-armory",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "mossferry",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "muslewski",
+      "ok": false,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm"
+      ],
+      "error": "install failed: e lockfile contains entries that the active policies reject. This can mean the lockfile is stale, or that someone committed a lockfile that bypassed the policy locally — inspect recent changes to pnpm-lock.yaml before trusting it. If the changes look expected, run \"pnpm clean --lockfile\" and then \"pnpm install\" to rebuild from a fresh resolution. Alternatively, relax the policy that flagged them.\n"
+    },
+    {
+      "name": "muslewski-v3",
+      "ok": false,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm"
+      ],
+      "error": "install failed: /store/v10\".\n\npnpm now wants to use the store at \"/home/kento/.local/share/pnpm/store/v11\" to link dependencies.\n\nIf you want to use the new store location, reinstall your dependencies with \"pnpm install\".\n\nYou may change the global store location by running \"pnpm config set store-dir <dir> --global\".\n(This error may happen if the node_modules was installed with a different major version of pnpm)\n"
+    },
+    {
+      "name": "nightshift-glow-studio",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=npm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "ogrody-kryscar",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=npm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "personal-knowledge-base",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "pol-med-v4",
+      "ok": false,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm"
+      ],
+      "error": "install failed: [ERR_PNPM_PUBLIC_HOIST_PATTERN_DIFF] This modules directory was created using a different public-hoist-pattern value. Run \"pnpm install\" to recreate the modules directory.\n"
+    },
+    {
+      "name": "scentloop",
+      "ok": false,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm"
+      ],
+      "error": "install failed: [WARN] The \"pnpm\" field in package.json is no longer read by pnpm. The following keys were ignored: \"pnpm.patchedDependencies\". See https://pnpm.io/settings for the new home of each setting.\n"
+    },
+    {
+      "name": "status-herald",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=npm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "stream-engine",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "token-oracle",
+      "ok": false,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm"
+      ],
+      "error": "install failed: e lockfile contains entries that the active policies reject. This can mean the lockfile is stale, or that someone committed a lockfile that bypassed the policy locally — inspect recent changes to pnpm-lock.yaml before trusting it. If the changes look expected, run \"pnpm clean --lockfile\" and then \"pnpm install\" to rebuild from a fresh resolution. Alternatively, relax the policy that flagged them.\n"
+    },
+    {
+      "name": "work-kb",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "yours-fairy-tale",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=npm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    }
+  ],
+  "at": "2026-07-28T13:27:10.738Z"
+}
