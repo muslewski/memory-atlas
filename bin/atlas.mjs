@@ -20,6 +20,12 @@ import { runStamp } from '../lib/stamp.mjs'
 import { runStatus } from '../lib/status.mjs'
 import { renderIndex, validate } from '../lib/validate.mjs'
 import { runSearch } from '../lib/search.mjs'
+import {
+  cheapVaultCounts,
+  resolveTelemetryEnabled,
+  runTelemetry,
+  trackCommand,
+} from '../lib/telemetry.mjs'
 import { runVisuals } from '../lib/visuals.mjs'
 import { runWire } from '../lib/wire.mjs'
 
@@ -61,10 +67,14 @@ Commands:
                           Scaffold vault visuals/ content tree, peer status, or
                           spawn memory-atlas-visuals (install the companion to use
                           dev/preview)
+  atlas telemetry [status|report|dump|clear|on|off]
+                          Local debug telemetry (OFF by default). Fleet: enable
+                          with \`atlas telemetry on\` or ATLAS_TELEMETRY=1.
 
 Options:
   --help, -h        Show this help
   --version, -v     Show the installed version
+  --no-telemetry    Disable telemetry for this invocation
 
 A repo's atlas.config.json → \`enabled: false\` silences every command above
 (except \`init\`), printing nothing and exiting 0 — a kill switch for repos
@@ -279,6 +289,7 @@ const COMMANDS = {
   adopt: (args) => runAdopt(args, { cwd: process.cwd() }),
   routine: (args) => runRoutine(args, { cwd: process.cwd() }),
   visuals: (args) => runVisuals(args, { cwd: process.cwd() }),
+  telemetry: (args) => runTelemetry(args, { cwd: process.cwd() }),
 }
 
 /**
@@ -301,6 +312,7 @@ function isKillSwitched(cwd) {
 function main(argv) {
   const args = argv.slice(2)
   const command = args[0]
+  const t0 = Date.now()
 
   if (!command || command === '--help' || command === '-h') {
     process.stdout.write(USAGE)
@@ -331,7 +343,49 @@ function main(argv) {
     return 0
   }
 
-  return handler(rest)
+  // SessionStart must stay free of telemetry I/O.
+  const skipTrack = command === 'telemetry' || (command === 'status' && rest.includes('--hook'))
+
+  let exitCode = 0
+  try {
+    exitCode = handler(rest) ?? 0
+  } catch (err) {
+    exitCode = 1
+    throw err
+  } finally {
+    if (!skipTrack) {
+      try {
+        const cwd = process.cwd()
+        const repoRoot = findRepoRoot(cwd)
+        let repoConfig = null
+        let vault = null
+        if (repoRoot) {
+          repoConfig = loadConfig(repoRoot, { stderr: { write: () => {} } })
+          const vaultDir = findVaultDir(repoRoot)
+          vault = cheapVaultCounts(vaultDir, repoConfig)
+        }
+        const enabled = resolveTelemetryEnabled({
+          argv: process.argv,
+          repoConfig,
+        })
+        trackCommand({
+          cmd: command,
+          argv: rest,
+          exit: typeof exitCode === 'number' ? exitCode : 0,
+          ms: Date.now() - t0,
+          repoRoot,
+          vault,
+          enabled,
+          processArgv: process.argv,
+          repoConfig,
+        })
+      } catch {
+        // never break the CLI for telemetry
+      }
+    }
+  }
+
+  return typeof exitCode === 'number' ? exitCode : 0
 }
 
 process.exit(main(process.argv))
