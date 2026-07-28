@@ -10,8 +10,9 @@ Atlas's side — neither sibling required any change to make them work.
 
 - **`solo/`** — the no-companions baseline. Everything below still applies
   with zero siblings installed; this is what "just the Atlas" looks like.
-- **`with-agentic-sage/`** — an adapter that lets agentic-sage read an
-  Atlas vault for semantic zone names and `BACKLOG.md` drift detection.
+- **`with-agentic-sage/`** — copy one file (`adapter.mjs`) so agentic-sage
+  can read an Atlas vault for semantic zone names and `BACKLOG.md` drift
+  detection. No project-specific paths; vault from `atlas.config.json`.
 - **`with-token-oracle/`** — a read-only reader of token-oracle's forecast
   snapshot, plus a routine that weighs it against a BACKLOG claim.
 

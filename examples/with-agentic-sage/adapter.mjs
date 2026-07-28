@@ -1,24 +1,23 @@
 // examples/with-agentic-sage/adapter.mjs
 //
-// A COPY-SOURCE example: an agentic-sage adapter that reads an Atlas vault.
-// This is not a dependency of either project — copy this file into
-// `<repoRoot>/.agentic-sage/adapter.mjs` (or symlink it out-of-tree per
-// agentic-sage's ADAPTERS.md) and adjust nothing, since vault location is
-// resolved from `atlas.config.json` / structural detection, not hardcoded.
+// COPY ONE FILE — that is the whole install.
+//   cp node_modules/memory-atlas/examples/with-agentic-sage/adapter.mjs \
+//      .agentic-sage/adapter.mjs
+// (or symlink out-of-tree per agentic-sage ADAPTERS.md). Do not edit: vault
+// location is resolved from atlas.config.json / structural detection — never
+// a hardcoded project path or fixed vault directory name.
 //
 // Implements all five OPTIONAL exports of the sage adapter contract
-// (agentic-sage `ADAPTERS.md` — "The contract"). `ctx` is always
-// `{ repoRoot }`. Read-only, zero-dependency (no YAML lib, no npm deps —
-// only node builtins and a `git` subprocess), and fail-closed: every export
-// is wrapped so a missing vault, garbage config, or unreadable file returns
-// `null`/`[]` rather than throwing. A throwing adapter would crash nothing
-// on sage's side either (sage's `loadAdapter` swallows the throw) — this
-// file just keeps that contract close to the surface instead of relying on
-// sage's safety net.
+// (agentic-sage ADAPTERS.md — "The contract"). `ctx` is always `{ repoRoot }`.
+// Read-only, zero-dependency (no YAML lib, no npm deps — only node builtins
+// and a `git` subprocess), fail-closed: every export is wrapped so a missing
+// vault, garbage config, or unreadable file returns `null`/`[]` rather than
+// throwing. sage's `loadAdapter` also swallows throws; these wrappers keep
+// the fail-closed contract local to this file.
 //
-// Generalizes agentic-sage's own shipped reference adapter
-// (`adapters/acme.mjs`, which hardcodes a project-specific vault path) into
-// something any Atlas-adopting repo can drop in unmodified.
+// Generalizes agentic-sage's shipped reference adapter (`adapters/acme.mjs`,
+// which hardcodes one project's vault path) so any Atlas-adopting repo can
+// drop this in unmodified.
 
 import { execFileSync } from 'node:child_process'
 import fs from 'node:fs'
@@ -169,7 +168,7 @@ function parseOwnsGlobs(text) {
 
 // SPEC.md "Zone cards and anchors": entries beginning with `:(exclude)` or
 // `:!` are scope-narrowing pathspecs, not ownership claims — skip them here,
-// same as the existence check in this repo's own verifier does.
+// same as the Atlas existence check skips them.
 const isPositiveGlob = (g) => !g.startsWith(':(exclude)') && !g.startsWith(':!')
 
 // ---------------------------------------------------------------------------
@@ -355,7 +354,11 @@ export const generatedGlobs = () => {
     if (!repoRoot) return []
     const v = resolveVault({ repoRoot })
     if (!v || v.disabled) return []
-    const rel = path.relative(repoRoot, path.join(v.vaultDir, 'map', 'index.md'))
+    // Index sits next to the zones folder (DEFAULT_FOLDERS.zones = "map/zones"
+    // → map/index.md). Custom folders.zones like "architecture/zones" still
+    // resolve to sibling index.md under the same parent.
+    const mapDir = path.dirname(v.zonesDir)
+    const rel = path.relative(repoRoot, path.join(mapDir, 'index.md'))
     return [rel.split(path.sep).join('/')]
   } catch {
     return []
