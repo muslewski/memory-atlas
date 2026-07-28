@@ -976,6 +976,30 @@ describe('atlas status — one line, tolerant, zero side effects', () => {
     )
   })
 
+  test('registry lag soft-nudges on status --hook (OSS update-me)', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'x.js'), '// v1\n')
+    commitAll(repo, 'init tree')
+    atlas(repo, ['init'])
+    const vault = vaultPath(repo)
+    writeZone(vault, 'one', '', { status: 'seeded', verifiedAt: 'unverified' })
+
+    const current = packageVersion()
+    const lines = []
+    const code = runStatus(['--hook'], {
+      cwd: repo,
+      stdout: { write: (s) => lines.push(s) },
+      fetchLatest: () => '9.9.9',
+    })
+    assert.equal(code, 0)
+    assert.match(lines[0], /🧭 /)
+    assert.equal(
+      lines[1],
+      `⬆ memory-atlas 9.9.9 available on npm (installed ${current}) — npm i -D memory-atlas@9.9.9 then atlas-update\n`,
+    )
+  })
+
   test('equal versions → single-line status, no nudge', () => {
     const repo = mkRepo()
     fs.mkdirSync(path.join(repo, 'src'), { recursive: true })

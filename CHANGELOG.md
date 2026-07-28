@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **status:** registry-lag soft line (`atlas status` / SessionStart `--hook`) uses concrete
+  `npm i -D memory-atlas@… then atlas-update` instead of vague "bump dep" (OSS update-me).
+
 ## [0.5.4](https://github.com/muslewski/memory-atlas/compare/v0.5.3...v0.5.4) (2026-07-28)
 
 ### Features
