@@ -22,12 +22,37 @@ Atlas is **code-verified vaults** for the architecture past (and map present) of
 
 | Tense | Tool | Answers |
 |-------|------|---------|
-| **Architecture past + map present** | **Atlas** (this package) | What does the code *mean*? Which zones own which paths? What was decided, and is the card still verified at HEAD? |
-| **Session present** | [agentic-sage](https://sage.muslewski.com) | Who is editing *right now*? Are two sessions about to collide? What belongs in a merge-brief? |
+| **The past** (architecture memory) | **memory-atlas** (this package) | What does the code *mean*? Which zones own which paths? What was decided, and is the card still verified at HEAD? |
+| **The present** (fleet sessions) | [**agentic-sage**](https://sage.muslewski.com) | Who is editing *right now*? Are two sessions about to collide? What belongs in a merge-brief? |
 
 Neither tool needs the other. Alone, Atlas keeps vault honesty (`atlas check`); alone, SAGE judges parallel sessions. Together, the optional adapter maps contested globs → zone names so the judge speaks your architecture vocabulary.
 
-Bootstrap Atlas with **[On-ramp](./ONRAMP.md)**; bootstrap SAGE with its **[SETUP.md](https://github.com/muslewski/agentic-sage/blob/main/SETUP.md)** (required → recommended → optional). Shared SessionStart etiquette: both fail-open when the sibling is missing.
+### Co-install
+
+```bash
+npm i -D memory-atlas
+npm i -g agentic-sage
+npx atlas init && npx atlas wire   # vault + hooks / on-ramp
+sage init                          # skills + hooks
+```
+
+Optional: copy [`examples/with-agentic-sage/adapter.mjs`](../examples/with-agentic-sage/) →
+`.agentic-sage/adapter.mjs`. `atlas doctor` soft-reports adapter presence when
+`sage` is on PATH.
+
+### Stay current (soft nudges)
+
+```bash
+atlas gate    # package-freshness warn by default (predev-safe)
+sage gate     # sibling soft check
+```
+
+CI hardens with `atlas gate --strict`. Gates never require the sibling package.
+
+Bootstrap Atlas with **[On-ramp](./ONRAMP.md)**; bootstrap SAGE with its
+**[SETUP.md](https://github.com/muslewski/agentic-sage/blob/main/SETUP.md)**
+(required → recommended → optional). Shared SessionStart etiquette: both
+fail-open when the sibling is missing.
 
 ## Rules for authors
 
@@ -37,6 +62,6 @@ Bootstrap Atlas with **[On-ramp](./ONRAMP.md)**; bootstrap SAGE with its **[SETU
 
 ## See also
 
-- [On-ramp](./ONRAMP.md) — wire hooks; shared SessionStart etiquette with sage
-- [CI recipe](./CI.md) — `atlas check` as the vault honesty gate
+- [On-ramp](./ONRAMP.md) — wire hooks; co-install with sage; shared SessionStart etiquette
+- [CI recipe](./CI.md) — `atlas gate --strict` + `atlas check` honesty gates
 - [Examples](../examples/README.md) — sage adapter + oracle budget hint + solo baseline

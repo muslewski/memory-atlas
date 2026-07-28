@@ -2,7 +2,8 @@
 
 <p align="center">
   <a href="https://atlas.muslewski.com"><img src="https://img.shields.io/badge/website-atlas.muslewski.com-c45c26?style=flat-square" alt="Website"></a>
-  <a href="https://www.npmjs.com/package/memory-atlas"><img src="https://img.shields.io/npm/v/memory-atlas?style=flat-square" alt="npm"></a>
+  <a href="https://www.npmjs.com/package/memory-atlas"><img src="https://img.shields.io/npm/v/memory-atlas?style=flat-square&label=npm%20memory-atlas" alt="npm memory-atlas"></a>
+  <a href="https://www.npmjs.com/package/agentic-sage"><img src="https://img.shields.io/npm/v/agentic-sage?style=flat-square&label=npm%20agentic-sage" alt="npm agentic-sage"></a>
   <a href="https://github.com/muslewski/memory-atlas/discussions"><img src="https://img.shields.io/badge/discussions-join-c45c26?style=flat-square" alt="Discussions"></a>
 </p>
 
@@ -14,6 +15,13 @@
 
 
 **Code-verified memory for coding agents.** *A per-repo knowledge atlas for agent fleets — verified architecture cards with an honest freshness signal.*
+
+| Package | Era | Role |
+|---------|-----|------|
+| **memory-atlas** (this package) | **the past** | architecture memory — verified zone cards, decisions, honesty gate |
+| [**agentic-sage**](https://sage.muslewski.com) | **the present** | fleet sessions — board, territory, merge briefings |
+
+Independent packages, file-only coupling. Install both for a full desk.
 
 [![CI](https://github.com/muslewski/memory-atlas/actions/workflows/ci.yml/badge.svg)](https://github.com/muslewski/memory-atlas/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/memory-atlas.svg)](https://www.npmjs.com/package/memory-atlas)
@@ -62,10 +70,13 @@ what was **verified** — and tells you when.
 
 ## Install
 
+### memory-atlas only (the past)
+
 ```bash
 npm install -g memory-atlas   # or: npx memory-atlas …
 # bins: atlas | memory-atlas
 atlas init
+atlas wire
 ```
 
 Dev / per-repo:
@@ -73,7 +84,32 @@ Dev / per-repo:
 ```bash
 npm i -D memory-atlas
 npx atlas init
+npx atlas wire
 ```
+
+### Install both (past + present)
+
+Recommended for agent fleets: architecture memory **and** live session awareness.
+
+```bash
+npm i -D memory-atlas
+npm i -g agentic-sage
+npx atlas init && npx atlas wire   # vault + SessionStart / on-ramp
+sage init                          # skills + hooks (global ~/.claude + compat)
+```
+
+Optional enrichment: copy [`examples/with-agentic-sage/adapter.mjs`](examples/with-agentic-sage/)
+to `.agentic-sage/adapter.mjs` so sage territory/board can name zones from the vault.
+`atlas doctor` soft-reports whether that adapter is present when `sage` is on PATH.
+
+### Stay current (soft nudges)
+
+```bash
+atlas gate    # package-freshness warn by default (predev-safe)
+sage gate     # sibling soft check when agentic-sage is installed
+```
+
+CI: `atlas gate --strict`. See [`docs/CI.md`](docs/CI.md).
 
 Inside an adopting repo, every command also works as
 `npx --no-install atlas <cmd>` (uses the local install, no network).
@@ -220,9 +256,14 @@ other, and none share code, only file contracts and structure detection:
 | Project | Era | Role |
 |---|---|---|
 | token-oracle | the future | token-cap forecasting |
-| agentic-sage | the present | fleet judge |
+| **agentic-sage** | **the present** | **fleet sessions / judge** |
 | status-herald | the voice | status-bar UI |
-| **memory-atlas** | **the past** | **the repository's verified memory (this project)** |
+| **memory-atlas** | **the past** | **architecture memory (this project)** |
+
+**Core pair:** atlas (past) + sage (present). Co-install with
+`npm i -D memory-atlas` + `npm i -g agentic-sage`, then `atlas wire` and
+`sage init`. Soft update nudges: `atlas gate` / `sage gate`. Full map:
+[`docs/works-with.md`](docs/works-with.md).
 
 See [`examples/`](examples/README.md) for two proof-of-coupling adapters
 (`with-agentic-sage/`, `with-token-oracle/`) and a `solo/` baseline showing
@@ -275,14 +316,18 @@ When the repo already has a vault-like mind/docs tree (not a greenfield
 
 When a newer memory-atlas is installed, the loop is:
 
-1. **Nudge** — `atlas status` prints when installed version ≠ wired
-   `atlasVersion`.
+1. **Nudge** — `atlas status` / `atlas gate` (soft by default) when installed
+   version ≠ wired `atlasVersion` or registry has a newer release.
 2. **Inventory** — `atlas doctor` shows version drift, pending migrations,
-   and any locally edited vendored files.
+   any locally edited vendored files, and (if `sage` is on PATH) optional
+   adapter presence.
 3. **Deterministic migrate** — `atlas migrate` (dry-run), then
    `atlas migrate --write`.
 4. **AI merge** — run the **`atlas-update`** skill for judgment merges of
    `⚠ locally edited` blocks/skills, then re-wire and re-check.
+
+If you also run **agentic-sage**, keep it current independently with
+`sage gate` (soft). Neither gate requires the sibling package.
 
 ## Docs
 

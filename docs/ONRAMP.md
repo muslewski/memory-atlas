@@ -128,10 +128,22 @@ Optional extras you may still hand-wire alongside (not managed by
 automatic summary without touching hook wiring. Running `atlas status` by
 hand (no `--hook`) always prints — see `docs/CONFIG.md` → `hooks`.
 
-**With agentic-sage:** wiring both `atlas status --hook` and sage's own
-SessionStart entry side by side is safe — neither reads the other's config,
-and both stay fail-open when the other is missing. An optional sage adapter
-can map paths to zone names from this vault; see
+**With agentic-sage (the present):** Atlas is architecture memory (**the past**);
+agentic-sage is fleet sessions. Products are independent — install either or both:
+
+```bash
+npm i -D memory-atlas
+npm i -g agentic-sage
+npx atlas init && npx atlas wire
+sage init
+```
+
+Wiring both `atlas status --hook` and sage's own SessionStart entry side by
+side is safe — neither reads the other's config, and both stay fail-open when
+the other is missing. Soft update nudges: `atlas gate` / `sage gate` (default
+warn; CI uses `atlas gate --strict`). An optional sage adapter can map paths
+to zone names from this vault; `atlas doctor` soft-reports whether
+`.agentic-sage/adapter.mjs` is present when `sage` is on PATH. See
 [`examples/with-agentic-sage/`](../examples/with-agentic-sage/) and
 [Works with](./works-with.md).
 
@@ -203,14 +215,19 @@ When the repository already has a knowledge base (not a greenfield init):
 
 When a newer `memory-atlas` is installed:
 
-1. `atlas status` may nudge: installed version ≠ wired `atlasVersion`.
-2. `atlas doctor` inventories drift, pending migrations, and locally
-   edited vendored files.
+1. Soft nudge — `atlas status` / `atlas gate` when installed version ≠ wired
+   `atlasVersion` or registry has a newer release (default mode is **warn**).
+2. `atlas doctor` inventories drift, pending migrations, locally edited
+   vendored files, and (if `sage` is on PATH) optional adapter presence.
 3. `atlas migrate` (dry-run), then `atlas migrate --write` for deterministic
    toolkit transforms only.
 4. Run the **`atlas-update`** skill for AI-merge of any `⚠ locally edited`
    items, then `atlas wire all` and `atlas check` / `atlas doctor` to
    verify.
+
+**If you also run agentic-sage:** keep both current independently —
+`atlas gate` for this package, `sage gate` for the fleet judge. Neither
+gate requires the other package to be installed.
 
 Pre-A2 vaults (config + vault, no `.atlas-state.json`) get a lockfile via
 migration `0001-backfill-provenance` — existing on-ramp marker text is
