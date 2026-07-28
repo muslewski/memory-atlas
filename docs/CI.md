@@ -42,6 +42,9 @@ jobs:
       # Or, for adopters that install the package without vendoring the source:
       # - run: npm i --no-save memory-atlas
 
+      - name: package freshness (wired + registry; hard on CI)
+        run: npx --no-install atlas gate --strict
+
       - name: atlas check (structure, ownership, lifecycle, corpus-if-enabled)
         run: npx --no-install atlas check --strict
 
@@ -57,6 +60,13 @@ Adjust the index path to match your vault directory (conventionally
 
 ## What fails the build
 
+Hard errors (exit 1) from `atlas gate --strict` (optional but recommended):
+
+- **Wired lag** — installed `memory-atlas` ≠ `.atlas-state.json` `atlasVersion`,
+  or pending migrations (run the `atlas-update` skill / `atlas migrate --write` +
+  `atlas wire all`)
+- **Registry lag** — npm latest newer than installed (bump the dep, then update)
+
 Hard errors (exit 1) from `atlas check`:
 
 - **Structure** — missing globs, bad `verifiedAt` encoding, seeded/active
@@ -67,6 +77,13 @@ Hard errors (exit 1) from `atlas check`:
   out of date with what `atlas build` regenerates (the index-sync step above)
 - **Corpus** — only when `check.corpus.enabled: true` (summary cap, required
   section headers, broken body wikilinks, orphan zones)
+
+Local **predev** (soft by default — does not block coding unless you set
+`check.packageFreshness.mode: "fail"`):
+
+```json
+"predev": "atlas gate"
+```
 
 ## What never fails the build by default
 

@@ -48,6 +48,12 @@ describe('loadConfig', () => {
       strictFreshness: false,
       ownership: true,
       corpus: { enabled: false, maxSummaryLen: 500 },
+      packageFreshness: {
+        mode: 'warn',
+        registry: true,
+        wired: true,
+        registryTtlHours: 24,
+      },
     })
     const repo = mkRepo()
     const config = loadConfig(repo)

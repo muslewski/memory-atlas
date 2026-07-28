@@ -45,7 +45,13 @@ per-field descriptions and autocomplete.
   "check": {
     "strictFreshness": false,
     "ownership": true,
-    "corpus": { "enabled": false, "maxSummaryLen": 500 }
+    "corpus": { "enabled": false, "maxSummaryLen": 500 },
+    "packageFreshness": {
+      "mode": "warn",
+      "registry": true,
+      "wired": true,
+      "registryTtlHours": 24
+    }
   },
   "retrieval": {
     "engine": "ctx-search",
@@ -146,6 +152,25 @@ Type `object`.
 - `corpus` (`object`, default `{ enabled: false, maxSummaryLen: 500 }`):
   opt-in retrieval-shape lint (summary cap, required headers, body links,
   orphans).
+- `packageFreshness` (`object`, default below): two-tier **fleet follow**
+  for the `memory-atlas` package itself (not zone code freshness).
+
+  | Field | Default | Meaning |
+  |-------|---------|--------|
+  | `mode` | `"warn"` | `"warn"`: print only (exit 0). `"fail"`: `atlas gate` exits 1 on enabled-tier issues. CLI `--strict` always fails on issues. |
+  | `wired` | `true` | Tier A: installed package vs `.atlas-state.json` `atlasVersion` + pending migrations. |
+  | `registry` | `true` | Tier B: installed package vs npm latest (TTL-cached, fail-open if offline / no `npm`). |
+  | `registryTtlHours` | `24` | Reuse `updateCheck.latest` in the state lockfile before re-querying. |
+
+  Surfaces: `atlas status` (always soft), `atlas doctor [--strict]`,
+  `atlas gate [--strict] [--force]`. Consumer recipe:
+
+  ```json
+  "scripts": {
+    "predev": "atlas gate",
+    "check": "atlas gate --strict && atlas check"
+  }
+  ```
 
 ### `retrieval`
 
