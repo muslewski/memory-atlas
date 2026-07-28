@@ -931,8 +931,14 @@ describe('atlas status — one line, tolerant, zero side effects', () => {
     const vault = vaultPath(repo)
     writeZone(vault, 'one', '', { status: 'seeded', verifiedAt: 'unverified' })
 
+    // Pin registry inject so CI does not depend on live npm latest.
+    const current = packageVersion()
     const lines = []
-    const code = runStatus([], { cwd: repo, stdout: { write: (s) => lines.push(s) } })
+    const code = runStatus([], {
+      cwd: repo,
+      stdout: { write: (s) => lines.push(s) },
+      fetchLatest: () => current,
+    })
     assert.equal(code, 0)
     assert.equal(lines.length, 1)
     assert.match(
@@ -954,14 +960,19 @@ describe('atlas status — one line, tolerant, zero side effects', () => {
     state.atlasVersion = '0.0.1'
     writeState(repo, state)
 
+    const current = packageVersion()
     const lines = []
-    const code = runStatus([], { cwd: repo, stdout: { write: (s) => lines.push(s) } })
+    const code = runStatus([], {
+      cwd: repo,
+      stdout: { write: (s) => lines.push(s) },
+      fetchLatest: () => current,
+    })
     assert.equal(code, 0)
     assert.equal(lines.length, 2)
     assert.match(lines[0], /🧭 /)
     assert.equal(
       lines[1],
-      `⬆ atlas ${packageVersion()} installed, wired 0.0.1 — run the atlas-update skill (.claude/skills/atlas-update/SKILL.md)\n`,
+      `⬆ atlas ${current} installed, wired 0.0.1 — run the atlas-update skill (.claude/skills/atlas-update/SKILL.md)\n`,
     )
   })
 
@@ -974,8 +985,13 @@ describe('atlas status — one line, tolerant, zero side effects', () => {
     const vault = vaultPath(repo)
     writeZone(vault, 'one', '', { status: 'seeded', verifiedAt: 'unverified' })
 
+    const current = packageVersion()
     const lines = []
-    runStatus([], { cwd: repo, stdout: { write: (s) => lines.push(s) } })
+    runStatus([], {
+      cwd: repo,
+      stdout: { write: (s) => lines.push(s) },
+      fetchLatest: () => current,
+    })
     assert.equal(lines.length, 1)
     assert.ok(!lines[0].includes('⬆ atlas'))
   })
@@ -990,8 +1006,13 @@ describe('atlas status — one line, tolerant, zero side effects', () => {
     writeZone(vault, 'one', '', { status: 'seeded', verifiedAt: 'unverified' })
     fs.rmSync(path.join(repo, '.atlas-state.json'))
 
+    const current = packageVersion()
     const lines = []
-    runStatus([], { cwd: repo, stdout: { write: (s) => lines.push(s) } })
+    runStatus([], {
+      cwd: repo,
+      stdout: { write: (s) => lines.push(s) },
+      fetchLatest: () => current,
+    })
     assert.equal(lines.length, 1)
     assert.match(lines[0], /🧭 /)
   })
@@ -1015,7 +1036,11 @@ describe('atlas status — one line, tolerant, zero side effects', () => {
     fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
 
     const lines = []
-    const code = runStatus(['--hook'], { cwd: repo, stdout: { write: (s) => lines.push(s) } })
+    const code = runStatus(['--hook'], {
+      cwd: repo,
+      stdout: { write: (s) => lines.push(s) },
+      fetchLatest: () => packageVersion(),
+    })
     assert.equal(code, 0)
     assert.deepEqual(lines, [])
   })

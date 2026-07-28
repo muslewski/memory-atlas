@@ -136,6 +136,34 @@
               "description": "Maximum allowed length of a zone's summary frontmatter field (longest legit summaries measured ~480)."
             }
           }
+        },
+        "packageFreshness": {
+          "type": "object",
+          "description": "Two-tier package freshness for fleet consumers: wired lag (installed vs .atlas-state) and registry lag (installed vs npm latest). Surfaces on atlas status / doctor / gate.",
+          "additionalProperties": false,
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": ["warn", "fail"],
+              "default": "warn",
+              "description": "warn (default): print only, exit 0. fail: atlas gate exits 1 when an enabled tier has issues. CLI --strict always fails on issues regardless of mode."
+            },
+            "registry": {
+              "type": "boolean",
+              "default": true,
+              "description": "When true, probe npm for memory-atlas latest (TTL-cached, fail-open)."
+            },
+            "wired": {
+              "type": "boolean",
+              "default": true,
+              "description": "When true, compare installed package version to .atlas-state.json atlasVersion and pending migrations."
+            },
+            "registryTtlHours": {
+              "type": "number",
+              "default": 24,
+              "description": "Hours to reuse .atlas-state.json updateCheck.latest before re-querying npm."
+            }
+          }
         }
       }
     },

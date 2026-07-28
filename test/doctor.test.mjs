@@ -56,7 +56,13 @@ describe('runDoctor', () => {
     })
 
     const io = capture()
-    const code = runDoctor([], { cwd: repo, grokHooksDir, stdout: io.stdout })
+    const code = runDoctor([], {
+      cwd: repo,
+      grokHooksDir,
+      stdout: io.stdout,
+      // Pin registry so healthy fixture does not depend on live npm.
+      fetchLatest: () => packageVersion(),
+    })
     assert.equal(code, 0)
     const text = io.text()
     assert.match(text, /✓ lockfile/)

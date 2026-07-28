@@ -9,6 +9,7 @@ import { loadConfig } from '../lib/config.mjs'
 import { runCorpusChecks } from '../lib/corpus.mjs'
 import { findRepoRoot, findVaultDir } from '../lib/detect.mjs'
 import { runDoctor } from '../lib/doctor.mjs'
+import { runGate } from '../lib/gate.mjs'
 import { runInit } from '../lib/init.mjs'
 import { lintLedger } from '../lib/ledger.mjs'
 import { runMigrate } from '../lib/migrate.mjs'
@@ -41,10 +42,16 @@ Commands:
   atlas status [--hook]   One-line vault health summary (safe as a hook). --hook marks
                           a SessionStart-hook call site, honoring hooks.sessionStartStatus
                           in atlas.config.json; a plain human/script call always prints.
+                          Also prints two-tier package-freshness nudges (wired + registry).
+  atlas gate [--strict] [--force]
+                          Package-freshness gate for predev/CI. Default mode is warn
+                          (exit 0). --strict or check.packageFreshness.mode=fail → exit 1
+                          on issues. --force refreshes npm latest (bypasses TTL cache).
   atlas wire [claude|grok|all]
                           Wire SessionStart hooks + managed CLAUDE.md/AGENTS.md on-ramp
                           blocks (default: all). Idempotent; refuses malformed JSON targets.
-  atlas doctor            Dry-run inventory of provenance lockfile, wiring, and on-ramp blocks
+  atlas doctor [--strict] Dry-run inventory of provenance lockfile, wiring, and on-ramp blocks.
+                          --strict exits 1 when package-freshness issues are present.
   atlas migrate [--write] [--json]
                           Apply pending versioned migrations (dry-run by default; --write to apply)
   atlas adopt [--write] [--json]
@@ -265,6 +272,7 @@ const COMMANDS = {
   stamp: (args) => runStamp(args, { cwd: process.cwd() }),
   search: (args) => runSearch(args, { cwd: process.cwd() }),
   status: (args) => runStatus(args, { cwd: process.cwd() }),
+  gate: (args) => runGate(args, { cwd: process.cwd() }),
   wire: (args) => runWire(args, { cwd: process.cwd() }),
   doctor: (args) => runDoctor(args, { cwd: process.cwd() }),
   migrate: (args) => runMigrate(args, { cwd: process.cwd() }),

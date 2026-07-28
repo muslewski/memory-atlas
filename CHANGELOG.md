@@ -4,9 +4,22 @@
 
 ### Docs
 - Website + docs surface for optional **memory-atlas-visuals** (enable, wire, gallery)
+- `check.packageFreshness` field reference; CI recipe adds `atlas gate --strict`
 
 ### Added
 
+- **Two-tier package freshness (fleet follow)** — consumers stay aligned with
+  the published toolkit without reimplementing gates:
+  - **Tier A (wired):** installed package vs `.atlas-state.json` `atlasVersion`
+    + pending migrations
+  - **Tier B (registry):** installed vs npm latest (`npm view`, TTL-cached in
+    `state.updateCheck`, fail-open offline)
+  - Config: `check.packageFreshness` (`mode: warn|fail`, `registry`, `wired`,
+    `registryTtlHours`) — default **warn**
+  - **`atlas gate [--strict] [--force]`** for predev/CI (exit 1 only on fail
+    mode or `--strict` when issues exist)
+  - `atlas status` prints both tiers (always soft / SessionStart-safe)
+  - `atlas doctor [--strict]` inventory lines + optional hard exit
 - **`visuals` block in `atlas.config.json`** — optional companion hook for
   `memory-atlas-visuals` (digests / gallery under the vault). Defaults off
   (`enabled: false`); paths are vault-relative. Config-only in this package —
