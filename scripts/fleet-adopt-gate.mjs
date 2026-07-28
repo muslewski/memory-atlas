@@ -26,7 +26,7 @@ import { fileURLToPath } from 'node:url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ATLAS_ROOT = path.resolve(__dirname, '..')
 const REPOS_ROOT = process.env.REPOS_ROOT || path.resolve(ATLAS_ROOT, '..')
-const TARGET = process.env.ATLAS_VERSION || '0.5.2'
+const TARGET = process.env.ATLAS_VERSION || '0.5.4'
 const DRY = process.argv.includes('--dry-run')
 const SKIP_INSTALL = process.env.SKIP_INSTALL === '1'
 // argv: node script.mjs [--dry-run] [repo…]

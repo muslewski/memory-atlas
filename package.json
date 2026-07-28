@@ -1,6 +1,6 @@
 {
   "name": "memory-atlas",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "type": "module",
   "description": "Per-repo knowledge atlas for agent fleets — verified architecture cards with an honest freshness signal. The past, mapped.",
   "author": "muslewski <10kento10@gmail.com>",
@@ -38,13 +38,21 @@
     "adapters",
     "examples",
     "docs",
-    "SPEC.md"
+    "SPEC.md",
+    "scripts/postinstall.mjs"
   ],
   "scripts": {
     "test": "node --test test/",
     "lint": "npx @biomejs/biome check .",
     "docs:check": "node ../docs-kit/bin/docs-kit.mjs check docs/",
-    "docs:health": "node ../docs-kit/bin/docs-kit.mjs health docs/"
+    "docs:health": "node ../docs-kit/bin/docs-kit.mjs health docs/",
+    "postinstall": "node scripts/postinstall.mjs",
+    "predev": "atlas gate",
+    "atlas": "atlas",
+    "atlas:gate": "atlas gate",
+    "atlas:doctor": "atlas doctor",
+    "atlas:wire": "atlas wire all",
+    "//sage-gate": "global only — sage gate (preferred judge) is machine-level; not chained into predev. run: sage gate"
   },
   "license": "MIT",
   "devDependencies": {
