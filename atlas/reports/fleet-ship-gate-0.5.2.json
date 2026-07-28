@@ -1,0 +1,198 @@
+{
+  "target": "0.5.2",
+  "results": [
+    {
+      "name": "7-liceum-bydgoszcz",
+      "shipped": true,
+      "error": null,
+      "pr": "https://github.com/muslewski/7-liceum-bydgoszcz/pull/1"
+    },
+    {
+      "name": "agentic-sage",
+      "shipped": true,
+      "error": null,
+      "pr": "https://github.com/muslewski/agentic-sage/pull/18"
+    },
+    {
+      "name": "agentic-sage-site",
+      "shipped": true,
+      "error": null,
+      "pr": "https://github.com/muslewski/agentic-sage-website/pull/1"
+    },
+    {
+      "name": "avatar-stack",
+      "shipped": false,
+      "error": "no origin remote",
+      "pr": null
+    },
+    {
+      "name": "delieta",
+      "shipped": false,
+      "error": "nothing staged",
+      "pr": null
+    },
+    {
+      "name": "eve",
+      "shipped": false,
+      "error": "push: remote: Permission to vercel/eve.git denied to muslewski.\nfatal: unable to access 'https://github.com/vercel/eve/': The requested URL returned error: 403\n",
+      "pr": null
+    },
+    {
+      "name": "eventizer",
+      "shipped": false,
+      "error": "nothing staged",
+      "pr": null
+    },
+    {
+      "name": "green-ui-kit",
+      "shipped": true,
+      "error": null,
+      "pr": "https://github.com/muslewski/green-ui-kit/pull/1"
+    },
+    {
+      "name": "grzybniety",
+      "shipped": true,
+      "error": null,
+      "pr": "https://github.com/muslewski/grzybniety/pull/1"
+    },
+    {
+      "name": "hermes",
+      "shipped": false,
+      "error": "no origin remote",
+      "pr": null
+    },
+    {
+      "name": "llm-armory",
+      "shipped": true,
+      "error": null,
+      "pr": "https://github.com/muslewski/llm-armory/pull/5"
+    },
+    {
+      "name": "modasklep",
+      "shipped": false,
+      "error": "no origin remote",
+      "pr": null
+    },
+    {
+      "name": "mossferry",
+      "shipped": false,
+      "error": "no origin remote",
+      "pr": null
+    },
+    {
+      "name": "muslewski",
+      "shipped": true,
+      "error": null,
+      "pr": "https://github.com/muslewski/muslewski/pull/1"
+    },
+    {
+      "name": "muslewski-v3",
+      "shipped": true,
+      "error": null,
+      "pr": "https://github.com/muslewski/muslewski-v3/pull/6"
+    },
+    {
+      "name": "nightshift-glow-studio",
+      "shipped": true,
+      "error": null,
+      "pr": "https://github.com/muslewski/nightshift-glow-studio/pull/2"
+    },
+    {
+      "name": "ogrody-kryscar",
+      "shipped": true,
+      "error": null,
+      "pr": "https://github.com/muslewski/ogrody-kryscar/pull/1"
+    },
+    {
+      "name": "payloadbolt",
+      "shipped": false,
+      "error": "no origin remote",
+      "pr": null
+    },
+    {
+      "name": "personal-knowledge-base",
+      "shipped": true,
+      "error": null,
+      "pr": "https://github.com/muslewski/personal-knowledge-base/pull/1"
+    },
+    {
+      "name": "pol-med-v4",
+      "shipped": true,
+      "error": null,
+      "pr": "https://github.com/muslewski/pol-med-v4/pull/1"
+    },
+    {
+      "name": "processing-stylization",
+      "shipped": false,
+      "error": "no origin remote",
+      "pr": null
+    },
+    {
+      "name": "realtime-voice",
+      "shipped": false,
+      "error": "no origin remote",
+      "pr": null
+    },
+    {
+      "name": "scentloop",
+      "shipped": false,
+      "error": "merge: failed to run git: error: Your local changes to the following files would be overwritten by checkout:\n\tscent-mind/map/zones/the-lab.md\nPlease commit your changes or stash them before you switch branches.\nAborting\n\n",
+      "pr": "https://github.com/muslewski/scentloop/pull/1"
+    },
+    {
+      "name": "status-herald",
+      "shipped": true,
+      "error": null,
+      "pr": "https://github.com/muslewski/status-herald/pull/10"
+    },
+    {
+      "name": "stream-engine",
+      "shipped": false,
+      "error": "merge: failed to run git: error: Your local changes to the following files would be overwritten by checkout:\n\tstream-mind/map/zones/output-ui.md\n\tstream-mind/map/zones/server-layer.md\nPlease commit your changes or stash them before you switch branches.\nAborting\n\n",
+      "pr": "https://github.com/muslewski/stream-engine/pull/1"
+    },
+    {
+      "name": "syndcast",
+      "shipped": false,
+      "error": "working tree clean (already shipped or no changes)",
+      "pr": null
+    },
+    {
+      "name": "syndcast-frontend-examples",
+      "shipped": false,
+      "error": "no origin remote",
+      "pr": null
+    },
+    {
+      "name": "threejs-control",
+      "shipped": false,
+      "error": "no origin remote",
+      "pr": null
+    },
+    {
+      "name": "token-oracle",
+      "shipped": true,
+      "error": null,
+      "pr": "https://github.com/muslewski/token-oracle/pull/19"
+    },
+    {
+      "name": "webrtc-core",
+      "shipped": false,
+      "error": "no origin remote",
+      "pr": null
+    },
+    {
+      "name": "work-kb",
+      "shipped": false,
+      "error": "no origin remote",
+      "pr": null
+    },
+    {
+      "name": "yours-fairy-tale",
+      "shipped": true,
+      "error": null,
+      "pr": "https://github.com/muslewski/yours-fairy-tale/pull/8"
+    }
+  ],
+  "at": "2026-07-28T08:21:45.522Z"
+}
