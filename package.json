@@ -42,7 +42,7 @@
     "scripts/postinstall.mjs"
   ],
   "scripts": {
-    "test": "node --test test/",
+    "test": "node --test test/*.mjs",
     "lint": "npx @biomejs/biome check .",
     "docs:check": "node ../docs-kit/bin/docs-kit.mjs check docs/",
     "docs:health": "node ../docs-kit/bin/docs-kit.mjs health docs/",
