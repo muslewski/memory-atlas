@@ -273,6 +273,24 @@
           "description": "Whether dogfood/dev scripts may start the visuals gallery alongside the main app."
         }
       }
+    },
+    "telemetry": {
+      "type": "object",
+      "description": "Local-first debug telemetry. OFF by default in the published package. Fleet enables via ~/.config/memory-atlas/config.json or ATLAS_TELEMETRY=1. No network in v1.",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "When true, append one JSONL event per finished CLI command (not status --hook)."
+        },
+        "level": {
+          "type": "string",
+          "enum": ["debug", "minimal"],
+          "default": "debug",
+          "description": "debug: include vault counts when available; minimal: cmd/exit/ms only."
+        }
+      }
     }
   }
 }

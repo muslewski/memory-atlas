@@ -70,6 +70,10 @@ per-field descriptions and autocomplete.
     "skills": true,
     "port": 4555,
     "concurrentDev": true
+  },
+  "telemetry": {
+    "enabled": false,
+    "level": "debug"
   }
 }
 ```
@@ -191,6 +195,28 @@ Type `object`.
 Type `object`. `dir` (default `.claude/skills`) and `nav` (default
 `atlas-nav`): where this repo keeps its Atlas-navigation skills, and which
 one is the entry ramp. Documents the wiring described in `docs/ONRAMP.md`.
+
+### `telemetry`
+
+Type `object`. **Local-first debug telemetry — OFF by default** when the
+package is published.
+
+| Field | Default | Meaning |
+|-------|---------|---------|
+| `enabled` | `false` | Append one JSONL event per finished CLI command |
+| `level` | `"debug"` | Reserved; counts when vault is available |
+
+**Fleet enable (once on the machine, not per repo):**
+
+```bash
+atlas telemetry on
+# or: echo '{"telemetry":{"enabled":true}}' > ~/.config/memory-atlas/config.json
+# or: export ATLAS_TELEMETRY=1
+```
+
+Events land in `~/.cache/memory-atlas/events.jsonl`. Inspect with
+`atlas telemetry report`. Kill: `ATLAS_TELEMETRY=0`, `--no-telemetry`, or
+`atlas telemetry off`. Never tracks `status --hook`. No network in v1.
 
 ### `hooks`
 

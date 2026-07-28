@@ -1,5 +1,5 @@
 {
-  "atlasVersion": "0.4.0",
+  "atlasVersion": "0.5.2",
   "configVersion": 1,
   "specVersion": "0.1",
   "modules": [],
@@ -40,5 +40,10 @@
       "sha256": "8c44453bc63d5e8fbfe6e75675e74043087cc8a5dd2fc025af0baffd0ffaac46",
       "atlasVersion": "0.4.0"
     }
+  },
+  "updateCheck": {
+    "checkedAt": "2026-07-28T08:23:05.300Z",
+    "latest": "0.5.2",
+    "source": "npm"
   }
 }

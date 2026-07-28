@@ -2,6 +2,24 @@
 
 ## [Unreleased]
 
+## [0.5.3] — 2026-07-28
+
+### Added
+
+- **Local-first debug telemetry** (OFF by default when published):
+  - Enable fleet-wide: `atlas telemetry on` or `ATLAS_TELEMETRY=1` or
+    `~/.config/memory-atlas/config.json` → `{ "telemetry": { "enabled": true } }`
+  - Events: `~/.cache/memory-atlas/events.jsonl` (cmd, exit, ms, version, vault counts)
+  - CLI: `atlas telemetry status|report|dump|clear|on|off`
+  - Never tracks `status --hook`; never throws; no network; zero deps
+  - Design: `atlas/specs/2026-07-28-telemetry-local-debug-design.md`
+
+## [0.5.2] — 2026-07-28
+
+### Fixed
+
+- **`atlas migrate --write`** stamps `atlasVersion` when no FS migrations pending
+
 ## [0.5.1] — 2026-07-28
 
 ### Added
