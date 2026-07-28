@@ -1,0 +1,173 @@
+{
+  "results": [
+    {
+      "name": "7-liceum-bydgoszcz",
+      "ok": false,
+      "pr": null,
+      "error": "nothing staged",
+      "local": false
+    },
+    {
+      "name": "agentic-sage",
+      "ok": false,
+      "pr": null,
+      "error": "nothing staged",
+      "local": false
+    },
+    {
+      "name": "agentic-sage-site",
+      "ok": false,
+      "pr": null,
+      "error": "nothing staged",
+      "local": false
+    },
+    {
+      "name": "delieta",
+      "ok": false,
+      "pr": null,
+      "error": "nothing staged",
+      "local": false
+    },
+    {
+      "name": "eve",
+      "ok": false,
+      "pr": null,
+      "error": "commit: Scope: all 29 workspace projects\n✓ Lockfile passes supply-chain policies (verified 1h ago)\n[WARN] Moving memory-atlas that was installed by a different package manager to \"node_modules/.ignored\"\nProgress: resolved 1, reused 0, downloaded 0, added 0\nProgress: resolved 88, reused 88, downloaded 0, added 0\nProgress: resolved 130, reused 130, downloaded 0, added 0\nProgress: resolved 136, reused 136, downloaded 0, added 0\nProgress: resolved 137, reused 136, downloaded 0, added 0\nProgress: resolved 501, reused 426, downloaded 0, added 0\nProgress: resolved 867, reused 739, downloaded 0, added 0\nProgress: resolved 1129, reused 931, downloaded 0, added 0\nProgress: resolved 1287, reused 1064, downloaded 0, added 0\nProgress: resolved 1563, reused 1258, downloaded 0, added 0\nProgress: resolved 1812, reused 1462, downloaded 3, added 0\nProgress: resolved 1961, reused 1590, downloaded 3, added 0\nProgress: resolved 2112, reused 1735, downloaded 4, added 0\nProgress: resolved 2389, reused 1948, downloaded 7, added 0\nProgress: resolved 2454, reused 2013, downloaded 7, added 0\n[ERR_PNPM_NO_MATURE_MATCHING_VERSION] 1 version does not meet the minimumReleaseAge constraint:\n  memory-atlas@0.5.2 was published at 2026-07-28T08:10:06.955Z, within the minimumReleaseAge cutoff (2026-07-26T09:44:49.676Z)\n[ERROR] Command failed with exit code 1: /home/kento/.nvm/versions/node/v24.18.0/bin/node /home/kento/.cache/node/corepack/v1/pnpm/11.7.0/bin/pnpm.mjs install\n\npnpm: Command failed with exit code 1: /home/kento/.nvm/versions/node/v24.18.0/bin/node /home/kento/.cache/node/corepack/v1/pnpm/11.7.0/bin/pnpm.mjs install\n    at getFinalError (file:///home/kento/.cache/node/corepack/v1/pnpm/11.7.0/dist/pnpm.mjs:34109:14)\n    at makeError (file:///home/kento/.cache/node/corepack/v1/pnpm/11.7.0/dist/pnpm.mjs:36416:21)\n    at getSyncResult (file:///home/kento/.cache/node/corepack/v1/pnpm/11.7.0/dist/pnpm.mjs:38260:10)\n    at spawnSubprocessSync (file:///home/kento/.cache/node/corepack/v1/pnpm/11.7.0/dist/pnpm.mjs:38220:14)\n    at execaCoreSync (file:///home/kento/.cache/node/corepack/v1/pnpm/11.7.0/dist/pnpm.mjs:38150:23)\n    at callBoundExeca (file:///home/kento/.cache/node/corepack/v1/pnpm/11.7.0/dist/pnpm.mjs:40678:23)\n    at boundExeca (file:///home/kento/.cache/node/corepack/v1/pnpm/11.7.0/dist/pnpm.mjs:40655:49)\n    at sync (file:///home/kento/.cache/node/corepack/v1/pnpm/11.7.0/dist/pnpm.mjs:40814:10)\n    at runPnpmCli (file:///home/kento/.cache/node/corepack/v1/pnpm/11.7.0/dist/pnpm.mjs:245099:5)\n    at runDepsStatusCheck (file:///home/kento/.cache/node/corepack/v1/pnpm/11.7.0/dist/pnpm.mjs:246833:7)\n",
+      "local": false
+    },
+    {
+      "name": "eventizer",
+      "ok": false,
+      "pr": null,
+      "error": "nothing staged",
+      "local": false
+    },
+    {
+      "name": "fleet-marketing-sites",
+      "ok": false,
+      "pr": null,
+      "error": "no git",
+      "local": false
+    },
+    {
+      "name": "fleet-site-ships",
+      "ok": false,
+      "pr": null,
+      "error": "no git",
+      "local": false
+    },
+    {
+      "name": "green-ui-kit",
+      "ok": false,
+      "pr": null,
+      "error": "nothing staged",
+      "local": false
+    },
+    {
+      "name": "grzybniety",
+      "ok": false,
+      "pr": null,
+      "error": "nothing staged",
+      "local": false
+    },
+    {
+      "name": "hermes",
+      "ok": false,
+      "pr": null,
+      "error": "nothing staged",
+      "local": false
+    },
+    {
+      "name": "llm-armory",
+      "ok": false,
+      "pr": null,
+      "error": "nothing staged",
+      "local": false
+    },
+    {
+      "name": "mossferry",
+      "ok": false,
+      "pr": null,
+      "error": "nothing staged",
+      "local": false
+    },
+    {
+      "name": "muslewski",
+      "ok": false,
+      "pr": null,
+      "error": "nothing staged",
+      "local": false
+    },
+    {
+      "name": "muslewski-v3",
+      "ok": false,
+      "pr": null,
+      "error": "nothing staged",
+      "local": false
+    },
+    {
+      "name": "nightshift-glow-studio",
+      "ok": false,
+      "pr": null,
+      "error": "nothing staged",
+      "local": false
+    },
+    {
+      "name": "ogrody-kryscar",
+      "ok": false,
+      "pr": null,
+      "error": "nothing staged",
+      "local": false
+    },
+    {
+      "name": "personal-knowledge-base",
+      "ok": false,
+      "pr": null,
+      "error": "nothing staged",
+      "local": false
+    },
+    {
+      "name": "pol-med-v4",
+      "ok": false,
+      "pr": null,
+      "error": "nothing staged",
+      "local": false
+    },
+    {
+      "name": "scentloop",
+      "ok": false,
+      "pr": null,
+      "error": "nothing staged",
+      "local": false
+    },
+    {
+      "name": "status-herald",
+      "ok": false,
+      "pr": null,
+      "error": "nothing staged",
+      "local": false
+    },
+    {
+      "name": "syndcast",
+      "ok": false,
+      "pr": null,
+      "error": "nothing staged",
+      "local": false
+    },
+    {
+      "name": "token-oracle",
+      "ok": false,
+      "pr": null,
+      "error": "nothing staged",
+      "local": false
+    },
+    {
+      "name": "yours-fairy-tale",
+      "ok": false,
+      "pr": null,
+      "error": "nothing staged",
+      "local": false
+    }
+  ],
+  "at": "2026-07-28T09:45:06.847Z"
+}
