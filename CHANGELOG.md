@@ -7,16 +7,32 @@
 - **status:** registry-lag soft line (`atlas status` / SessionStart `--hook`) uses concrete
   `npm i -D memory-atlas@… then atlas-update` instead of vague "bump dep" (OSS update-me).
 
-## [0.5.4](https://github.com/muslewski/memory-atlas/compare/v0.5.3...v0.5.4) (2026-07-28)
+## [0.5.4] — 2026-07-28
 
-### Features
+### Added
 
-* **doctor:** soft agentic-sage inventory when `sage` is on PATH (optional adapter present/missing)
-* **fleet:** default adopt TARGET 0.5.4; pair docs with agentic-sage (past + present)
+- **`atlas doctor` soft agentic-sage adapter inventory** — when `sage` is on
+  PATH, doctor notes whether `.agentic-sage/adapter.mjs` is present (or points
+  at `examples/with-agentic-sage`). Fail-open if sage is missing — products
+  stay independent; no hard dependency either way.
+- **Hint-only postinstall** — prints dual-product install path (atlas = past,
+  agentic-sage = present); no filesystem writes.
+
+### Docs / fleet
+
+- **Dual product story** (README, `docs/works-with.md`, `docs/ONRAMP.md`):
+  - **memory-atlas** = the past (architecture memory)
+  - **agentic-sage** = the present (fleet sessions)
+  - Co-install: `npm i -D memory-atlas` · `npm i -g agentic-sage` ·
+    `atlas wire` · `sage init`
+  - Stay current: `atlas gate` / `sage gate` soft nudges by default
+- Fleet adopt script default TARGET → **0.5.4**
 
 ### Changed
 
-* **status:** registry-lag soft line on SessionStart (`atlas status --hook`) uses concrete `npm i -D memory-atlas@… then atlas-update` (OSS update-me; wired lag line unchanged)
+- **status:** registry-lag soft line on SessionStart (`atlas status --hook`) uses
+  concrete `npm i -D memory-atlas@… then atlas-update` (OSS update-me; wired lag
+  line unchanged)
 
 ## [0.5.3] — 2026-07-28
 
