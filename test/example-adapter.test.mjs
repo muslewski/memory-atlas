@@ -161,4 +161,43 @@ describe('examples/with-agentic-sage/adapter.mjs — a living contract check aga
       process.chdir(prevCwd)
     }
   })
+
+  test('generatedGlobs derives index.md from custom folders.zones parent (no hardcoded map/)', () => {
+    const repo = mkRepo()
+    runInit(['--modules', 'backlog'], { cwd: repo, ...silentIo() })
+    const configPath = path.join(repo, 'atlas.config.json')
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'))
+    const vaultName = `${path.basename(repo)}-atlas`
+    // Move default vault layout into architecture/zones style without renaming vaultDir
+    const vault = path.join(repo, vaultName)
+    fs.mkdirSync(path.join(vault, 'architecture', 'zones'), { recursive: true })
+    // leave map/ in place; point config at architecture/zones so resolveVault uses it
+    writeZone(path.join(repo, vaultName), 'billing', ['src/billing/**'])
+    // writeZone always writes under map/zones — re-home for this test
+    const srcZone = path.join(vault, 'map', 'zones', 'billing.md')
+    if (fs.existsSync(srcZone)) {
+      fs.renameSync(srcZone, path.join(vault, 'architecture', 'zones', 'billing.md'))
+    }
+    config.folders = { ...(config.folders || {}), zones: 'architecture/zones' }
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
+
+    const prevCwd = process.cwd()
+    try {
+      process.chdir(repo)
+      assert.deepEqual(adapter.generatedGlobs(), [`${vaultName}/architecture/index.md`])
+      assert.equal(adapter.ownsZone('src/billing/invoice.ts', { repoRoot: repo }), 'billing')
+    } finally {
+      process.chdir(prevCwd)
+    }
+  })
+
+  test('adapter source has no project-specific vault path literals', () => {
+    const src = fs.readFileSync(
+      path.join(path.dirname(new URL(import.meta.url).pathname), '../examples/with-agentic-sage/adapter.mjs'),
+      'utf8',
+    )
+    for (const bad of ['syndcast-mind', 'acme-mind', '/home/kento', 'Repositories/syndcast']) {
+      assert.equal(src.includes(bad), false, `must not hardcode ${bad}`)
+    }
+  })
 })
