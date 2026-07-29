@@ -4,8 +4,8 @@ summary: "The verification engine: lib/validate.mjs's pure core (anchor checks, 
 tags: [verifier]
 status: active
 created: 2026-07-09
-updated: 2026-07-09
-verifiedAt: 705fbdc8
+updated: 2026-07-29
+verifiedAt: f1ff93d5
 owns:
   routes: []
   testids: []
@@ -17,13 +17,14 @@ depends: []
 invariants:
   - rule: "an unmounted zone's anchors (owns.globs/testids/tools/routes) are never evaluated — checked and routed to the attic BEFORE any anchor check runs, so retired code can't produce a false failure"
     enforcedBy: ["test/validate.test.mjs"]
-  - rule: "verifiedAt encoding is checked against status: seeded requires the literal string \"unverified\"; active requires a 7-40 hex-char commit SHA; anything else is a hard error"
-    enforcedBy: ["test/validate.test.mjs"]
+  - rule: "verifiedAt encoding is checked against status: seeded requires the literal string \"unverified\"; active requires a 7-40 hex-char commit SHA or \"unverified\" (stamp invalidated after merge); ISO dates and other garbage are hard errors"
+    enforcedBy: ["test/validate.test.mjs", "test/merge-zone.test.mjs"]
 skills: []
 advances: []
 related: []
 sources:
   - [[0001-zero-dependency-constraint]]
+  - [[2026-07-30-verifiedAt-after-merge-unverified]]
 ---
 
 ## What this is
@@ -54,7 +55,10 @@ anchors would be a false failure once the code they pointed at is gone.
 The verifiedAt-encoding rule is the mechanism behind the "seeded is
 load-bearing" clause in SPEC.md §4 — a machine-generated card cannot
 silently promote itself by writing any SHA-looking string while still
-`seeded`.
+`seeded`. `active` + `unverified` is legal after a stamp-only merge
+invalidation (neither parent SHA is honest for the merged tree) — see
+[[2026-07-30-verifiedAt-after-merge-unverified]]; it surfaces as a
+re-stamp warning, not a hard encoding error.
 
 ## Lineage
 

@@ -1,11 +1,11 @@
 ---
 type: zone
-summary: "The atlas command-line entry point: bin/atlas.mjs dispatch plus init/stamp/status/routine; local telemetry and opt-in fleet-devlog v1 emit on finished commands."
+summary: "The atlas command-line entry point: bin/atlas.mjs dispatch plus init/stamp/status/routine/wire/merge drivers; local telemetry and opt-in fleet-devlog v1 emit on finished commands."
 tags: [cli]
 status: active
 created: 2026-07-09
 updated: 2026-07-29
-verifiedAt: 49573fc7
+verifiedAt: f1ff93d5
 owns:
   routes: []
   testids: []
@@ -17,7 +17,14 @@ owns:
     - "lib/routine.mjs"
     - "lib/telemetry.mjs"
     - "lib/fleet-devlog.mjs"
+    - "lib/wire.mjs"
+    - "lib/merge-index.mjs"
+    - "lib/merge-zone.mjs"
+    - "lib/doctor.mjs"
     - "test/fleet-devlog.test.mjs"
+    - "test/merge-index.test.mjs"
+    - "test/merge-zone.test.mjs"
+    - "test/wire.test.mjs"
   tools: []
 depends:
   - [[verifier-core]]
@@ -28,11 +35,14 @@ invariants:
     enforcedBy: ["test/integration.test.mjs"]
   - rule: "atlas status --hook honors atlas.config.json's hooks.sessionStartStatus (silences the hook call site only); a direct human/script `atlas status` call always prints regardless of that toggle"
     enforcedBy: ["test/integration.test.mjs"]
+  - rule: "atlas wire merge-driver is report-first (writes only with --write), refuses dirty trees unless --allow-dirty, and is idempotent on a second --write"
+    enforcedBy: ["test/wire.test.mjs"]
 skills: []
 advances: []
 related: []
 sources:
   - [[0003-vault-named-atlas]]
+  - [[2026-07-30-verifiedAt-after-merge-unverified]]
 ---
 
 ## What this is
@@ -42,10 +52,11 @@ sources:
 `argv`, resolves the repo root + vault dir once (`resolveVault`), honors the
 `enabled: false` kill switch for every subcommand except `init`, and
 dispatches to a handler. `build` and `check` are implemented inline in
-`bin/atlas.mjs` itself (sharing `buildCore`); `init`, `stamp`, `status`, and
-`routine` are implemented as separate `lib/*.mjs` modules that `bin/atlas.mjs`
-imports and calls directly — this zone owns both the dispatcher and those
-four subcommand modules, since together they *are* "the CLI's surface."
+`bin/atlas.mjs` itself (sharing `buildCore` / `renderCore`); subcommands
+live under `lib/*.mjs`. This zone also owns the portable concurrent-edit
+safety net: `lib/wire.mjs` (`atlas wire merge-driver --write`),
+`lib/merge-index.mjs` (regenerate `map/index.md` on conflict), and
+`lib/merge-zone.mjs` (stamp-only conflicts → `verifiedAt: unverified`).
 
 ## Anchors
 

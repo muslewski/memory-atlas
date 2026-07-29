@@ -4,8 +4,8 @@ summary: "The copy-paste kit that wires an adopting repo's agents into the conve
 tags: [onramp]
 status: active
 created: 2026-07-09
-updated: 2026-07-09
-verifiedAt: 705fbdc8
+updated: 2026-07-29
+verifiedAt: f1ff93d5
 owns:
   routes: []
   testids: []
@@ -13,6 +13,7 @@ owns:
     - "skills/**"
     - "adapters/**"
     - "docs/ONRAMP.md"
+    - "docs/recollecting-in-parallel.md"
   tools: []
 depends: []
 invariants:
@@ -24,7 +25,8 @@ skills:
   - [[writing-for-retrieval]]
 advances: []
 related: []
-sources: []
+sources:
+  - [[2026-07-30-verifiedAt-after-merge-unverified]]
 ---
 
 ## What this is

@@ -13,3 +13,19 @@ This repository has an Atlas: a plain-markdown knowledge base of what the code i
 - Route spec-writing output to `atlas/specs/` and plan-writing output to `atlas/plans/`; keep each note's `summary` field crisp — retrieval engines surface the summary plus one section, not the whole note.
 - Detailed procedures (navigation, recollection on finish, note authoring, toolkit update) are plain markdown files under `.claude/skills/<name>/SKILL.md` — read the matching one before doing those tasks.
 <!-- /atlas:onramp -->
+
+## Parallel recollection — worker / integrator
+
+`map/index.md` is generated. Parallel agents must not merge-war over it.
+
+| Role | Stage | Do not |
+|------|--------|--------|
+| **Worker** (dispatched task) | Only `map/zones/<slug>.md` and the decision/debt notes you own | Never stage `map/index.md`; never run `atlas build` |
+| **Integrator** (merging others, or solo) | After zones are merged, run `atlas build` **once** and commit the rebuilt index | Do not leave a hand-merged index |
+
+If unsure, you are a worker. Full write-up: `docs/recollecting-in-parallel.md`.
+
+**Safety net (not a substitute):** `atlas wire merge-driver` (report-first) then
+`--write` installs local git merge drivers so a mistaken index commit regenerates
+from zone cards, and stamp-only zone conflicts resolve to `verifiedAt: unverified`.
+`.gitattributes` alone does nothing without per-clone `git config merge.*.driver`.

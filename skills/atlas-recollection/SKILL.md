@@ -36,8 +36,15 @@ pass. Run this checklist before ending the session:
   **Integrator (you are merging others' work, or you are the only session):**
   after integrating, run `atlas build` once and commit the rebuilt
   `map/index.md` on its own or folded into the integration commit.
+  Re-stamp zones whose content you actually re-read (stamp-only merges may
+  have cleared `verifiedAt` to `unverified`).
 
   If you are unsure which you are, you are a worker.
+
+  **Safety net:** `atlas wire merge-driver --write` (report-first without
+  `--write`) installs local git drivers so a mistaken index commit regenerates
+  from zone cards, and stamp-only zone conflicts resolve to unverified. See
+  `docs/recollecting-in-parallel.md`. Not a substitute for the split above.
 - [ ] **Supersede, don't edit; tombstone, don't delete.** Past-tense notes
   (specs, decisions, done plans) are read-only once frozen — write a
   superseding note instead of editing history. A retired zone/flow/decision
