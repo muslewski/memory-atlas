@@ -27,6 +27,7 @@ import {
 } from '../lib/telemetry.mjs'
 import { runVisuals } from '../lib/visuals.mjs'
 import { mergeIndex } from '../lib/merge-index.mjs'
+import { mergeZone } from '../lib/merge-zone.mjs'
 import { runWire } from '../lib/wire.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -54,12 +55,17 @@ Commands:
                           Default mode is warn (exit 0). --strict or
                           check.packageFreshness.mode=fail → exit 1 on issues.
                           --force refreshes npm latest (bypasses TTL cache).
-  atlas wire [claude|grok|all|merge-driver]
+  atlas wire [claude|grok|all|merge-driver] [--write] [--allow-dirty]
                           Wire SessionStart hooks + managed CLAUDE.md/AGENTS.md on-ramp
                           blocks (default: all). Idempotent; refuses malformed JSON targets.
-                          merge-driver: install local git merge driver for map/index.md.
+                          merge-driver: report-first install of local git merge drivers for
+                          map/index.md (regenerate) and map/zones/*.md (verifiedAt-only →
+                          unverified). Dry-run unless --write. Refuses a dirty tree unless
+                          --allow-dirty. .gitattributes alone does nothing without local config.
   atlas merge-index <base> <ours> <theirs> <marker-size> <path>
                           Git merge-driver entrypoint — regenerate map/index.md (do not call by hand)
+  atlas merge-zone <base> <ours> <theirs> <marker-size> <path>
+                          Git merge-driver entrypoint — stamp-only zone conflicts → unverified
   atlas doctor [--strict] wiring inventory (are hooks/skills/adapters installed?)
                           --strict exits 1 when package-freshness issues are present.
   atlas migrate [--write] [--json]
@@ -338,11 +344,31 @@ function runMergeIndex(argv, opts) {
   return 0
 }
 
+/**
+ * Git merge-driver entry: atlas merge-zone %O %A %B %L %P
+ * Exit 0 = resolved; exit 1 = leave conflict.
+ */
+function runMergeZone(argv, opts) {
+  const stderr = opts.stderr ?? process.stderr
+  const [base, ours, theirs] = argv
+  if (!ours) {
+    stderr.write('atlas merge-zone: usage: merge-zone <base> <ours> <theirs> <marker-size> <path>\n')
+    return 1
+  }
+  const result = mergeZone({ base, ours, theirs, stderr })
+  if (!result.ok) {
+    stderr.write(`atlas merge-zone: ${result.reason}\n`)
+    return 1
+  }
+  return 0
+}
+
 const COMMANDS = {
   init: (args) => runInit(args, { cwd: process.cwd() }),
   build: (args) => runBuild(args, { cwd: process.cwd() }),
   check: (args) => runCheck(args, { cwd: process.cwd() }),
   'merge-index': (args) => runMergeIndex(args, { cwd: process.cwd() }),
+  'merge-zone': (args) => runMergeZone(args, { cwd: process.cwd() }),
   stamp: (args) => runStamp(args, { cwd: process.cwd() }),
   search: (args) => runSearch(args, { cwd: process.cwd() }),
   status: (args) => runStatus(args, { cwd: process.cwd() }),

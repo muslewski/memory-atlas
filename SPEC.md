@@ -174,10 +174,15 @@ diff below.
 `verifiedAt` is a single field on zone cards with exactly two legal
 encodings:
 
-- the literal string `unverified` — REQUIRED while `status: seeded`; or
-- a git commit SHA, 7–40 hex characters — REQUIRED while `status: active`,
-  naming the commit at which a human-or-supervised agent last confirmed the
-  card's claims against the code.
+- the literal string `unverified` — REQUIRED while `status: seeded`; also
+  legal while `status: active` when a prior stamp was invalidated (most
+  commonly: a stamp-only merge of two branches — neither parent SHA is the
+  truth for the merged tree; see decision
+  `2026-07-30-verifiedAt-after-merge-unverified`); or
+- a git commit SHA, 7–40 hex characters — the commit at which a
+  human-or-supervised agent last confirmed the card's claims against the
+  code. REQUIRED for a freshly verified `active` zone; not required when
+  the stamp has been deliberately cleared to `unverified`.
 
 An `unmounted` zone MUST retain whatever `verifiedAt` value it carried at the
 moment it was unmounted; both encodings above remain legal there — a hex SHA
@@ -188,6 +193,10 @@ any result would be a false failure. Correspondingly, a verifier MUST NOT
 error on either legal encoding of `verifiedAt` found in an `unmounted` zone.
 `atlas stamp` MUST refuse to stamp an `unmounted` zone and MUST exit
 non-zero: there is no live code left to anchor the stamp to.
+
+An `active` zone with `verifiedAt: unverified` is a verification gap (warn
+and surface in the index), not a hard encoding error — the claims still
+stand as authored; only the freshness anchor is missing until re-stamp.
 
 ISO dates, empty strings, and blanket re-stamps (stamping every zone with the
 current HEAD regardless of whether it was reviewed) are forbidden encodings.

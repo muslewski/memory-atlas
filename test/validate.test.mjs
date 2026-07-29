@@ -196,10 +196,21 @@ describe('validate — verifiedAt encoding + freshness tri-state', () => {
     assert.ok(errors.some((e) => e.includes('status "seeded" requires verifiedAt "unverified"')))
   })
 
-  test('active + unverified is a hard error', () => {
+  test('active + unverified is legal (stamp invalidated); warning + seeded freshness', () => {
     const z = zone({ status: 'active', verifiedAt: 'unverified' })
+    const { errors, warnings, rows } = validate([z], [], fakeResolvers())
+    assert.equal(errors.length, 0)
+    assert.equal(rows[0].freshness, 'seeded')
+    assert.ok(
+      warnings.some((w) => w.includes('active with verifiedAt unverified')),
+      `expected re-stamp warning, got: ${warnings.join('; ')}`,
+    )
+  })
+
+  test('active + ISO date is a hard encoding error', () => {
+    const z = zone({ status: 'active', verifiedAt: '2026-07-30' })
     const { errors } = validate([z], [], fakeResolvers())
-    assert.ok(errors.some((e) => e.includes('requires a commit SHA')))
+    assert.ok(errors.some((e) => /verifiedAt/.test(e)))
   })
 
   test('active + fresh SHA -> freshness "ok"', () => {

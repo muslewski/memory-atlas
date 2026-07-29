@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { execFileSync } from 'node:child_process'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
@@ -6,7 +7,7 @@ import { after, describe, test } from 'node:test'
 import { BLOCK_BEGIN, BLOCK_END } from '../lib/blocks.mjs'
 import { runDoctor } from '../lib/doctor.mjs'
 import { readState, STATE_FILE } from '../lib/state.mjs'
-import { runWire } from '../lib/wire.mjs'
+import { isWorkingTreeDirty, runWire, wireMergeDriver } from '../lib/wire.mjs'
 import { removeDirsWithRetry } from './helpers.mjs'
 
 const EXPECTED_SKILLS = [
@@ -457,5 +458,101 @@ describe('runWire', () => {
       stderr: { write: () => {} },
     })
     assert.equal(fs.readFileSync(dest, 'utf8'), edited)
+  })
+})
+
+describe('wire merge-driver installer', () => {
+  function mkRealGitRepo() {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'atlas-wire-md-'))
+    tmpDirs.push(dir)
+    execFileSync('git', ['init', '-q'], { cwd: dir })
+    execFileSync('git', ['config', 'user.email', 'test@example.com'], { cwd: dir })
+    execFileSync('git', ['config', 'user.name', 'Test'], { cwd: dir })
+    const vault = path.join(dir, 'atlas')
+    fs.mkdirSync(path.join(vault, 'map', 'zones'), { recursive: true })
+    fs.writeFileSync(path.join(vault, 'map', 'index.md'), '# index\n')
+    fs.writeFileSync(
+      path.join(dir, 'atlas.config.json'),
+      JSON.stringify({ vaultDir: 'atlas' }, null, 2) + '\n',
+    )
+    execFileSync('git', ['add', 'atlas.config.json', 'atlas'], { cwd: dir })
+    execFileSync('git', ['commit', '-q', '-m', 'base'], { cwd: dir })
+    return dir
+  }
+
+  test('report-first default: without --write, nothing on disk changes', () => {
+    const repo = mkRealGitRepo()
+    const beforeAttr = fs.existsSync(path.join(repo, '.gitattributes'))
+      ? fs.readFileSync(path.join(repo, '.gitattributes'), 'utf8')
+      : null
+    const io = silentIo()
+    const code = runWire(['merge-driver'], { cwd: repo, ...io })
+    assert.equal(code, 0)
+    assert.match(io.out.join(''), /dry-run|would/i)
+    const afterAttr = fs.existsSync(path.join(repo, '.gitattributes'))
+      ? fs.readFileSync(path.join(repo, '.gitattributes'), 'utf8')
+      : null
+    assert.equal(afterAttr, beforeAttr)
+    // Local git config must also stay unset without --write
+    let cfg = ''
+    try {
+      cfg = execFileSync('git', ['config', '--get', 'merge.atlas-index.driver'], {
+        cwd: repo,
+        encoding: 'utf8',
+      })
+    } catch {
+      cfg = ''
+    }
+    assert.equal(cfg.trim(), '')
+  })
+
+  test('installer refuses a dirty tree and says why', () => {
+    const repo = mkRealGitRepo()
+    fs.writeFileSync(path.join(repo, 'dirty.txt'), 'uncommitted\n')
+    assert.equal(isWorkingTreeDirty(repo), true)
+    const io = silentIo()
+    const code = runWire(['merge-driver', '--write'], { cwd: repo, ...io })
+    assert.equal(code, 1)
+    assert.match(io.err.join(''), /dirty/i)
+    assert.match(io.err.join(''), /allow-dirty|unfinished/i)
+    assert.ok(!fs.existsSync(path.join(repo, '.gitattributes')))
+  })
+
+  test('installer is idempotent: second --write reports no changes and writes nothing new', () => {
+    const repo = mkRealGitRepo()
+    const io1 = silentIo()
+    assert.equal(runWire(['merge-driver', '--write'], { cwd: repo, ...io1 }), 0)
+    assert.ok(fs.existsSync(path.join(repo, '.gitattributes')))
+    const attr1 = fs.readFileSync(path.join(repo, '.gitattributes'), 'utf8')
+    assert.match(attr1, /merge=atlas-index/)
+    assert.match(attr1, /merge=atlas-zone/)
+
+    // Commit attrs so tree is clean for second write
+    execFileSync('git', ['add', '.gitattributes'], { cwd: repo })
+    execFileSync('git', ['commit', '-q', '-m', 'attrs'], { cwd: repo })
+
+    const mtime1 = fs.statSync(path.join(repo, '.gitattributes')).mtimeMs
+    const io2 = silentIo()
+    assert.equal(runWire(['merge-driver', '--write'], { cwd: repo, ...io2 }), 0)
+    const out2 = io2.out.join('')
+    assert.match(out2, /already wired/i)
+    const attr2 = fs.readFileSync(path.join(repo, '.gitattributes'), 'utf8')
+    assert.equal(attr2, attr1)
+    // Content identical; mtime may refresh on some FS — content is the contract
+    void mtime1
+  })
+
+  test('--allow-dirty escape hatch writes into a dirty tree', () => {
+    const repo = mkRealGitRepo()
+    fs.writeFileSync(path.join(repo, 'dirty.txt'), 'uncommitted\n')
+    const io = silentIo()
+    const code = wireMergeDriver(repo, {
+      ...io,
+      log: (m) => io.stdout.write(`${m}\n`),
+      write: true,
+      allowDirty: true,
+    })
+    assert.equal(code, 0)
+    assert.ok(fs.existsSync(path.join(repo, '.gitattributes')))
   })
 })
