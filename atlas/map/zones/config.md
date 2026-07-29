@@ -1,11 +1,11 @@
 ---
 type: zone
-summary: "atlas.config.json's loader: the v1 default shape, a tolerant deep merge (missing/partial/unknown-key configs never crash a command), and the JSON schema that gives editors autocomplete."
+summary: "atlas.config.json's loader: the v1 default shape, a tolerant deep merge (missing/partial/unknown-key configs never crash a command), check.indexSync as on-disk vs render (not git HEAD), and the JSON schema that gives editors autocomplete."
 tags: [config]
 status: active
 created: 2026-07-09
-updated: 2026-07-09
-verifiedAt: 705fbdc8
+updated: 2026-07-29
+verifiedAt: 00cc9ec9
 owns:
   routes: []
   testids: []

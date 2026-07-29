@@ -164,4 +164,65 @@ describe('atlas stamp — uncommitted owned-files warning', () => {
       `dirty outside globs must not warn, got: ${stderr}`,
     )
   })
+
+  test('slug with ../ is refused — no write outside vault (containment)', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'a.mjs'), 'export {}\n')
+    commitAll(repo, 'init tree')
+    atlasInit(repo)
+    const vault = vaultPath(repo)
+    writeZone(vault, 'config', ['src/**'])
+    commitAll(repo, 'vault')
+
+    const outside = path.join(repo, 'outside-escape.md')
+    // Pre-plant a target that would be written if join were naïve
+    fs.writeFileSync(outside, 'UNTOUCHED\n')
+
+    const err = []
+    const code = runStamp(['../outside-escape'], {
+      cwd: repo,
+      stderr: { write: (s) => err.push(s) },
+      stdout: { write: () => {} },
+    })
+    assert.equal(code, 1)
+    assert.match(err.join(''), /safe slug|escapes|not found|not a safe/i)
+    assert.equal(fs.readFileSync(outside, 'utf8'), 'UNTOUCHED\n')
+  })
+
+  test('zone card missing updated key still stamps (upsert)', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'a.mjs'), 'export {}\n')
+    commitAll(repo, 'init')
+    atlasInit(repo)
+    const vault = vaultPath(repo)
+    const zones = path.join(vault, 'map', 'zones')
+    fs.mkdirSync(zones, { recursive: true })
+    // Hostile card: no `updated` field
+    fs.writeFileSync(
+      path.join(zones, 'hostile.md'),
+      `---
+type: zone
+summary: "hostile"
+status: active
+verifiedAt: unverified
+owns:
+  globs:
+    - "src/**"
+---
+body
+`,
+    )
+    commitAll(repo, 'hostile zone')
+    const code = runStamp(['hostile'], {
+      cwd: repo,
+      stderr: { write: () => {} },
+      stdout: { write: () => {} },
+    })
+    assert.equal(code, 0)
+    const text = fs.readFileSync(path.join(zones, 'hostile.md'), 'utf8')
+    assert.match(text, /verifiedAt: [0-9a-f]{7,40}/i)
+    assert.match(text, /^updated: /m)
+  })
 })

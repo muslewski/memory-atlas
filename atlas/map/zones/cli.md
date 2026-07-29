@@ -1,11 +1,11 @@
 ---
 type: zone
-summary: "The atlas command-line entry point: bin/atlas.mjs dispatch plus init/stamp/status/routine/wire/merge drivers; local telemetry and opt-in fleet-devlog v1 emit on finished commands."
+summary: "The atlas command-line entry point: bin/atlas.mjs dispatch plus init/stamp/status/routine/wire/merge drivers; path-contained writes; local telemetry and opt-in fleet-devlog v1 emit on finished commands."
 tags: [cli]
 status: active
 created: 2026-07-09
 updated: 2026-07-29
-verifiedAt: f1ff93d5
+verifiedAt: 00cc9ec9
 owns:
   routes: []
   testids: []
@@ -21,10 +21,12 @@ owns:
     - "lib/merge-index.mjs"
     - "lib/merge-zone.mjs"
     - "lib/doctor.mjs"
+    - "lib/paths.mjs"
     - "test/fleet-devlog.test.mjs"
     - "test/merge-index.test.mjs"
     - "test/merge-zone.test.mjs"
     - "test/wire.test.mjs"
+    - "test/paths-containment.test.mjs"
   tools: []
 depends:
   - [[verifier-core]]
@@ -37,12 +39,17 @@ invariants:
     enforcedBy: ["test/integration.test.mjs"]
   - rule: "atlas wire merge-driver is report-first (writes only with --write), refuses dirty trees unless --allow-dirty, and is idempotent on a second --write"
     enforcedBy: ["test/wire.test.mjs"]
+  - rule: "atlas-index merge driver regenerates from the union of merge-parent zone cards and refuses (exit 1, no partial write) when parents disagree and the working tree still matches only one pure side, or when render is empty while zones exist"
+    enforcedBy: ["test/merge-index.test.mjs"]
+  - rule: "stamp and build refuse path traversal / out-of-vault symlinks — write targets must resolve inside the vault/repo root"
+    enforcedBy: ["test/paths-containment.test.mjs", "test/stamp.test.mjs"]
 skills: []
 advances: []
 related: []
 sources:
   - [[0003-vault-named-atlas]]
   - [[2026-07-30-verifiedAt-after-merge-unverified]]
+  - [[2026-07-30-index-merge-materialize-union]]
 ---
 
 ## What this is
@@ -51,12 +58,18 @@ sources:
 `memory-atlas` both point at it — see `package.json`'s `bin` map). It parses
 `argv`, resolves the repo root + vault dir once (`resolveVault`), honors the
 `enabled: false` kill switch for every subcommand except `init`, and
-dispatches to a handler. `build` and `check` are implemented inline in
+dispatches to a handler. Uncaught handler errors print a one-line CLI message
+(not a raw Node stack). `build` and `check` are implemented inline in
 `bin/atlas.mjs` itself (sharing `buildCore` / `renderCore`); subcommands
 live under `lib/*.mjs`. This zone also owns the portable concurrent-edit
 safety net: `lib/wire.mjs` (`atlas wire merge-driver --write`),
-`lib/merge-index.mjs` (regenerate `map/index.md` on conflict), and
+`lib/merge-index.mjs` (regenerate `map/index.md` from the **merged** zone
+set — refuse rather than first-parent-guess; see
+[[2026-07-30-index-merge-materialize-union]]), and
 `lib/merge-zone.mjs` (stamp-only conflicts → `verifiedAt: unverified`).
+`lib/paths.mjs` is the shared containment helper for stamp/build writes.
+`atlas init` leaves a vault whose empty index already matches `renderIndex`,
+so `atlas check` passes with no further commands.
 
 ## Anchors
 

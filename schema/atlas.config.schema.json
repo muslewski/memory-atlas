@@ -118,7 +118,7 @@
         "indexSync": {
           "type": "boolean",
           "default": true,
-          "description": "Fail `atlas check` when the committed `map/index.md` differs from a fresh render. Set false in repos where many agents recollect in parallel and one integrator rebuilds the index."
+          "description": "Fail `atlas check` when the on-disk (working-tree) `map/index.md` differs from a fresh render. Does not require the index to be committed — only that the file on disk matches what `atlas build` would write. Set false in repos where many agents recollect in parallel and one integrator rebuilds the index."
         },
         "ownership": {
           "type": "boolean",

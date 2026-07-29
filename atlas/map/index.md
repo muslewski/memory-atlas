@@ -4,18 +4,16 @@
 
 | Zone | Status | Freshness | Summary |
 |------|--------|-----------|---------|
-| agent-onramp | active | ok | The copy-paste kit that wires an adopting repo's agents into the convention: three portable skills, the ctx-search and Obsidian retrieval adapters, and docs/ONRAMP.md's instruction-file blocks. |
-| cli | active | ok | The atlas command-line entry point: bin/atlas.mjs dispatch plus init/stamp/status/routine/wire/merge drivers; local telemetry and opt-in fleet-devlog v1 emit on finished commands. |
-| config | active | ⚠ stale | atlas.config.json's loader: the v1 default shape, a tolerant deep merge (missing/partial/unknown-key configs never crash a command), and the JSON schema that gives editors autocomplete. |
-| vault-io | active | ⚠ stale | Turning the vault's files on disk into the plain note objects the verifier consumes: the zero-dependency YAML-subset frontmatter parser, recursive note loading, structural vault detection, and the specs/plans ledger linter. |
-| verifier-core | active | ok | The verification engine: lib/validate.mjs's pure core (anchor checks, verifiedAt lifecycle rules, the graph pass, index rendering) plus lib/resolvers.mjs, the git-backed factory that implements the Resolvers interface the core is driven by. |
+| agent-onramp | active | ⚠ stale | The copy-paste kit that wires an adopting repo's agents into the convention: three portable skills, the ctx-search and Obsidian retrieval adapters, and docs/ONRAMP.md's instruction-file blocks. |
+| cli | active | ok | The atlas command-line entry point: bin/atlas.mjs dispatch plus init/stamp/status/routine/wire/merge drivers; path-contained writes; local telemetry and opt-in fleet-devlog v1 emit on finished commands. |
+| config | active | ok | atlas.config.json's loader: the v1 default shape, a tolerant deep merge (missing/partial/unknown-key configs never crash a command), check.indexSync as on-disk vs render (not git HEAD), and the JSON schema that gives editors autocomplete. |
+| vault-io | active | ok | Turning the vault's files on disk into the plain note objects the verifier consumes: the zero-dependency YAML-subset frontmatter parser, recursive note loading with safe folder remaps, structural vault detection, and the specs/plans ledger linter. |
+| verifier-core | active | ok | The verification engine: lib/validate.mjs's pure core (anchor checks, verifiedAt lifecycle rules, freshness never 'ok' for illegal stamps, ADR number uniqueness that skips date prefixes, the graph pass, index rendering) plus lib/resolvers.mjs. |
 
 ## ⚠ Verification gaps
 
-- zone config: ⚠ stale — code changed since verifiedAt, review and re-stamp
-- zone vault-io: ⚠ stale — code changed since verifiedAt, review and re-stamp
+- zone agent-onramp: ⚠ stale — code changed since verifiedAt, review and re-stamp
 - zone agent-onramp: invariant "the skill names and script paths docs/ONRAMP.md's install flow references (atlas-nav, writing-for-retrieval, atlas-recollection under skills/; adapters/ctx-search/nav-refresh-index.mjs) must stay in sync with what actually ships under skills/ and adapters/" has no enforcedBy → file tech-debt
-- decision number 2026 reused: 2026-07-29-fleet-devlog-dual-stream, 2026-07-30-verifiedAt-after-merge-unverified
 
 ## ⚠ Graph coherence
 
@@ -28,7 +26,7 @@ _none_
 ## Ledger
 
 - specs: 2 (approved 2)
-- decisions: 7 (accepted 4 · active 3)
+- decisions: 8 (accepted 5 · active 3)
 
 ### Recent
 

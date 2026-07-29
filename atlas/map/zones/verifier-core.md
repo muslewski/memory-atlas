@@ -1,11 +1,11 @@
 ---
 type: zone
-summary: "The verification engine: lib/validate.mjs's pure core (anchor checks, verifiedAt lifecycle rules, the graph pass, index rendering) plus lib/resolvers.mjs, the git-backed factory that implements the Resolvers interface the core is driven by."
+summary: "The verification engine: lib/validate.mjs's pure core (anchor checks, verifiedAt lifecycle rules, freshness never 'ok' for illegal stamps, ADR number uniqueness that skips date prefixes, the graph pass, index rendering) plus lib/resolvers.mjs."
 tags: [verifier]
 status: active
 created: 2026-07-09
 updated: 2026-07-29
-verifiedAt: f1ff93d5
+verifiedAt: 00cc9ec9
 owns:
   routes: []
   testids: []
@@ -17,14 +17,17 @@ depends: []
 invariants:
   - rule: "an unmounted zone's anchors (owns.globs/testids/tools/routes) are never evaluated — checked and routed to the attic BEFORE any anchor check runs, so retired code can't produce a false failure"
     enforcedBy: ["test/validate.test.mjs"]
-  - rule: "verifiedAt encoding is checked against status: seeded requires the literal string \"unverified\"; active requires a 7-40 hex-char commit SHA or \"unverified\" (stamp invalidated after merge); ISO dates and other garbage are hard errors"
+  - rule: "verifiedAt encoding is checked against status: seeded requires the literal string \"unverified\"; active requires a 7-40 hex-char commit SHA or \"unverified\" (stamp invalidated after merge); ISO dates and other garbage are hard errors and never render Freshness ok"
     enforcedBy: ["test/validate.test.mjs", "test/merge-zone.test.mjs"]
+  - rule: "date-prefixed decision ids (YYYY-MM-DD-…) are not treated as ADR numbers, so they do not false-positive as reused number 2026"
+    enforcedBy: ["test/validate.test.mjs"]
 skills: []
 advances: []
 related: []
 sources:
   - [[0001-zero-dependency-constraint]]
   - [[2026-07-30-verifiedAt-after-merge-unverified]]
+  - [[2026-07-30-index-merge-materialize-union]]
 ---
 
 ## What this is

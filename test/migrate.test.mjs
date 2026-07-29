@@ -6,6 +6,7 @@ import { after, describe, test } from 'node:test'
 import { BLOCK_BEGIN, BLOCK_END } from '../lib/blocks.mjs'
 import { compareVersions, pendingMigrations, runMigrate } from '../lib/migrate.mjs'
 import { migration as m0001 } from '../lib/migrations/0001-backfill-provenance.mjs'
+import { migration as m0002 } from '../lib/migrations/0002-rewrite-iso-verifiedAt.mjs'
 import {
   defaultState,
   packageVersion,
@@ -115,6 +116,45 @@ describe('pendingMigrations', () => {
     const pending = pendingMigrations(state, '0.2.0', registry)
     assert.equal(pending.length, 1)
     assert.equal(pending[0].id, '0001-a')
+  })
+})
+
+describe('0002-rewrite-iso-verifiedAt', () => {
+  test('rewrites ISO verifiedAt to unverified on zone cards', () => {
+    const repo = mkRepo()
+    const vault = path.join(repo, 'atlas')
+    fs.mkdirSync(path.join(vault, 'map', 'zones'), { recursive: true })
+    fs.writeFileSync(
+      path.join(repo, 'atlas.config.json'),
+      JSON.stringify({ vaultDir: 'atlas' }, null, 2) + '\n',
+    )
+    fs.writeFileSync(path.join(vault, 'map', 'index.md'), '# i\n')
+    fs.writeFileSync(
+      path.join(vault, 'map', 'zones', 'legacy.md'),
+      `---
+type: zone
+summary: "legacy"
+status: active
+verifiedAt: 2026-07-30
+owns:
+  globs: []
+---
+body
+`,
+    )
+    // state behind so migration is pending
+    writeState(repo, defaultState({ atlasVersion: '0.0.0' }))
+    const io = capture()
+    const code = runMigrate(['--write'], {
+      cwd: repo,
+      stdout: io.stdout,
+      stderr: io.stderr,
+      migrations: runnable([m0002]),
+    })
+    assert.equal(code, 0, io.errText() + io.text())
+    const text = fs.readFileSync(path.join(vault, 'map', 'zones', 'legacy.md'), 'utf8')
+    assert.match(text, /verifiedAt: unverified/)
+    assert.ok(!/verifiedAt: 2026-07-30/.test(text))
   })
 })
 

@@ -3,9 +3,15 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { after, describe, test } from 'node:test'
+import { execFileSync, spawnSync } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
 import { runInit } from '../lib/init.mjs'
 import { packageVersion, readState, STATE_FILE } from '../lib/state.mjs'
+import { renderIndex } from '../lib/validate.mjs'
 import { removeDirsWithRetry } from './helpers.mjs'
+
+const REPO_ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)))
+const BIN = path.join(REPO_ROOT, 'bin', 'atlas.mjs')
 
 const tmpDirs = []
 
@@ -88,6 +94,31 @@ describe('runInit', () => {
     ]) {
       assert.ok(fs.existsSync(path.join(vault, 'templates', name)), `${name} template should exist`)
     }
+  })
+
+  test('init leaves a vault that passes atlas check with no further commands', () => {
+    // Real git repo so check's resolvers can run (mkRepo only has empty .git dir).
+    const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'atlas-init-check-'))
+    tmpDirs.push(repo)
+    execFileSync('git', ['init', '-q'], { cwd: repo })
+    execFileSync('git', ['config', 'user.email', 't@example.com'], { cwd: repo })
+    execFileSync('git', ['config', 'user.name', 'T'], { cwd: repo })
+    execFileSync('git', ['commit', '-q', '--allow-empty', '-m', 'seed'], { cwd: repo })
+
+    const io = silentIo()
+    assert.equal(runInit([], { cwd: repo, ...io }), 0)
+
+    const vault = path.join(repo, `${path.basename(repo)}-atlas`)
+    const index = fs.readFileSync(path.join(vault, 'map', 'index.md'), 'utf8')
+    const expected = renderIndex({ rows: [], warnings: [], graphWarnings: [], attic: [] })
+    assert.equal(index, expected, 'init index must match empty renderIndex (check.indexSync)')
+
+    const check = spawnSync('node', [BIN, 'check'], { cwd: repo, encoding: 'utf8' })
+    assert.equal(
+      check.status,
+      0,
+      `atlas check after init must exit 0\nstdout=${check.stdout}\nstderr=${check.stderr}`,
+    )
   })
 
   test('substitutes {{DATE}} in copied note templates', () => {

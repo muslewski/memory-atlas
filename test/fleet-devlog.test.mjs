@@ -94,18 +94,32 @@ test('emit never throws on an unwritable root', () => {
   )
 })
 
-test('referencePath honours FLEET_DEVLOG_REF and falls back to default', () => {
-  const def = '/home/kento/Repositories/work-kb/contracts/fleet-devlog.reference.mjs'
-  assert.equal(referencePath({}), def)
+test('referencePath is env-only — no desk-absolute default (F4)', () => {
+  assert.equal(referencePath({}), null)
+  assert.equal(referencePath({ FLEET_DEVLOG_REF: '' }), null)
   assert.equal(referencePath({ FLEET_DEVLOG_REF: '/tmp/alt-ref.mjs' }), '/tmp/alt-ref.mjs')
 })
 
-test('vendored emitter matches the work-kb reference', () => {
+test('vendored emitter matches the work-kb reference when FLEET_DEVLOG_REF is set', () => {
   const ref = process.env.FLEET_DEVLOG_REF
-    || '/home/kento/Repositories/work-kb/contracts/fleet-devlog.reference.mjs'
-  if (!fs.existsSync(ref)) return   // stranger's clone: no work-kb, nothing to compare — skip
+  if (!ref) {
+    // Loud failure mode when unresolved: this assertion documents that
+    // drift checks require an explicit env path — never a silent desk default.
+    assert.equal(referencePath({}), null, 'unresolved reference must be null, not a desk path')
+    return
+  }
+  assert.ok(fs.existsSync(ref), `FLEET_DEVLOG_REF points at missing file: ${ref}`)
   const a = crypto.createHash('sha256').update(fs.readFileSync(ref)).digest('hex')
   const b = crypto.createHash('sha256').update(
     fs.readFileSync(new URL('../lib/fleet-devlog.mjs', import.meta.url))).digest('hex')
   assert.equal(b, a, 'vendored copy has drifted from the reference')
+})
+
+test('published fleet-devlog.mjs embeds no /home/kento absolute path', () => {
+  const src = fs.readFileSync(new URL('../lib/fleet-devlog.mjs', import.meta.url), 'utf8')
+  assert.equal(
+    src.includes('/home/kento/'),
+    false,
+    'lib/fleet-devlog.mjs must not ship desk-absolute paths',
+  )
 })

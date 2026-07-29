@@ -699,7 +699,13 @@ describe('atlas check --report — ledger coverage summary (Step 5)', () => {
 
     const build = atlas(repo, ['build'])
     assert.equal(build.code, 0)
-    commitAll(repo, 'atlas: build index')
+    // init already writes a render-matching empty index (check-ready vault);
+    // only commit when build actually dirtied the tree.
+    const dirty = execFileSync('git', ['status', '--porcelain'], {
+      cwd: repo,
+      encoding: 'utf8',
+    }).trim()
+    if (dirty) commitAll(repo, 'atlas: build index')
 
     const withoutReport = atlas(repo, ['check'])
     assert.equal(withoutReport.code, 0)

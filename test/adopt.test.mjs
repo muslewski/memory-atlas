@@ -271,6 +271,24 @@ verifiedAt: ""
     assert.equal(second.changed, false)
     assert.equal(second.text, first.text)
   })
+
+  test('present-but-invalid ISO verifiedAt → unverified (not ignored)', () => {
+    const text = `---
+type: zone
+summary: "legacy"
+status: active
+verifiedAt: 2026-07-30
+owns:
+  globs: []
+---
+body
+`
+    const result = fixZoneHonesty(text)
+    assert.equal(result.changed, true)
+    const { data } = parseFrontmatter(result.text)
+    assert.equal(data.verifiedAt, 'unverified')
+    assert.equal(data.status, 'seeded')
+  })
 })
 
 describe('fixDebtType', () => {

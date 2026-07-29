@@ -42,9 +42,11 @@ describe('blocks', () => {
       claude.includes('commit code + card edits first'),
       'claude body must document stamp-after-commit order',
     )
+    // Distinctive phrase from lib/blocks.mjs — falsifiable if the contract
+    // wording is dropped or softened to an unrelated "do not" + path pair.
     assert.ok(
-      claude.includes('do not') && claude.includes('map/index.md'),
-      'claude body must tell workers not to stage the index',
+      claude.includes('**do not** stage `map/index.md`'),
+      'claude body must contain the exact worker contract: **do not** stage `map/index.md`',
     )
 
     const agents = renderOnrampBlock('agents', { vaultName: 'demo-atlas' })

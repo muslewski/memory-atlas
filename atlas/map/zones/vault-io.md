@@ -1,11 +1,11 @@
 ---
 type: zone
-summary: "Turning the vault's files on disk into the plain note objects the verifier consumes: the zero-dependency YAML-subset frontmatter parser, recursive note loading, structural vault detection, and the specs/plans ledger linter."
+summary: "Turning the vault's files on disk into the plain note objects the verifier consumes: the zero-dependency YAML-subset frontmatter parser, recursive note loading with safe folder remaps, structural vault detection, and the specs/plans ledger linter."
 tags: [vault-io]
 status: active
 created: 2026-07-09
-updated: 2026-07-09
-verifiedAt: 705fbdc8
+updated: 2026-07-29
+verifiedAt: 00cc9ec9
 owns:
   routes: []
   testids: []
@@ -14,6 +14,8 @@ owns:
     - "lib/notes.mjs"
     - "lib/detect.mjs"
     - "lib/ledger.mjs"
+    - "lib/adopt.mjs"
+    - "lib/migrations/**"
   tools: []
 depends:
   - [[config]]
@@ -23,6 +25,8 @@ invariants:
     enforcedBy: ["test/detect.test.mjs"]
   - rule: "every note under specs/ and plans/ is checked against its type's lifecycle enum and must carry a non-empty summary; violations are reported by path, not thrown"
     enforcedBy: ["test/ledger.test.mjs"]
+  - rule: "folders.zones with .. segments is refused — loadVault never indexes zone cards from outside the vault"
+    enforcedBy: ["test/paths-containment.test.mjs"]
 skills: []
 advances: []
 related: []

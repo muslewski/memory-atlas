@@ -207,10 +207,26 @@ describe('validate — verifiedAt encoding + freshness tri-state', () => {
     )
   })
 
-  test('active + ISO date is a hard encoding error', () => {
+  test('active + ISO date is a hard encoding error and never Freshness ok', () => {
     const z = zone({ status: 'active', verifiedAt: '2026-07-30' })
-    const { errors } = validate([z], [], fakeResolvers())
+    const r = fakeResolvers({ changedSince: () => false })
+    const { errors, rows } = validate([z], [], r)
     assert.ok(errors.some((e) => /verifiedAt/.test(e)))
+    assert.equal(rows[0].freshness, '⚠ invalid')
+    assert.notEqual(rows[0].freshness, 'ok', 'rejected stamp must never render as fresh')
+  })
+
+  test('date-prefixed decision ids are not ADR numbers (no false "2026" reuse)', () => {
+    const decisions = [
+      { id: '2026-07-29-fleet-devlog-dual-stream', status: 'accepted', summary: 'a' },
+      { id: '2026-07-30-verifiedAt-after-merge-unverified', status: 'accepted', summary: 'b' },
+    ]
+    const { warnings } = validate([], [], fakeResolvers(), { decisions })
+    assert.equal(
+      warnings.filter((w) => /decision number 2026 reused/.test(w)).length,
+      0,
+      `date-prefixed ids must not collide as ADR 2026: ${warnings.join('; ')}`,
+    )
   })
 
   test('active + fresh SHA -> freshness "ok"', () => {

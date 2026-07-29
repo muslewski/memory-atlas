@@ -28,6 +28,7 @@ import {
 import { runVisuals } from '../lib/visuals.mjs'
 import { mergeIndex } from '../lib/merge-index.mjs'
 import { mergeZone } from '../lib/merge-zone.mjs'
+import { assertWriteInside } from '../lib/paths.mjs'
 import { runWire } from '../lib/wire.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -168,8 +169,20 @@ export function renderCore(cwd, stderr) {
 function buildCore(cwd, stderr) {
   const core = renderCore(cwd, stderr)
   if (!core) return null
-  fs.mkdirSync(path.dirname(core.indexPath), { recursive: true })
-  fs.writeFileSync(core.indexPath, core.rendered)
+  try {
+    // Refuse to follow a map/index.md symlink (or parent) outside the vault.
+    assertWriteInside(core.vaultDir, core.indexPath)
+    assertWriteInside(core.repoRoot, core.indexPath)
+    fs.mkdirSync(path.dirname(core.indexPath), { recursive: true })
+    fs.writeFileSync(core.indexPath, core.rendered)
+  } catch (err) {
+    const code = err && typeof err === 'object' && 'code' in err ? err.code : ''
+    const msg = err instanceof Error ? err.message : String(err)
+    stderr.write(
+      `atlas build: cannot write map/index.md${code ? ` (${code})` : ''}: ${msg}\n`,
+    )
+    return null
+  }
   return core
 }
 
@@ -264,15 +277,18 @@ function runCheck(argv, opts) {
   }
 
   if (config.check?.indexSync !== false) {
-    let committed = null
+    // On-disk (working-tree) index vs fresh render — not git HEAD. An
+    // uncommitted rebuild that matches the render passes; only a WT file
+    // that differs from a fresh render fails. See check.indexSync docs.
+    let onDisk = null
     try {
-      committed = fs.readFileSync(core.indexPath, 'utf8')
+      onDisk = fs.readFileSync(core.indexPath, 'utf8')
     } catch {
-      committed = null
+      onDisk = null
     }
-    if (committed !== core.rendered) {
+    if (onDisk !== core.rendered) {
       stderr.write(
-        'atlas check: map/index.md is out of date — run `atlas build` and commit the result\n',
+        'atlas check: map/index.md is out of date — run `atlas build` (working-tree index must match a fresh render)\n',
       )
       ok = false
     }
@@ -441,7 +457,10 @@ function main(argv) {
     exitCode = handler(rest) ?? 0
   } catch (err) {
     exitCode = 1
-    throw err
+    // Clean one-line CLI error — never dump a raw Node stack for ordinary
+    // vault/parse/IO failures (EACCES, EISDIR, ELOOP, unparseable zone, …).
+    const msg = err instanceof Error ? err.message : String(err)
+    process.stderr.write(`atlas ${command}: ${msg}\n`)
   } finally {
     if (!skipTrack) {
       try {

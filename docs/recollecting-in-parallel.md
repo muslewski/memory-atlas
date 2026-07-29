@@ -75,9 +75,13 @@ merge.<name>.driver` lines, git ignores the attribute. Re-run
 ### Driver behavior
 
 1. **`atlas-index`** — on conflict over `map/index.md`, regenerates the index
-   from the merged zone cards via `atlas` render (same path as `atlas build`).
-   Deterministic for the same cards. Fails loudly (exit 1, no partial write)
-   if regeneration errors or a zone card still has conflict markers.
+   from the **merged set of zone cards** (union of both sides as git has
+   resolved them) via `atlas` render (same path as `atlas build`). Deterministic
+   for the same cards. Fails loudly (exit 1, no partial write) if regeneration
+   errors, a zone card still has conflict markers, merge parents disagree on a
+   zone body while the working tree still holds only one pure parent version,
+   or the render is empty while zones exist. It will **not** guess a zone set
+   from first-parent / incomplete checkout — refuse and leave the conflict.
    Regenerate-and-take-ours is wrong; the correct result is what the merged
    zone set implies.
 
