@@ -1,12 +1,21 @@
 # Examples
 
 The Atlas is one of three deliberately independent sibling tools: a session
-judge (agentic-sage — the present), a token forecaster (token-oracle — the
-future), and the Atlas itself (a repository's memory — the past). They are
-designed to work well together **without being tied together**: separate
-projects, no shared code, coupling only via file contracts each already
-publishes on its own. These examples are the proof, entirely from the
-Atlas's side — neither sibling required any change to make them work.
+judge (agentic-sage — **the present** / fleet sessions), a token forecaster
+(token-oracle — the future), and the Atlas itself (**the past** / architecture
+memory). Core pair for a full desk:
+
+```bash
+npm i -D memory-atlas
+npm i -g agentic-sage
+atlas wire && sage init
+# stay current: atlas gate / sage gate (soft by default)
+```
+
+They work well together **without being tied together**: separate projects, no
+shared code, coupling only via file contracts each already publishes on its
+own. These examples are the proof, entirely from the Atlas's side — neither
+sibling required any change to make them work.
 
 - **`solo/`** — the no-companions baseline. Everything below still applies
   with zero siblings installed; this is what "just the Atlas" looks like.
