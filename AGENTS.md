@@ -1,3 +1,4 @@
+<!-- desk:ship=human-end-gate -->
 <!-- atlas:onramp v0.1 -->
 This repository has an Atlas: a plain-markdown knowledge base of what the code is and why it's built that way.
 
