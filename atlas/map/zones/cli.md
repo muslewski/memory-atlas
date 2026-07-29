@@ -1,11 +1,11 @@
 ---
 type: zone
-summary: "The atlas command-line entry point: bin/atlas.mjs's dispatch table plus the four subcommand implementations it delegates to (init, stamp, status, routine)."
+summary: "The atlas command-line entry point: bin/atlas.mjs dispatch plus init/stamp/status/routine; local telemetry and opt-in fleet-devlog v1 emit on finished commands."
 tags: [cli]
 status: active
 created: 2026-07-09
-updated: 2026-07-09
-verifiedAt: 705fbdc8
+updated: 2026-07-29
+verifiedAt: 49573fc7
 owns:
   routes: []
   testids: []
@@ -15,6 +15,9 @@ owns:
     - "lib/stamp.mjs"
     - "lib/status.mjs"
     - "lib/routine.mjs"
+    - "lib/telemetry.mjs"
+    - "lib/fleet-devlog.mjs"
+    - "test/fleet-devlog.test.mjs"
   tools: []
 depends:
   - [[verifier-core]]
@@ -68,3 +71,13 @@ handler functions in isolation.
 The `--vault` flag on `atlas init` (`lib/init.mjs`'s `parseArgs`) is what
 this very repository's own vault (named `atlas/`, not the default
 `memory-atlas-atlas/`) exercises — see [[0003-vault-named-atlas]].
+
+## Fleet-devlog (W7)
+
+Finished CLI commands also append to the **shared** opt-in local stream at
+`$XDG_STATE_HOME/fleet-devlog/events.jsonl` via vendored `lib/fleet-devlog.mjs`,
+alongside the legacy `~/.cache/memory-atlas/events.jsonl` stream. Enable only via
+`FLEET_DEVLOG` or machine config — never repo config. Contract `repo_id` is
+`<basename>-<sha256-8>` of the main repo root (worktrees fold); the legacy
+telemetry `repo_id` hash is unchanged so stored history stays valid.
+

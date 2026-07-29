@@ -350,6 +350,62 @@ project's own Atlas, built with the same CLI documented above.
 <sub>Footnote, not headline copy: ATLAS also unpacks to <strong>Agentic
 Terrain &amp; Lore Archive System</strong>, if you like backronyms.</sub>
 
+
+## Developer logging
+
+Opt-in **local-only** developer event log shared with the other fleet tools
+(`agentic-sage`, `llm-armory`, `mossferry`). **Off by default.** Nothing is written
+unless you explicitly enable it.
+
+**Enable (first match wins):**
+
+1. `FLEET_DEVLOG=0|false|off|no` → off
+2. `--no-devlog` on the command line → off
+3. `FLEET_DEVLOG=1|true|on|yes` → on
+4. Machine config `~/.config/fleet-devlog/config.json` with `{"enabled": true}` → on
+5. Otherwise → **off**
+
+**Where it lives:**
+
+```
+~/.local/state/fleet-devlog/events.jsonl
+~/.local/state/fleet-devlog/install-id
+```
+
+(`$XDG_STATE_HOME` overrides the `~/.local/state` prefix when set.)
+
+**What is recorded:** enums (`tool`, `cmd`, `result_class`), ids (`install_id`,
+`repo_id`, `corr`), hashes, and numeric counts only — e.g. zone counts, exit code,
+duration in ms. Flags are allow-listed (`argv_shape`); flag **values** are never
+kept.
+
+**What is NEVER recorded:** prompts, note bodies, commit messages, file contents,
+absolute or relative paths, environment values, API keys, or free-form text.
+
+**It never leaves the machine.** The vendored emitter (`lib/fleet-devlog.mjs`)
+contains no network code — no `http`, `fetch`, or transport. There is no uploader
+and no "share stats" path.
+
+**Delete it:**
+
+```bash
+rm -rf ~/.local/state/fleet-devlog
+```
+
+### Repo config cannot enable this log
+
+A committed `atlas.config.json` **cannot** enable fleet-devlog (or telemetry for
+strangers). Repo files travel to every clone; an enable bit there would turn
+logging on for people who never agreed to it.
+
+About 25 repos in this fleet historically carried a `"telemetry": {"enabled": true}`
+block in `atlas.config.json`. That block does **nothing** for fleet-devlog, and
+after the opt-in hardening it is not a reliable enable path for the legacy local
+stream either. If you find one of those blocks in git history and wonder why
+nothing is written: enable with `FLEET_DEVLOG=1` or the machine config above —
+never with a committed repo file.
+
+
 ## Community
 
 - **Website:** [atlas.muslewski.com](https://atlas.muslewski.com)
