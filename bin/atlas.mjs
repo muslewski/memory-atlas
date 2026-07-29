@@ -26,6 +26,7 @@ import {
   trackCommand,
 } from '../lib/telemetry.mjs'
 import { runVisuals } from '../lib/visuals.mjs'
+import { mergeIndex } from '../lib/merge-index.mjs'
 import { runWire } from '../lib/wire.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -53,9 +54,12 @@ Commands:
                           Default mode is warn (exit 0). --strict or
                           check.packageFreshness.mode=fail → exit 1 on issues.
                           --force refreshes npm latest (bypasses TTL cache).
-  atlas wire [claude|grok|all]
+  atlas wire [claude|grok|all|merge-driver]
                           Wire SessionStart hooks + managed CLAUDE.md/AGENTS.md on-ramp
                           blocks (default: all). Idempotent; refuses malformed JSON targets.
+                          merge-driver: install local git merge driver for map/index.md.
+  atlas merge-index <base> <ours> <theirs> <marker-size> <path>
+                          Git merge-driver entrypoint — regenerate map/index.md (do not call by hand)
   atlas doctor [--strict] wiring inventory (are hooks/skills/adapters installed?)
                           --strict exits 1 when package-freshness issues are present.
   atlas migrate [--write] [--json]
@@ -297,10 +301,48 @@ function runCheck(argv, opts) {
   return ok ? 0 : 1
 }
 
+
+/**
+ * Git merge-driver entry: atlas merge-index %O %A %B %L %P
+ * Exit 0 = resolved; exit 1 = leave conflict.
+ */
+function runMergeIndex(argv, opts) {
+  const cwd = opts.cwd ?? process.cwd()
+  const stderr = opts.stderr ?? process.stderr
+  const [base, ours, theirs, _markerSize, _path] = argv
+  if (!ours) {
+    stderr.write('atlas merge-index: usage: merge-index <base> <ours> <theirs> <marker-size> <path>\n')
+    return 1
+  }
+  const repoRoot = findRepoRoot(cwd) ?? path.resolve(cwd)
+  const vaultDir = findVaultDir(repoRoot)
+  if (!vaultDir) {
+    stderr.write('atlas merge-index: no Atlas vault found\n')
+    return 1
+  }
+  const zonesDir = path.join(vaultDir, 'map', 'zones')
+  const result = mergeIndex({
+    base,
+    ours,
+    theirs,
+    repoRoot,
+    zonesDir,
+    outPath: ours,
+    render: (root, err) => renderCore(root, err),
+    stderr,
+  })
+  if (!result.ok) {
+    stderr.write(`atlas merge-index: ${result.reason}\n`)
+    return 1
+  }
+  return 0
+}
+
 const COMMANDS = {
   init: (args) => runInit(args, { cwd: process.cwd() }),
   build: (args) => runBuild(args, { cwd: process.cwd() }),
   check: (args) => runCheck(args, { cwd: process.cwd() }),
+  'merge-index': (args) => runMergeIndex(args, { cwd: process.cwd() }),
   stamp: (args) => runStamp(args, { cwd: process.cwd() }),
   search: (args) => runSearch(args, { cwd: process.cwd() }),
   status: (args) => runStatus(args, { cwd: process.cwd() }),
