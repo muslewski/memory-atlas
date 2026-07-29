@@ -115,6 +115,11 @@
           "default": false,
           "description": "When true, any stale zone (⚠ stale freshness) fails `atlas check`. Default false: staleness is always advisory (including under `--strict`); only this config key hardens it."
         },
+        "indexSync": {
+          "type": "boolean",
+          "default": true,
+          "description": "Fail `atlas check` when the committed `map/index.md` differs from a fresh render. Set false in repos where many agents recollect in parallel and one integrator rebuilds the index."
+        },
         "ownership": {
           "type": "boolean",
           "default": true,
@@ -276,7 +281,7 @@
     },
     "telemetry": {
       "type": "object",
-      "description": "Local-first debug telemetry. OFF by default in the published package. Fleet enables via ~/.config/memory-atlas/config.json or ATLAS_TELEMETRY=1. No network in v1.",
+      "description": "Local-first debug telemetry. OFF by default in the published package. `enabled: false` opts this repo out. `enabled: true` is ignored — telemetry can only be turned on per-machine via `~/.config/memory-atlas/config.json` or `ATLAS_TELEMETRY=1`. No network in v1.",
       "additionalProperties": false,
       "properties": {
         "enabled": {

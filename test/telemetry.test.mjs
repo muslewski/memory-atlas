@@ -87,15 +87,73 @@ describe('resolveTelemetryEnabled', () => {
     )
   })
 
-  test('repo config enables', () => {
+  test('repo config cannot enable telemetry', () => {
+    const enabled = resolveTelemetryEnabled({
+      env: {},
+      argv: [],
+      globalConfig: null,
+      repoConfig: { telemetry: { enabled: true, level: 'debug' } },
+    })
+    assert.equal(enabled, false)
+  })
+
+  test('repo config can still disable telemetry the global config enabled', () => {
+    const enabled = resolveTelemetryEnabled({
+      env: {},
+      argv: [],
+      globalConfig: { telemetry: { enabled: true } },
+      repoConfig: { telemetry: { enabled: false } },
+    })
+    assert.equal(enabled, false)
+  })
+
+  test('global config remains the fleet enable source', () => {
+    const enabled = resolveTelemetryEnabled({
+      env: {},
+      argv: [],
+      globalConfig: { telemetry: { enabled: true } },
+      repoConfig: null,
+    })
+    assert.equal(enabled, true)
+  })
+
+  test('env still outranks everything, both directions', () => {
+    assert.equal(
+      resolveTelemetryEnabled({
+        env: { ATLAS_TELEMETRY: '1' },
+        argv: [],
+        globalConfig: { telemetry: { enabled: false } },
+        repoConfig: null,
+      }),
+      true,
+    )
+    assert.equal(
+      resolveTelemetryEnabled({
+        env: { ATLAS_TELEMETRY: '0' },
+        argv: [],
+        globalConfig: { telemetry: { enabled: true } },
+        repoConfig: null,
+      }),
+      false,
+    )
+  })
+
+  test('--no-telemetry beats an enabling global config', () => {
     assert.equal(
       resolveTelemetryEnabled({
         env: {},
-        argv: ['node', 'atlas', 'gate'],
-        globalConfig: {},
-        repoConfig: { telemetry: { enabled: true } },
+        argv: ['--no-telemetry'],
+        globalConfig: { telemetry: { enabled: true } },
+        repoConfig: null,
       }),
-      true,
+      false,
+    )
+  })
+
+  test('default with no config anywhere is off', () => {
+    assert.equal(
+      resolveTelemetryEnabled({ env: {}, argv: [], globalConfig: null, repoConfig: null }),
+      false,
     )
   })
 })

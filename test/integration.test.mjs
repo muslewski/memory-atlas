@@ -1366,3 +1366,49 @@ zones:
     assert.match(again.stdout, /✓ nothing to adopt/)
   })
 })
+
+
+describe('atlas check — read-only index sync (W4)', () => {
+  test('atlas check does not modify map/index.md', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src', 'pay'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'pay', 'index.js'), '// v1\n')
+    commitAll(repo, 'init tree')
+    atlas(repo, ['init'])
+    const vault = vaultPath(repo)
+    writeZone(vault, 'pay', '', { status: 'active', verifiedAt: shaOf(repo) })
+    atlas(repo, ['build'])
+    commitAll(repo, 'seed + index')
+
+    const indexPath = path.join(vault, 'map', 'index.md')
+    fs.writeFileSync(indexPath, 'DELIBERATELY STALE\n')
+    const before = fs.readFileSync(indexPath, 'utf8')
+    const check = atlas(repo, ['check'])
+    const after = fs.readFileSync(indexPath, 'utf8')
+    assert.equal(after, before, 'check must not rewrite the index')
+    assert.notEqual(check.code, 0, 'check must still fail on a stale index')
+    assert.match(check.stderr, /map\/index\.md is out of date/)
+  })
+
+  test('check.indexSync false makes a stale index not a failure', () => {
+    const repo = mkRepo()
+    fs.mkdirSync(path.join(repo, 'src', 'ship'), { recursive: true })
+    fs.writeFileSync(path.join(repo, 'src', 'ship', 'index.js'), '// v1\n')
+    commitAll(repo, 'init tree')
+    atlas(repo, ['init'])
+    const vault = vaultPath(repo)
+    writeZone(vault, 'ship', '', { status: 'active', verifiedAt: shaOf(repo) })
+    atlas(repo, ['build'])
+    commitAll(repo, 'seed + index')
+
+    const cfgPath = path.join(repo, 'atlas.config.json')
+    const cfg = JSON.parse(fs.readFileSync(cfgPath, 'utf8'))
+    cfg.check = { ...(cfg.check ?? {}), indexSync: false }
+    fs.writeFileSync(cfgPath, JSON.stringify(cfg, null, 2))
+
+    fs.writeFileSync(path.join(vault, 'map', 'index.md'), 'STALE\n')
+    const check = atlas(repo, ['check'])
+    assert.equal(check.code, 0, `expected pass with indexSync false; stderr=${check.stderr}`)
+    assert.doesNotMatch(check.stderr, /map\/index\.md is out of date/)
+  })
+})

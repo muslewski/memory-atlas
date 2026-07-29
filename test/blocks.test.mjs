@@ -36,17 +36,25 @@ describe('blocks', () => {
     assert.ok(!agents.includes('<repo>-atlas'))
   })
 
-  test('on-ramp bodies document stamp-after-commit order', () => {
+  test('on-ramp bodies document stamp-after-commit order and worker/integrator split', () => {
     const claude = renderOnrampBlock('claude', { vaultName: 'demo-atlas' })
     assert.ok(
-      claude.includes('Order matters: commit the code + card edits first'),
+      claude.includes('commit code + card edits first'),
       'claude body must document stamp-after-commit order',
+    )
+    assert.ok(
+      claude.includes('do not') && claude.includes('map/index.md'),
+      'claude body must tell workers not to stage the index',
     )
 
     const agents = renderOnrampBlock('agents', { vaultName: 'demo-atlas' })
     assert.ok(
       agents.includes('anchors to the committed HEAD'),
       'agents body must document that stamp anchors to committed HEAD',
+    )
+    assert.ok(
+      agents.includes('Workers do not stage'),
+      'agents body must tell workers not to stage the index',
     )
   })
 

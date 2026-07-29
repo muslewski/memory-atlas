@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import { spawnSync } from 'node:child_process'
 import fs, { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -27,6 +26,7 @@ import {
   trackCommand,
 } from '../lib/telemetry.mjs'
 import { runVisuals } from '../lib/visuals.mjs'
+import { mergeIndex } from '../lib/merge-index.mjs'
 import { runWire } from '../lib/wire.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -40,9 +40,9 @@ Usage:
 Commands:
   atlas init [--profile code|operator] [--vault name] [--modules a,b]
                           Scaffold a new Atlas vault (profile defaults modules + glob policy)
-  atlas build             Rebuild map/index.md from zone/flow cards
+  atlas build             regenerate map/index.md
   atlas check [--strict] [--report] [--ledger-only]
-                          Verify zone claims, the committed index, and the ledger
+                          validate the vault (read-only) — zone claims, ledger, index freshness
   atlas stamp <slug...>   Re-stamp verifiedAt for reviewed zones (no blanket re-stamp)
   atlas search <query>    Search vault markdown (rg-first; grep fallback). Portable retrieval floor.
   atlas status [--hook]   One-line vault health summary (safe as a hook). --hook marks
@@ -50,13 +50,17 @@ Commands:
                           in atlas.config.json; a plain human/script call always prints.
                           Also prints two-tier package-freshness nudges (wired + registry).
   atlas gate [--strict] [--force]
-                          Package-freshness gate for predev/CI. Default mode is warn
-                          (exit 0). --strict or check.packageFreshness.mode=fail → exit 1
-                          on issues. --force refreshes npm latest (bypasses TTL cache).
-  atlas wire [claude|grok|all]
+                          package freshness only (is the installed memory-atlas current?)
+                          Default mode is warn (exit 0). --strict or
+                          check.packageFreshness.mode=fail → exit 1 on issues.
+                          --force refreshes npm latest (bypasses TTL cache).
+  atlas wire [claude|grok|all|merge-driver]
                           Wire SessionStart hooks + managed CLAUDE.md/AGENTS.md on-ramp
                           blocks (default: all). Idempotent; refuses malformed JSON targets.
-  atlas doctor [--strict] Dry-run inventory of provenance lockfile, wiring, and on-ramp blocks.
+                          merge-driver: install local git merge driver for map/index.md.
+  atlas merge-index <base> <ours> <theirs> <marker-size> <path>
+                          Git merge-driver entrypoint — regenerate map/index.md (do not call by hand)
+  atlas doctor [--strict] wiring inventory (are hooks/skills/adapters installed?)
                           --strict exits 1 when package-freshness issues are present.
   atlas migrate [--write] [--json]
                           Apply pending versioned migrations (dry-run by default; --write to apply)
@@ -104,17 +108,31 @@ function resolveVault(cwd, stderr) {
 }
 
 /**
- * Shared build core used by both `atlas build` and `atlas check`: load
- * config + vault, run validate with real git resolvers, write map/index.md.
+ * Pure core: load config + vault, validate with real git resolvers, RENDER the
+ * index to a string. Writes nothing.
+ *
+ * `check` must be safe to run from a git hook, from a read-only checkout, and
+ * from twenty parallel worktrees at once. The old shared core always wrote the
+ * index and then asked git whether the write matched HEAD — which made a
+ * validation command a mutation, and made every parallel recollection touch the
+ * one file guaranteed to conflict.
  *
  * @param {string} cwd
  * @param {{ write: Function }} stderr
+ * @returns {{
+ *   repoRoot: string,
+ *   vaultDir: string,
+ *   vault: ReturnType<typeof loadVault>,
+ *   result: ReturnType<typeof validate>,
+ *   indexPath: string,
+ *   rendered: string,
+ *   config: ReturnType<typeof loadConfig>,
+ * } | null}
  */
-function buildCore(cwd, stderr) {
+export function renderCore(cwd, stderr) {
   const located = resolveVault(cwd, stderr)
   if (!located) return null
   const { repoRoot, vaultDir } = located
-
   const config = loadConfig(repoRoot)
   const vault = loadVault(vaultDir, config)
   const resolvers = makeResolvers(repoRoot, config.anchors ?? {})
@@ -125,20 +143,28 @@ function buildCore(cwd, stderr) {
     check: config.check ?? {},
     profile: config.profile ?? 'code',
   })
-
+  const rendered = renderIndex(result, {
+    specs: vault.specs,
+    plans: vault.plans,
+    reports: vault.reports,
+    decisions: vault.decisions,
+  })
   const indexPath = path.join(vaultDir, 'map', 'index.md')
-  fs.mkdirSync(path.dirname(indexPath), { recursive: true })
-  fs.writeFileSync(
-    indexPath,
-    renderIndex(result, {
-      specs: vault.specs,
-      plans: vault.plans,
-      reports: vault.reports,
-      decisions: vault.decisions,
-    }),
-  )
+  return { repoRoot, vaultDir, vault, result, indexPath, rendered, config }
+}
 
-  return { repoRoot, vaultDir, vault, result, indexPath }
+/**
+ * Load + validate + write map/index.md (used by `atlas build` and merge-driver).
+ *
+ * @param {string} cwd
+ * @param {{ write: Function }} stderr
+ */
+function buildCore(cwd, stderr) {
+  const core = renderCore(cwd, stderr)
+  if (!core) return null
+  fs.mkdirSync(path.dirname(core.indexPath), { recursive: true })
+  fs.writeFileSync(core.indexPath, core.rendered)
+  return core
 }
 
 function runBuild(_argv, opts) {
@@ -193,9 +219,9 @@ function runCheck(argv, opts) {
 
   let ok = true
 
-  const built = buildCore(cwd, stderr)
-  if (!built) return 1
-  const { result, vault } = built
+  const core = renderCore(cwd, stderr)
+  if (!core) return 1
+  const { result, vault } = core
 
   for (const w of result.warnings) stderr.write(`warning: ${w}\n`)
   for (const w of result.graphWarnings) stderr.write(`warning: ${w}\n`)
@@ -231,19 +257,19 @@ function runCheck(argv, opts) {
     if (corpusViolations.length > 0) ok = false
   }
 
-  const diff = spawnSync(
-    'git',
-    ['diff', '--exit-code', '--', path.join(vaultDir, 'map', 'index.md')],
-    {
-      cwd: repoRoot,
-      encoding: 'utf8',
-    },
-  )
-  if (diff.status !== 0) {
-    stderr.write(
-      'atlas check: map/index.md is out of date with the committed version — run `atlas build` and commit\n',
-    )
-    ok = false
+  if (config.check?.indexSync !== false) {
+    let committed = null
+    try {
+      committed = fs.readFileSync(core.indexPath, 'utf8')
+    } catch {
+      committed = null
+    }
+    if (committed !== core.rendered) {
+      stderr.write(
+        'atlas check: map/index.md is out of date — run `atlas build` and commit the result\n',
+      )
+      ok = false
+    }
   }
 
   const zoneSlugs = new Set(vault.zones.map((z) => z.id))
@@ -275,10 +301,48 @@ function runCheck(argv, opts) {
   return ok ? 0 : 1
 }
 
+
+/**
+ * Git merge-driver entry: atlas merge-index %O %A %B %L %P
+ * Exit 0 = resolved; exit 1 = leave conflict.
+ */
+function runMergeIndex(argv, opts) {
+  const cwd = opts.cwd ?? process.cwd()
+  const stderr = opts.stderr ?? process.stderr
+  const [base, ours, theirs, _markerSize, _path] = argv
+  if (!ours) {
+    stderr.write('atlas merge-index: usage: merge-index <base> <ours> <theirs> <marker-size> <path>\n')
+    return 1
+  }
+  const repoRoot = findRepoRoot(cwd) ?? path.resolve(cwd)
+  const vaultDir = findVaultDir(repoRoot)
+  if (!vaultDir) {
+    stderr.write('atlas merge-index: no Atlas vault found\n')
+    return 1
+  }
+  const zonesDir = path.join(vaultDir, 'map', 'zones')
+  const result = mergeIndex({
+    base,
+    ours,
+    theirs,
+    repoRoot,
+    zonesDir,
+    outPath: ours,
+    render: (root, err) => renderCore(root, err),
+    stderr,
+  })
+  if (!result.ok) {
+    stderr.write(`atlas merge-index: ${result.reason}\n`)
+    return 1
+  }
+  return 0
+}
+
 const COMMANDS = {
   init: (args) => runInit(args, { cwd: process.cwd() }),
   build: (args) => runBuild(args, { cwd: process.cwd() }),
   check: (args) => runCheck(args, { cwd: process.cwd() }),
+  'merge-index': (args) => runMergeIndex(args, { cwd: process.cwd() }),
   stamp: (args) => runStamp(args, { cwd: process.cwd() }),
   search: (args) => runSearch(args, { cwd: process.cwd() }),
   status: (args) => runStatus(args, { cwd: process.cwd() }),
