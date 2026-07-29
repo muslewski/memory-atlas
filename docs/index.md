@@ -19,7 +19,8 @@ Site: [atlas.muslewski.com](https://atlas.muslewski.com) · npm: [`memory-atlas`
 | [Adoption](./ADOPTION.md) | Brownfield migrate: existing docs/ADRs/mind → Atlas shape |
 | [Configuration](./CONFIG.md) | `atlas.config.json` field reference |
 | [Visuals companion](./VISUALS.md) | Optional presentation plane (`memory-atlas-visuals`) — not part of this package |
-| [CI recipe](./CI.md) | `atlas check` + index-in-sync in GitHub Actions |
+| [Recollecting in parallel](./recollecting-in-parallel.md) | Worker vs integrator; `check.indexSync`; local merge driver |
+| [CI recipe](./CI.md) | `atlas check` + index-in-sync (optional; not required) |
 | [Works with](./works-with.md) | Fleet siblings (sage, herald, oracle, armory, ferry) |
 
 ## Doctrine (short)

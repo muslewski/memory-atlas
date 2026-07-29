@@ -23,10 +23,21 @@ pass. Run this checklist before ending the session:
 - [ ] **Tech-debt note for every deferral.** Anything deliberately left
   undone gets a `tech-debt/` note (`type: debt`, `severity`, `effort`) — not
   a TODO comment, not a mention in a commit message only.
-- [ ] **Rebuild and check.** `atlas check` — regenerates `map/index.md` and
-  verifies zone claims and the ledger (add `--strict` in CI to also fail on
-  staleness). Commit the regenerated index together with the code change, in
-  the same commit — never as a separate follow-up.
+- [ ] **Rebuild and check — depends on your role.**
+
+  **Worker (you were dispatched to do one task):** update and stamp only the
+  zone cards your change touched. Run `atlas check` to validate — it is
+  read-only and will not modify your tree. **Do not run `atlas build` and do
+  not stage `map/index.md`.** The index is a full-file regeneration over every
+  zone; if two workers commit it, they conflict on every row, and a textual
+  merge of it is silently wrong because per-row freshness is recomputed from
+  live git rather than carried in the text.
+
+  **Integrator (you are merging others' work, or you are the only session):**
+  after integrating, run `atlas build` once and commit the rebuilt
+  `map/index.md` on its own or folded into the integration commit.
+
+  If you are unsure which you are, you are a worker.
 - [ ] **Supersede, don't edit; tombstone, don't delete.** Past-tense notes
   (specs, decisions, done plans) are read-only once frozen — write a
   superseding note instead of editing history. A retired zone/flow/decision
