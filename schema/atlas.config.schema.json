@@ -115,6 +115,11 @@
           "default": false,
           "description": "When true, any stale zone (⚠ stale freshness) fails `atlas check`. Default false: staleness is always advisory (including under `--strict`); only this config key hardens it."
         },
+        "indexSync": {
+          "type": "boolean",
+          "default": true,
+          "description": "Fail `atlas check` when the committed `map/index.md` differs from a fresh render. Set false in repos where many agents recollect in parallel and one integrator rebuilds the index."
+        },
         "ownership": {
           "type": "boolean",
           "default": true,

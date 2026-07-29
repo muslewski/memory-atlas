@@ -47,6 +47,7 @@ describe('loadConfig', () => {
     assert.deepEqual(DEFAULTS.check, {
       strictFreshness: false,
       ownership: true,
+      indexSync: true,
       corpus: { enabled: false, maxSummaryLen: 500 },
       packageFreshness: {
         mode: 'warn',
