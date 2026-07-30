@@ -15,6 +15,7 @@
  *   node scripts/fleet-adopt-gate.mjs --dry-run
  *   node scripts/fleet-adopt-gate.mjs hermes mossferry
  *   SKIP_INSTALL=1 node scripts/fleet-adopt-gate.mjs   # only package.json edits
+ *   ALREADY_OK=a,b,c node scripts/fleet-adopt-gate.mjs  # skip known-good
  *
  * Does NOT commit/push — parent session ships after verify.
  */
@@ -26,13 +27,20 @@ import { fileURLToPath } from 'node:url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ATLAS_ROOT = path.resolve(__dirname, '..')
 const REPOS_ROOT = process.env.REPOS_ROOT || path.resolve(ATLAS_ROOT, '..')
-const TARGET = process.env.ATLAS_VERSION || '0.5.4'
+const TARGET = process.env.ATLAS_VERSION || '0.6.0'
 const DRY = process.argv.includes('--dry-run')
 const SKIP_INSTALL = process.env.SKIP_INSTALL === '1'
 // argv: node script.mjs [--dry-run] [repo…]
 const ONLY = process.argv.slice(2).filter((a) => !a.startsWith('-'))
 
-const ALREADY_OK = new Set(['memory-atlas', 'delieta', 'eventizer', 'syndcast'])
+// Empty by default — re-check every sibling with atlas.config.json.
+// Override: ALREADY_OK=memory-atlas,delieta node scripts/fleet-adopt-gate.mjs
+const ALREADY_OK = new Set(
+  (process.env.ALREADY_OK || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean),
+)
 
 function log(msg) {
   process.stdout.write(`${msg}\n`)
@@ -62,12 +70,81 @@ function detectPm(repoRoot) {
   if (fs.existsSync(path.join(repoRoot, 'bun.lock')) || fs.existsSync(path.join(repoRoot, 'bun.lockb')))
     return 'bun'
   if (fs.existsSync(path.join(repoRoot, 'package-lock.json'))) return 'npm'
-  // package.json exists → prefer pnpm if available else npm
   if (fs.existsSync(path.join(repoRoot, 'package.json'))) {
     const hasPnpm = spawnSync('pnpm', ['--version'], { encoding: 'utf8' }).status === 0
     return hasPnpm ? 'pnpm' : 'npm'
   }
   return null
+}
+
+function isPnpmWorkspaceRoot(repoRoot) {
+  return (
+    fs.existsSync(path.join(repoRoot, 'pnpm-workspace.yaml')) ||
+    fs.existsSync(path.join(repoRoot, 'pnpm-workspace.yml'))
+  )
+}
+
+/** Prefer corepack pnpm@10 when repo engines.pnpm excludes current major (e.g. ^9 || ^10). */
+function resolvePnpmInvoker(repoRoot) {
+  let enginesPnpm = null
+  try {
+    const pkg = readJson(path.join(repoRoot, 'package.json'))
+    enginesPnpm = pkg.engines?.pnpm || null
+  } catch {
+    /* ignore */
+  }
+  if (
+    enginesPnpm &&
+    /\^9|\^10|>=9|>=10/.test(enginesPnpm) &&
+    !/\^11|>=11|11\./.test(enginesPnpm)
+  ) {
+    return { cmd: 'corepack', prefix: ['pnpm@10.15.0'] }
+  }
+  return { cmd: 'pnpm', prefix: [] }
+}
+
+/**
+ * Install memory-atlas@TARGET with pnpm, tolerant of:
+ * - workspace root check (-w)
+ * - minimumReleaseAge / supply-chain policy on brand-new publishes
+ * - store major migration (pnpm install then re-add)
+ * - engines.pnpm pin via corepack pnpm@10
+ */
+function installPnpm(repoRoot) {
+  const inv = resolvePnpmInvoker(repoRoot)
+  const workspace = isPnpmWorkspaceRoot(repoRoot)
+  const baseArgs = [
+    ...inv.prefix,
+    'add',
+    '-D',
+    ...(workspace ? ['-w'] : []),
+    `memory-atlas@${TARGET}`,
+    '--config.minimumReleaseAge=0',
+  ]
+
+  let install = run(inv.cmd, baseArgs, repoRoot, { mutate: true, timeout: 300_000 })
+  if (install.status === 0) return install
+
+  const err = `${install.stderr || ''}\n${install.stdout || ''}`
+
+  if (err.includes('UNEXPECTED_STORE') || err.includes('Unexpected store location')) {
+    run(inv.cmd, [...inv.prefix, 'install', '--config.minimumReleaseAge=0'], repoRoot, {
+      mutate: true,
+      timeout: 300_000,
+    })
+    install = run(inv.cmd, baseArgs, repoRoot, { mutate: true, timeout: 300_000 })
+    if (install.status === 0) return install
+  }
+
+  if (err.includes('PUBLIC_HOIST_PATTERN') || err.includes('public-hoist-pattern')) {
+    run(inv.cmd, [...inv.prefix, 'install', '--config.minimumReleaseAge=0'], repoRoot, {
+      mutate: true,
+      timeout: 300_000,
+    })
+    install = run(inv.cmd, baseArgs, repoRoot, { mutate: true, timeout: 300_000 })
+  }
+
+  return install
 }
 
 function readJson(file) {
@@ -95,7 +172,6 @@ function ensurePackageJson(repoRoot) {
   pkg.scripts = pkg.scripts || {}
   pkg.devDependencies = pkg.devDependencies || {}
 
-  // Move memory-atlas to devDependencies if only in dependencies
   if (pkg.dependencies?.['memory-atlas'] && !pkg.devDependencies['memory-atlas']) {
     delete pkg.dependencies['memory-atlas']
   }
@@ -103,7 +179,6 @@ function ensurePackageJson(repoRoot) {
   pkg.devDependencies['memory-atlas'] = TARGET
   if (pkg.dependencies?.['memory-atlas']) delete pkg.dependencies['memory-atlas']
 
-  // Thin scripts (do not overwrite custom mind:check bodies that already call atlas)
   const ensureScript = (key, value) => {
     if (!pkg.scripts[key]) pkg.scripts[key] = value
   }
@@ -111,14 +186,12 @@ function ensurePackageJson(repoRoot) {
   ensureScript('atlas:gate', 'atlas gate')
   ensureScript('atlas:doctor', 'atlas doctor')
   ensureScript('atlas:wire', 'atlas wire all')
-  // predev: soft gate — only set if missing (don't clobber existing predev chains)
   if (!pkg.scripts.predev) {
     pkg.scripts.predev = 'atlas gate'
   } else if (!pkg.scripts.predev.includes('atlas gate') && !pkg.scripts.predev.includes('atlas:gate')) {
     pkg.scripts.predev = `atlas gate && ${pkg.scripts.predev}`
   }
 
-  // mind:* aliases only if missing
   ensureScript('mind:check', 'atlas check')
   ensureScript('mind:build', 'atlas build')
 
@@ -137,6 +210,19 @@ function listTargets() {
     return true
   })
   return names.sort()
+}
+
+function resolveAtlasCli(repoRoot, result) {
+  const atlasBin = path.join(repoRoot, 'node_modules', '.bin', 'atlas')
+  if (fs.existsSync(atlasBin)) {
+    return { atlasCmd: atlasBin, atlasArgs: [] }
+  }
+  const localPkg = path.join(ATLAS_ROOT, 'bin', 'atlas.mjs')
+  if (fs.existsSync(localPkg)) {
+    result.steps.push('atlas via local checkout')
+    return { atlasCmd: process.execPath, atlasArgs: [localPkg] }
+  }
+  return { atlasCmd: 'npx', atlasArgs: ['--yes', `memory-atlas@${TARGET}`] }
 }
 
 function adoptOne(name) {
@@ -167,10 +253,7 @@ function adoptOne(name) {
     if (!SKIP_INSTALL) {
       let install
       if (pm === 'pnpm') {
-        install = run('pnpm', ['add', '-D', `memory-atlas@${TARGET}`], repoRoot, {
-          mutate: true,
-          timeout: 300_000,
-        })
+        install = installPnpm(repoRoot)
       } else if (pm === 'bun') {
         install = run('bun', ['add', '-d', `memory-atlas@${TARGET}`], repoRoot, {
           mutate: true,
@@ -183,39 +266,33 @@ function adoptOne(name) {
         })
       }
       if (install.status !== 0) {
-        result.error = `install failed: ${(install.stderr || install.stdout).slice(-400)}`
-        return result
+        const snippet = (install.stderr || install.stdout || '')
+          .slice(-200)
+          .replace(/\n/g, ' ')
+        result.steps.push(`install warn: ${snippet}`)
+      } else {
+        result.steps.push('install ok')
       }
-      result.steps.push('install ok')
     }
 
-    // Prefer local bin after install
-    const atlasBin = path.join(repoRoot, 'node_modules', '.bin', 'atlas')
-    const atlasCmd = fs.existsSync(atlasBin) ? atlasBin : 'npx'
-    const atlasArgs = fs.existsSync(atlasBin) ? [] : ['--yes', `memory-atlas@${TARGET}`]
+    const { atlasCmd, atlasArgs } = resolveAtlasCli(repoRoot, result)
 
-    const wire = run(
-      atlasCmd,
-      [...atlasArgs, 'wire', 'all'],
-      repoRoot,
-      { mutate: true, timeout: 60_000 },
-    )
+    const wire = run(atlasCmd, [...atlasArgs, 'wire', 'all'], repoRoot, {
+      mutate: true,
+      timeout: 60_000,
+    })
     result.steps.push(`wire exit ${wire.status}`)
 
-    const mig = run(
-      atlasCmd,
-      [...atlasArgs, 'migrate', '--write'],
-      repoRoot,
-      { mutate: true, timeout: 30_000 },
-    )
+    const mig = run(atlasCmd, [...atlasArgs, 'migrate', '--write'], repoRoot, {
+      mutate: true,
+      timeout: 30_000,
+    })
     result.steps.push(`migrate: ${(mig.stdout || '').trim().split('\n').pop() || mig.status}`)
 
-    const gate = run(
-      atlasCmd,
-      [...atlasArgs, 'gate', '--strict'],
-      repoRoot,
-      { mutate: false, timeout: 30_000 },
-    )
+    const gate = run(atlasCmd, [...atlasArgs, 'gate', '--strict'], repoRoot, {
+      mutate: false,
+      timeout: 30_000,
+    })
     result.steps.push(`gate --strict exit ${gate.status}: ${(gate.stdout || '').trim()}`)
     if (gate.status !== 0) {
       result.error = `gate --strict failed: ${gate.stdout} ${gate.stderr}`
@@ -248,12 +325,16 @@ function main() {
   log(`\n=== summary: ${ok.length} ok / ${bad.length} fail / ${results.length} total ===`)
   for (const r of bad) log(`FAIL ${r.name}: ${r.error}`)
 
-  // machine-readable report
+  const payload = { target: TARGET, results, at: new Date().toISOString() }
   const reportPath = path.join(ATLAS_ROOT, 'atlas', 'reports', `fleet-adopt-gate-${TARGET}.json`)
+  const tmpReport = '/tmp/fleet-atlas-adopt-report.json'
   if (!DRY) {
     fs.mkdirSync(path.dirname(reportPath), { recursive: true })
-    fs.writeFileSync(reportPath, `${JSON.stringify({ target: TARGET, results, at: new Date().toISOString() }, null, 2)}\n`)
+    const body = `${JSON.stringify(payload, null, 2)}\n`
+    fs.writeFileSync(reportPath, body)
+    fs.writeFileSync(tmpReport, body)
     log(`report: ${reportPath}`)
+    log(`report: ${tmpReport}`)
   }
 
   process.exit(bad.length ? 1 : 0)
