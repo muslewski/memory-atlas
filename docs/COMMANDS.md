@@ -330,6 +330,10 @@ npx atlas doctor --strict
 # stderr: atlas doctor: strict — package freshness issues present  → exit 1
 ```
 
+`✗` wiring/lockfile lines are **not** hard failures — only package-freshness
+issues (with `--strict`) exit **1**. Full inventory table and broken-vs-soft
+semantics: [Troubleshooting](./troubleshooting.md#atlas-doctor--what-it-checks-today).
+
 ---
 
 ## `atlas gate`

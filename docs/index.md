@@ -20,6 +20,7 @@ Site: [atlas.muslewski.com](https://atlas.muslewski.com) · npm: [`memory-atlas`
 | [Adoption](./ADOPTION.md) | Brownfield migrate: existing docs/ADRs/mind → Atlas shape |
 | [Configuration](./CONFIG.md) | `atlas.config.json` field reference |
 | [Containment and honesty](./containment.md) | Write-path realpath checks; exit codes; index regenerate vs text-merge |
+| [Troubleshooting](./troubleshooting.md) | Literal error messages, fixes, and `atlas doctor` inventory semantics |
 | [Visuals companion](./VISUALS.md) | Optional presentation plane (`memory-atlas-visuals`) — not part of this package |
 | [Recollecting in parallel](./recollecting-in-parallel.md) | Worker vs integrator; `check.indexSync`; local merge driver |
 | [CI recipe](./CI.md) | `atlas check` + index-in-sync (optional; not required) |
