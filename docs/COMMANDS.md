@@ -265,7 +265,7 @@ npx atlas status
 
 ```
 🧭 atlas: 5 zones (0 seeded) · 2 specs · 0 plans · ⚠ 2 open debt · 1 stale
-⬆ atlas 0.5.4 installed, wired 0.5.2 — run the atlas-update skill (.claude/skills/atlas-update/SKILL.md)
+⬆ atlas 0.5.4 installed, wired 0.5.2 — run the atlas-update skill (~/.claude/skills/atlas-update/SKILL.md)
 ```
 
 (The second line is a package-freshness nudge; it appears only when wired vs
@@ -369,7 +369,7 @@ npx atlas gate
 ```
 
 ```
-⬆ atlas 0.5.4 installed, wired 0.5.2 — run the atlas-update skill (.claude/skills/atlas-update/SKILL.md)
+⬆ atlas 0.5.4 installed, wired 0.5.2 — run the atlas-update skill (~/.claude/skills/atlas-update/SKILL.md)
 ```
 
 ```bash
