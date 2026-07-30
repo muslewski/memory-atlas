@@ -35,8 +35,8 @@ code it describes.
   execute.
 - **Vendored third-party skills are not Atlas projections** — never
   tombstone or regenerate them during recollection.
-- Retrieval: use the `atlas-nav` skill if it's been copied into this repo,
-  or see `adapters/ctx-search/README.md`.
+- Atlas skills install once at user scope (`~/.claude/skills/`), not vendored here — verify with `node bin/atlas.mjs doctor`.
+- Retrieval: use the `atlas-nav` skill (user scope), or see `adapters/ctx-search/README.md`.
 
 ## This repo's own dogfooding
 
@@ -84,6 +84,6 @@ code it describes.
   execute.
 - **Vendored third-party skills are not Atlas projections** — never
   tombstone or regenerate them during recollection.
-- Retrieval: use the `atlas-nav` skill if it's been copied into this repo,
-  or see `adapters/ctx-search/README.md`.
+- Atlas skills install once at user scope (`~/.claude/skills/`), not vendored here — verify with `node bin/atlas.mjs doctor`.
+- Retrieval: use the `atlas-nav` skill (user scope), or see `adapters/ctx-search/README.md`.
 <!-- /atlas:onramp -->
