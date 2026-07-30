@@ -109,12 +109,21 @@ The `--vault` flag on `atlas init` (`lib/init.mjs`'s `parseArgs`) is what
 this very repository's own vault (named `atlas/`, not the default
 `memory-atlas-atlas/`) exercises — see [[0003-vault-named-atlas]].
 
+## Top-level help (`atlas --help`)
+
+`USAGE` in `bin/atlas.mjs` is the stranger-facing index. `atlas check` is
+described as validating **zone claims, the working-tree index, and the ledger**
+(read-only) — not a committed-index / git-HEAD comparison. Global kill switches
+listed there: `--no-telemetry` (legacy `~/.cache/memory-atlas/` stream) and
+`--no-devlog` (fleet-devlog). They gate different emitters; either leaves a
+valid vault's `check` green.
+
 ## Fleet-devlog (W7)
 
 Finished CLI commands also append to the **shared** opt-in local stream at
 `$XDG_STATE_HOME/fleet-devlog/events.jsonl` via vendored `lib/fleet-devlog.mjs`,
 alongside the legacy `~/.cache/memory-atlas/events.jsonl` stream. Enable only via
-`FLEET_DEVLOG` or machine config — never repo config. Contract `repo_id` is
-`<basename>-<sha256-8>` of the main repo root (worktrees fold); the legacy
-telemetry `repo_id` hash is unchanged so stored history stays valid.
+`FLEET_DEVLOG` / `--no-devlog` / machine config — never repo config. Contract
+`repo_id` is `<basename>-<sha256-8>` of the main repo root (worktrees fold); the
+legacy telemetry `repo_id` hash is unchanged so stored history stays valid.
 

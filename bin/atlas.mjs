@@ -45,7 +45,7 @@ Usage:
 
 Primary commands:
   atlas init [--vault name]   Scaffold a vault (default: <repo-dirname>-atlas)
-  atlas check                 Validate the vault (read-only; never writes)
+  atlas check                 Zone claims, working-tree index, ledger (read-only)
   atlas stamp <slug...>       Set verifiedAt to HEAD for reviewed zones only
   atlas build                 Regenerate map/index.md from zone cards
   atlas status                One-line vault health (safe as a SessionStart hook)
@@ -67,7 +67,8 @@ Also: wire · gate · migrate · adopt · routine · visuals · telemetry
 Options:
   --help, -h        Show this help
   --version, -v     Show the installed version
-  --no-telemetry    Disable telemetry for this invocation
+  --no-telemetry    Disable legacy local telemetry for this invocation
+  --no-devlog       Disable fleet-devlog for this invocation
 
 A repo's atlas.config.json → \`enabled: false\` silences every command above
 (except \`init\`), printing nothing and exiting 0 — a kill switch for repos

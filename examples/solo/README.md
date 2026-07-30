@@ -27,9 +27,9 @@ sessions orient from `map/index.md` before exploring code directly.
 ## 4. Check
 
 `npx memory-atlas build` regenerates `map/index.md`; `npx memory-atlas check`
-verifies zone claims against the tree, confirms the committed index is
-current, and lints the ledger. Add it to CI (`--strict` once ready) to block
-merges on drift.
+verifies zone claims against the tree, confirms the **working-tree**
+`map/index.md` matches a fresh render, and lints the ledger. Run
+`npx memory-atlas check` locally before you call the work done.
 
 Full detail lives in `docs/ONRAMP.md` and `docs/CONFIG.md` — this file is
 only the map of where to look.
