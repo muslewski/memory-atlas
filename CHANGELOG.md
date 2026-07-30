@@ -18,6 +18,9 @@
     without guessing which side is newer.
   - Opt back in with `skills.vendorInRepo: true` if you still want committed
     skill trees.
+  - Package-freshness wired-lag nudge points at
+    `~/.claude/skills/atlas-update/SKILL.md` by default (user-scope install), and
+    at `skills.dir/atlas-update/SKILL.md` only when `skills.vendorInRepo: true`.
   - Why this is a minor, not a patch: an audit before the collapse found **three
     distinct versions** of `atlas-recollection` across five repos, and the
     canonical package copy matched none of them. User-scope install removes that

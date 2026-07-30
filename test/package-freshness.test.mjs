@@ -167,7 +167,34 @@ describe('computePackageFreshness + shouldExitNonZero', () => {
     assert.equal(report.shouldFail, false)
     assert.equal(shouldExitNonZero(report, false), false)
     assert.equal(shouldExitNonZero(report, true), true)
-    assert.match(report.messages[0], /atlas-update skill \(\.claude\/skills/)
+    assert.match(
+      report.messages[0],
+      /atlas-update skill \(~\/\.claude\/skills\/atlas-update\/SKILL\.md\)/,
+    )
+  })
+
+  test('wired lag vendorInRepo:true points at skills.dir path', () => {
+    const repo = mkRepo()
+    writeState(repo, {
+      atlasVersion: '0.0.1',
+      configVersion: 1,
+      specVersion: '0.1',
+      modules: [],
+      wired: { claude: false, grok: false, rootBlocks: [] },
+      vendored: {},
+    })
+    const report = computePackageFreshness(
+      repo,
+      {
+        check: { packageFreshness: { mode: 'warn' } },
+        skills: { dir: '.claude/skills', vendorInRepo: true },
+      },
+      { fetchLatest: () => packageVersion() },
+    )
+    assert.match(
+      report.messages[0],
+      /atlas-update skill \(\.claude\/skills\/atlas-update\/SKILL\.md\)/,
+    )
   })
 
   test('wired lag fail mode → shouldFail', () => {
