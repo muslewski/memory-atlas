@@ -14,6 +14,7 @@
 
 - zone agent-onramp: ⚠ stale — code changed since verifiedAt, review and re-stamp
 - zone agent-onramp: invariant "the skill names and script paths docs/ONRAMP.md's install flow references (atlas-nav, writing-for-retrieval, atlas-recollection under skills/; adapters/ctx-search/nav-refresh-index.mjs) must stay in sync with what actually ships under skills/ and adapters/" has no enforcedBy → file tech-debt
+- decision number 2026 reused: 2026-07-29-fleet-devlog-dual-stream, 2026-07-30-index-merge-materialize-union, 2026-07-30-verifiedAt-after-merge-unverified
 
 ## ⚠ Graph coherence
 
