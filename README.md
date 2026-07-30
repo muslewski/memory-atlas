@@ -361,15 +361,18 @@ Recollection (update + stamp in the same change as the code) is what keeps `veri
 
 ## Docs
 
+- [`docs/index.md`](docs/index.md) — docs home (sidebar order)
 - [`SPEC.md`](SPEC.md) — normative vault layout, taxonomy, freshness rule, interop
 - [`docs/ONRAMP.md`](docs/ONRAMP.md) — `atlas wire`, managed CLAUDE.md/AGENTS.md blocks
+- [`docs/ADOPTION.md`](docs/ADOPTION.md) — brownfield migrate
+- [`docs/containment.md`](docs/containment.md) — write-path refusals, exit codes, index regenerate
+- [`docs/recollecting-in-parallel.md`](docs/recollecting-in-parallel.md) — worker/integrator + merge drivers
 - [`docs/COMMANDS.md`](docs/COMMANDS.md) — every CLI verb, flag, exit code, observed output
 - [`docs/CONFIG.md`](docs/CONFIG.md) — `atlas.config.json` reference
-- [`docs/ADOPTION.md`](docs/ADOPTION.md) — brownfield migrate
-- [`docs/recollecting-in-parallel.md`](docs/recollecting-in-parallel.md) — worker/integrator + merge drivers
-- [`docs/CI.md`](docs/CI.md) — optional local/`check` recipe you can paste into *your* automation
-- [`docs/VISUALS.md`](docs/VISUALS.md) — optional visuals companion
+- [`docs/troubleshooting.md`](docs/troubleshooting.md) — literal errors, fixes, `atlas doctor`
 - [`docs/works-with.md`](docs/works-with.md) — fleet siblings
+- [`docs/VISUALS.md`](docs/VISUALS.md) — optional visuals companion
+- [`docs/CI.md`](docs/CI.md) — optional local/`check` recipe for *your* automation (no hosted CI here)
 
 Dogfood vault for this toolkit: [`atlas/map/index.md`](atlas/map/index.md).
 
