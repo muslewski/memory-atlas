@@ -1,11 +1,11 @@
 ---
 type: zone
-summary: "The atlas command-line entry point: bin/atlas.mjs dispatch plus init/stamp/status/routine/wire/merge drivers; path-contained writes; local telemetry and opt-in fleet-devlog v1 emit on finished commands."
+summary: "The atlas command-line entry point: bin/atlas.mjs dispatch plus init/stamp/status/routine/wire/merge drivers; user-scope skill satisfaction and re-vendor drift checks; path-contained writes; local telemetry and opt-in fleet-devlog v1 emit on finished commands."
 tags: [cli]
 status: active
 created: 2026-07-09
 updated: 2026-07-30
-verifiedAt: 67d09307
+verifiedAt: 88d7bf18
 owns:
   routes: []
   testids: []
@@ -18,9 +18,11 @@ owns:
     - "lib/telemetry.mjs"
     - "lib/fleet-devlog.mjs"
     - "lib/wire.mjs"
+    - "lib/skills.mjs"
     - "lib/merge-index.mjs"
     - "lib/merge-zone.mjs"
     - "lib/doctor.mjs"
+    - "lib/gate.mjs"
     - "lib/paths.mjs"
     - "test/fleet-devlog.test.mjs"
     - "test/merge-index.test.mjs"
@@ -28,6 +30,8 @@ owns:
     - "test/wire.test.mjs"
     - "test/paths-containment.test.mjs"
     - "test/cli-errors.test.mjs"
+    - "test/gate.test.mjs"
+    - "test/doctor.test.mjs"
   tools: []
 depends:
   - [[verifier-core]]
@@ -46,6 +50,8 @@ invariants:
     enforcedBy: ["test/paths-containment.test.mjs", "test/stamp.test.mjs"]
   - rule: "atlas check loads atlas.config.json once (type-mismatch warnings emit once); build/stamp/check surface EACCES, unparseable zones, ENOTDIR, and ELOOP as one-line CLI errors without a Node stack"
     enforcedBy: ["test/cli-errors.test.mjs"]
+  - rule: "when a package skill exists at user-scope (ATLAS_USER_SKILLS_DIR or ~/.claude/skills) and skills.vendorInRepo is false, wire does not copy it into the repo and records source:user-scope; doctor and gate share the same re-vendor redundant/drift findings without guessing which side is newer"
+    enforcedBy: ["test/wire.test.mjs"]
 skills: []
 advances: []
 related: []
@@ -53,6 +59,7 @@ sources:
   - [[0003-vault-named-atlas]]
   - [[2026-07-30-verifiedAt-after-merge-unverified]]
   - [[2026-07-30-index-merge-materialize-union]]
+  - [[2026-07-30-user-scope-skills-satisfy-wiring]]
 ---
 
 ## What this is
@@ -71,8 +78,11 @@ set — refuse rather than first-parent-guess; see
 [[2026-07-30-index-merge-materialize-union]]), and
 `lib/merge-zone.mjs` (stamp-only conflicts → `verifiedAt: unverified`).
 `lib/paths.mjs` is the shared containment helper for stamp/build writes.
-`atlas init` leaves a vault whose empty index already matches `renderIndex`,
-so `atlas check` passes with no further commands.
+`lib/skills.mjs` is the shared user-scope skill resolver and re-vendor
+redundant/drift checker used by wire, doctor, and gate (see
+[[2026-07-30-user-scope-skills-satisfy-wiring]]). `atlas init` leaves a vault
+whose empty index already matches `renderIndex`, so `atlas check` passes with
+no further commands.
 
 ## Anchors
 

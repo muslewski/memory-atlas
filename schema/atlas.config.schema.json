@@ -193,11 +193,16 @@
     },
     "skills": {
       "type": "object",
-      "description": "Where this repo keeps its Atlas-navigation skills and which one is the entry ramp.",
+      "description": "Where this repo keeps optional vendored Atlas skills, the entry-ramp skill name, and whether to force repo copies even when user-scope already has the skill.",
       "additionalProperties": false,
       "properties": {
-        "dir": { "type": "string", "default": ".claude/skills", "description": "Repo-relative directory the navigation skills are copied into." },
-        "nav": { "type": "string", "default": "atlas-nav", "description": "Name of the entry-ramp navigation skill." }
+        "dir": { "type": "string", "default": ".claude/skills", "description": "Repo-relative directory package skills are copied into when vendoring." },
+        "nav": { "type": "string", "default": "atlas-nav", "description": "Name of the entry-ramp navigation skill." },
+        "vendorInRepo": {
+          "type": "boolean",
+          "default": false,
+          "description": "When true, atlas wire always vendors package skills into skills.dir even if the same skill is installed at user scope (ATLAS_USER_SKILLS_DIR or ~/.claude/skills). Default false: user-scope satisfies wiring and wire skips the copy."
+        }
       }
     },
     "hooks": {

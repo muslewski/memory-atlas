@@ -4,12 +4,24 @@ import os from 'node:os'
 import path from 'node:path'
 import { after, describe, test } from 'node:test'
 import { renderOnrampBlock, upsertBlock } from '../lib/blocks.mjs'
-import { runDoctor } from '../lib/doctor.mjs'
+import { runDoctor as runDoctorRaw } from '../lib/doctor.mjs'
 import { defaultState, packageVersion, sha256, writeState } from '../lib/state.mjs'
-import { CLAUDE_HOOK_CMD, GROK_HOOK_CMD, runWire } from '../lib/wire.mjs'
+import { CLAUDE_HOOK_CMD, GROK_HOOK_CMD, runWire as runWireRaw } from '../lib/wire.mjs'
 import { removeDirsWithRetry } from './helpers.mjs'
 
 const tmpDirs = []
+
+/** Isolate from host ~/.claude/skills (may contain atlas skills). */
+const EMPTY_USER_SKILLS = fs.mkdtempSync(path.join(os.tmpdir(), 'atlas-doctor-user-skills-'))
+tmpDirs.push(EMPTY_USER_SKILLS)
+
+function runDoctor(argv, opts = {}) {
+  return runDoctorRaw(argv, { userSkillsDir: EMPTY_USER_SKILLS, ...opts })
+}
+
+function runWire(argv, opts = {}) {
+  return runWireRaw(argv, { userSkillsDir: EMPTY_USER_SKILLS, ...opts })
+}
 
 function mkRepo() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'atlas-doctor-'))
