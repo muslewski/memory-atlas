@@ -44,7 +44,7 @@
     "engine": "ctx-search",
     "excludeFromSearch": ["drafts/", "visuals/"]
   },
-  "skills": { "dir": ".claude/skills", "nav": "atlas-nav" },
+  "skills": { "dir": ".claude/skills", "nav": "atlas-nav", "vendorInRepo": false },
   "hooks": { "sessionStartStatus": true, "sessionStartIndexRefresh": true },
   "routines": { "enabled": false, "cadenceDays": 7, "tasks": ["gardening"] },
   "visuals": {
