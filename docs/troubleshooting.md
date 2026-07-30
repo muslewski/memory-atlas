@@ -7,9 +7,9 @@ order: 32
 
 # Troubleshooting
 
-When `atlas` fails, match the **literal message** below. Every line on this
-page was reproduced with `node bin/atlas.mjs` (package **0.5.4**) on a real
-git repo. If a command and this page disagree, trust the command.
+When `atlas` fails, match the **literal message** below. Every quoted line on
+this page was reproduced with `node bin/atlas.mjs` from this package tree on a
+real git repo. If a command and this page disagree, trust the command.
 
 Full verb catalogue: [Command reference](./COMMANDS.md). Write-path refusals:
 [Containment and honesty](./containment.md).
@@ -102,11 +102,18 @@ Exit **0**. An empty structure is not an error; there is nothing to verify yet.
 
 ## `error: zone <id>: status "active" requires a commit SHA or "unverified" for verifiedAt, found "…"`
 
-**Means:** `verifiedAt` is not one of the two legal encodings. ISO calendar
-dates (`2026-07-30`), empty strings, and other garbage are **hard errors**.
-They never count as "fresh".
+**Means:** `verifiedAt` is not a legal encoding for an `active` zone. Legal
+values are only:
 
-Observed:
+1. a **7–40 character hex commit SHA** — "this card was checked against that commit"
+2. the literal string **`unverified`** — "no honest SHA yet" (post-merge stamp
+   invalidation, or not stamped)
+
+ISO calendar dates (`2026-07-30`), empty strings, and other garbage are **hard
+errors**. They never count as "fresh". An `active` zone claims the card was
+reviewed; a date cannot name which commit that review covered.
+
+Observed (ISO date and empty string):
 
 ```
 error: zone demo: status "active" requires a commit SHA or "unverified" for verifiedAt, found "2026-07-30"
@@ -118,17 +125,54 @@ error: zone bad: status "active" requires a commit SHA or "unverified" for verif
 
 **Exit:** **1** (`atlas check`).
 
-**Fix:** set a real short SHA (after review) or the sentinel `unverified`:
+**Fix — pick the path that matches intent:**
+
+### A. Card not reviewed yet → demote to seeded
 
 ```yaml
-# Not yet verified (or stamp invalidated by merge):
-status: active          # or seeded
+status: seeded
 verifiedAt: unverified
-
-# After review against current HEAD:
-#   npx atlas stamp <slug>
-# writes verifiedAt: <8-char HEAD sha>
 ```
+
+Then `npx atlas build` and `npx atlas check`. Observed: exit **0**, no
+`verifiedAt` warning.
+
+### B. Card was reviewed → stamp a real SHA
+
+Do **not** hand-write a SHA. Commit the card (and code) first, then:
+
+```bash
+git add atlas/map/zones/<slug>.md
+git commit -m "review <slug> zone"
+npx atlas stamp <slug>
+# stamped <slug> → <8-char HEAD sha>
+npx atlas build
+npx atlas check
+# → atlas check: ok
+```
+
+`atlas stamp` writes `verifiedAt: <short HEAD sha>` and sets `status: active`.
+That is the only way an `active` card honestly claims a specific commit.
+
+### C. Post-merge re-stamp gap only → `active` + `unverified`
+
+After a stamp-only merge conflict, the merge driver may leave:
+
+```yaml
+status: active
+verifiedAt: unverified
+```
+
+That pair is a **legal encoding** (exit **0**) but **not** a verification claim.
+`atlas check` prints:
+
+```
+warning: zone <id>: active with verifiedAt unverified — re-stamp after merge or review
+```
+
+…then `atlas check: ok`. Re-read the card against the merged tree and run
+`atlas stamp <slug>` when you have actually reviewed it. Do not leave this state
+as a permanent substitute for a SHA.
 
 Do **not** write today's date into `verifiedAt`. Dates are not SHAs.
 
