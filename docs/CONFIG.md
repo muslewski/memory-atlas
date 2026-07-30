@@ -218,6 +218,11 @@ Events land in `~/.cache/memory-atlas/events.jsonl`. Inspect with
 `atlas telemetry report`. Kill: `ATLAS_TELEMETRY=0`, `--no-telemetry`, or
 `atlas telemetry off`. Never tracks `status --hook`. No network in v1.
 
+A separate **fleet-devlog** stream (`FLEET_DEVLOG`, `--no-devlog`,
+`~/.local/state/fleet-devlog/`) is documented in the README "Developer
+logging" section. The two flags gate different files; neither enables the
+other.
+
 ### `hooks`
 
 Type `object`, all `boolean`, default `true`. Per-hook toggles so a repo can

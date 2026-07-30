@@ -36,7 +36,7 @@ npx atlas init --vault atlas
 npx atlas check
 ```
 
-Empty vault, no zone cards yet — observed:
+Empty vault, no zone cards yet — observed `npx atlas init --vault atlas`:
 
 ```
 created: atlas/map/zones/
@@ -44,6 +44,11 @@ created: atlas/map/zones/
 Profile: code
 Next steps:
   - Seed 4-8 zone cards…
+```
+
+Observed `npx atlas check` right after init:
+
+```
 atlas check: ok
 ```
 
@@ -56,7 +61,12 @@ verify yet. After you add cards, the loop is `stamp` → `build` → `check`.
 |------|--------|
 | `--help`, `-h` | Print top-level help (also accepted after any subcommand; exits **0**, does not run the verb) |
 | `--version`, `-v` | Print `atlas 0.5.4` (or the installed version); exit **0** |
-| `--no-telemetry` | Disable local debug telemetry for this invocation |
+| `--no-telemetry` | Disable **legacy** local debug telemetry (`~/.cache/memory-atlas/…`) for this invocation |
+| `--no-devlog` | Disable **fleet-devlog** (`~/.local/state/fleet-devlog/…`) for this invocation |
+
+These gate different streams. Either flag leaves `atlas check` green when the
+vault is valid; neither disables the other stream. See README "Developer
+logging" for enable rules (`ATLAS_TELEMETRY` vs `FLEET_DEVLOG`).
 
 Unknown command:
 
@@ -122,8 +132,10 @@ atlas init: unknown option "--nope"
 ## `atlas check`
 
 Validate the vault **without writing**. Loads zone cards, runs structural and
-ownership checks, optionally compares working-tree `map/index.md` to a fresh
-render (`check.indexSync`, default on), lints the ledger, reports stale zones.
+ownership checks, compares the **working-tree** `map/index.md` to a fresh
+render when `check.indexSync` is on (default), lints the ledger, reports stale
+zones. It does **not** require the index to match git `HEAD` — only that the
+file on disk matches what `atlas build` would write right now.
 
 | Flag | Effect |
 |------|--------|
@@ -706,7 +718,7 @@ Usage:
 
 Primary commands:
   atlas init [--vault name]   Scaffold a vault (default: <repo-dirname>-atlas)
-  atlas check                 Validate the vault (read-only; never writes)
+  atlas check                 Zone claims, working-tree index, ledger (read-only)
   atlas stamp <slug...>       Set verifiedAt to HEAD for reviewed zones only
   atlas build                 Regenerate map/index.md from zone cards
   atlas status                One-line vault health (safe as a SessionStart hook)
@@ -728,7 +740,8 @@ Also: wire · gate · migrate · adopt · routine · visuals · telemetry
 Options:
   --help, -h        Show this help
   --version, -v     Show the installed version
-  --no-telemetry    Disable telemetry for this invocation
+  --no-telemetry    Disable legacy local telemetry for this invocation
+  --no-devlog       Disable fleet-devlog for this invocation
 
 A repo's atlas.config.json → `enabled: false` silences every command above
 (except `init`), printing nothing and exiting 0 — a kill switch for repos

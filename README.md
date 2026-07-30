@@ -36,7 +36,7 @@ npx atlas init --vault atlas
 npx atlas check
 ```
 
-Observed output (empty vault, no zone cards yet):
+Observed `npx atlas init --vault atlas` (empty vault, no zone cards yet):
 
 ```
 created: atlas/map/zones/
@@ -60,7 +60,11 @@ Next steps:
   - Add a short CLAUDE.md/AGENTS.md on-ramp block pointing agents at map/index.md.
   - Run `atlas stamp <slug>` once a card is reviewed, then `atlas build` / `atlas check`.
   - Search: `atlas search <terms>` (rg-first portable floor).
+```
 
+Observed `npx atlas check` right after init:
+
+```
 atlas check: ok
 ```
 
@@ -95,11 +99,17 @@ The app source tree.
 
 ```bash
 npx atlas build
-npx atlas check
 ```
 
 ```
 🗺️ Atlas map rebuilt: 1 zones, 0 gap(s).
+```
+
+```bash
+npx atlas check
+```
+
+```
 atlas check: ok
 ```
 
@@ -296,7 +306,7 @@ depends:
 |---------|----------------|
 | `atlas init [--vault name] [--profile code\|operator]` | Scaffold vault + `atlas.config.json` + `.atlas-state.json` (non-interactive) |
 | `atlas build` | Regenerate `map/index.md` from zone/flow cards |
-| `atlas check [--strict] [--report] [--ledger-only]` | Verify claims, working-tree index sync, ledger (read-only; does not write) |
+| `atlas check [--strict] [--report] [--ledger-only]` | Zone claims, working-tree index, ledger (read-only; does not write) |
 | `atlas stamp <slug…>` | Set `verifiedAt` to HEAD for reviewed zones only |
 | `atlas search <query>` | Search vault markdown (`rg` first, `grep` fallback) |
 | `atlas status [--hook]` | One-line vault health; safe as a SessionStart hook |
@@ -380,7 +390,23 @@ Dogfood vault for this toolkit: [`atlas/map/index.md`](atlas/map/index.md).
 
 ## Developer logging
 
-Opt-in **local-only** developer event log shared with fleet tools (`agentic-sage`, `llm-armory`, `mossferry`). **Off by default.** Nothing is written unless you enable it.
+Two separate **local-only** debug streams exist. Both are **off by default**.
+Neither has network code. A committed `atlas.config.json` may **disable** legacy
+telemetry but can **never enable** either stream.
+
+| Stream | Flag | Env | On switch | File |
+|--------|------|-----|-----------|------|
+| **fleet-devlog** (canonical fleet contract) | `--no-devlog` | `FLEET_DEVLOG` | machine config `~/.config/fleet-devlog/config.json` `{"enabled": true}` | `~/.local/state/fleet-devlog/events.jsonl` |
+| **legacy telemetry** (listed in `atlas --help`) | `--no-telemetry` | `ATLAS_TELEMETRY` | `atlas telemetry on` or `~/.config/memory-atlas/config.json` | `~/.cache/memory-atlas/events.jsonl` |
+
+Both flags are accepted by the CLI (observed: `atlas check --no-devlog` and
+`atlas check --no-telemetry` both exit 0). They gate **different** emitters;
+passing one does not disable the other.
+
+### fleet-devlog (shared fleet stream)
+
+Opt-in local event log shared with fleet tools (`agentic-sage`, `llm-armory`,
+`mossferry`). **Off by default.**
 
 **Enable (first match wins):**
 
@@ -403,15 +429,19 @@ Opt-in **local-only** developer event log shared with fleet tools (`agentic-sage
 
 **Never recorded:** prompts, note bodies, commit messages, file contents, paths, env values, API keys, free-form text.
 
-**Never leaves the machine.** The emitter has no network code. Delete with:
+Delete with:
 
 ```bash
 rm -rf ~/.local/state/fleet-devlog
 ```
 
-### Repo config cannot enable this log
+### Legacy telemetry
 
-A committed `atlas.config.json` **cannot** enable fleet-devlog. Repo files travel to every clone; an enable bit there would turn logging on for people who never agreed. Enable with `FLEET_DEVLOG=1` or the machine config above — never with a committed repo file.
+Documented in `atlas --help` as `--no-telemetry`. Enable with
+`ATLAS_TELEMETRY=1`, `atlas telemetry on`, or the machine config under
+`~/.config/memory-atlas/`. Inspect with `atlas telemetry report`. See
+[`docs/COMMANDS.md`](docs/COMMANDS.md) (`atlas telemetry`) and
+[`docs/CONFIG.md`](docs/CONFIG.md).
 
 ---
 
