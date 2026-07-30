@@ -1,11 +1,11 @@
 ---
 type: zone
-summary: "atlas.config.json's loader: the v1 default shape, a tolerant deep merge (missing/partial/unknown-key configs never crash a command), check.indexSync as on-disk vs render (not git HEAD), and the JSON schema that gives editors autocomplete."
+summary: "atlas.config.json's loader: the v1 default shape (including skills.vendorInRepo), a tolerant deep merge (missing/partial/unknown-key configs never crash a command), check.indexSync as on-disk vs render (not git HEAD), and the JSON schema that gives editors autocomplete."
 tags: [config]
 status: active
 created: 2026-07-09
 updated: 2026-07-30
-verifiedAt: 67d09307
+verifiedAt: 88d7bf18
 owns:
   routes: []
   testids: []
@@ -13,6 +13,7 @@ owns:
     - "lib/config.mjs"
     - "schema/**"
     - "docs/CONFIG.md"
+    - "templates/config/**"
   tools: []
 depends: []
 invariants:
@@ -20,24 +21,31 @@ invariants:
     enforcedBy: ["test/config.test.mjs"]
   - rule: "loadConfig refuses non-regular atlas.config.json (FIFO, directory, socket) with one warning and defaults — never blocks forever on a FIFO"
     enforcedBy: ["test/config.test.mjs", "test/cli-errors.test.mjs"]
+  - rule: "DEFAULT_SKILLS.vendorInRepo is false — user-scope skill installs satisfy wiring unless a repo explicitly opts into forced vendoring"
+    enforcedBy: ["test/config.test.mjs", "test/wire.test.mjs"]
 skills: []
 advances: []
 related: []
 sources:
   - [[0003-vault-named-atlas]]
+  - [[2026-07-30-user-scope-skills-satisfy-wiring]]
 ---
 
 ## What this is
 
 `lib/config.mjs` is the single source of the default folder/module/anchor/
-hook/routine shape (`DEFAULTS`, plus the individual `DEFAULT_*` exports
-every other module imports rather than re-typing a literal path). `loadConfig`
-reads `atlas.config.json` from the repo root and deep-merges it onto that
-shape via `mergeObject`/`mergeValue`. `schema/atlas.config.schema.json` is
-the JSON Schema an editor resolves through the `$schema` key `atlas init`
-writes, giving per-field descriptions and autocomplete without this package
-needing a runtime schema-validation dependency. `docs/CONFIG.md` is the
-field-level writeup SPEC.md's Configuration section points to.
+hook/routine/skills shape (`DEFAULTS`, plus the individual `DEFAULT_*` exports
+every other module imports rather than re-typing a literal path).
+`skills.vendorInRepo` defaults to `false` so a user-scope install satisfies
+wiring; repos that need committed copies set it true (see
+[[2026-07-30-user-scope-skills-satisfy-wiring]]). `loadConfig` reads
+`atlas.config.json` from the repo root and deep-merges it onto that shape via
+`mergeObject`/`mergeValue`. `schema/atlas.config.schema.json` is the JSON
+Schema an editor resolves through the `$schema` key `atlas init` writes,
+giving per-field descriptions and autocomplete without this package needing a
+runtime schema-validation dependency. `docs/CONFIG.md` is the field-level
+writeup SPEC.md's Configuration section points to (fleet docs path may lag
+this change).
 
 ## Anchors
 
