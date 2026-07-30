@@ -2,7 +2,7 @@
 
 Research date: 2026-07-17  
 Role: repo analyst (read-only)  
-Repo under audit: `/home/kento/Repositories/memory-atlas` @ `ade440e` (`main`)  
+Repo under audit: `~/Repositories/memory-atlas` @ `ade440e` (`main`)  
 Also reviewed: unmerged branch `feat/reports-convention` (3 commits ahead of `main`)  
 Out of scope: syndcast-mind `visuals/`
 
@@ -32,7 +32,7 @@ Assume a brand-new empty app repo `acme-shop` with `git init` and at least one c
 | `README.md` Quickstart | `$ npx memory-atlas init` | Package name free but **unpublished** (`npm view memory-atlas` → E404). |
 | `package.json` | `"name": "memory-atlas"`, bins `atlas` + `memory-atlas`, `files` includes bin/lib/templates/schema/skills/adapters/examples/docs/SPEC.md | Tarball would be ~66 kB / 46 files if packed (`npm pack --dry-run`); not on registry. |
 | `docs/LAUNCH-CHECKLIST.md` | Create `muslewski/memory-atlas`, push, CI, publish | **Not done.** Local repo has **no `git remote`**, no `.github/workflows/`. `gh repo view muslewski/memory-atlas` → not found. |
-| Practical path today | (undocumented for adopters) | Path/file install, e.g. `npm i -D /home/kento/Repositories/memory-atlas` or `node /path/to/bin/atlas.mjs init`, or await publish. |
+| Practical path today | (undocumented for adopters) | Path/file install, e.g. `npm i -D ~/Repositories/memory-atlas` or `node /path/to/bin/atlas.mjs init`, or await publish. |
 
 **Sibling contrast (published install maturity):**
 

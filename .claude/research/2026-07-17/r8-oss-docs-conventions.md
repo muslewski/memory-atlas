@@ -241,7 +241,7 @@ Problem statement matches memory-atlas goal (3): improve atlas conventions once;
 
 ### 7. memory-atlas current state vs OSS norms (local)
 
-Observed paths under `/home/kento/Repositories/memory-atlas`:
+Observed paths under `~/Repositories/memory-atlas`:
 
 | Path | Role vs OSS norms |
 |---|---|

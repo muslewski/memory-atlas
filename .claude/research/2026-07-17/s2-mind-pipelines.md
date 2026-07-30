@@ -1,7 +1,7 @@
 # s2 — syndcast-mind automation pipelines (repo analysis)
 
-**Subject:** automation that generates, validates, or updates `syndcast-mind/` inside [syndcast](file:///home/kento/Repositories/syndcast)  
-**Cwd (read-only):** `/home/kento/Repositories/syndcast`  
+**Subject:** automation that generates, validates, or updates `syndcast-mind/` inside [syndcast](~/Repositories/syndcast)  
+**Cwd (read-only):** `~/Repositories/syndcast`  
 **Date:** 2026-07-17  
 **Scope note:** `syndcast-mind/visuals/` (mind-skin gallery, MDX digests, diagram prerender) is out of scope except where it is *invoked from* mind-maintenance flows.  
 **Cross-ref:** memory-atlas already extracted the core verifier (`atlas build` / `check` / `stamp` / `status`) — this report inventories the *first implementation’s* full pipeline so generalization and the multi-repo update mechanism can be designed against real adoption pressure.
@@ -103,7 +103,7 @@ memory-atlas: `atlas status [--hook]` + `hooks.sessionStartStatus` in config.
 | **Reads** | `src/**` (.ts/.tsx) + `syndcast-mind/**` (.md); context-mode CLI under `~/.claude/plugins/cache/context-mode/...` |
 | **Writes** | `.navidx-code/`, `.navidx-mind/`, `.navidx.lock`, `.navidx.log`, `.navidx.stamp` under a **hardcoded** `ROOT = '/home/dev/syndcast'` |
 | **When** | SessionStart (detached spawn, <1s parent return); 10-minute stamp threshold; `--force` manual |
-| **Portability issue** | hard-coded absolute path — breaks on any machine/layout not `/home/dev/syndcast` (e.g. this analysis host uses `/home/kento/Repositories/syndcast`) |
+| **Portability issue** | hard-coded absolute path — breaks on any machine/layout not `/home/dev/syndcast` (e.g. this analysis host uses `~/Repositories/syndcast`) |
 
 Skills `nav-retrieval` document project paths as `/home/dev/syndcast/.navidx-{code,mind}` — same host assumption.
 
@@ -350,7 +350,7 @@ Prioritized for: (1) mature conventions now for ~5 new repos, (2) later open-sou
 
 | Kind | Path |
 |---|---|
-| Scripts package | `/home/kento/Repositories/syndcast/package.json` |
+| Scripts package | `~/Repositories/syndcast/package.json` |
 | Generator | `.../scripts/build-map.ts` |
 | Corpus | `.../scripts/check-corpus-quality.ts`, `.../scripts/lib/corpus-quality.ts` |
 | Ledger | `.../scripts/check-ledger-frontmatter.ts` |
@@ -364,7 +364,7 @@ Prioritized for: (1) mature conventions now for ~5 new repos, (2) later open-sou
 | CI | `.../.github/workflows/ci.yml` |
 | Templates | `.../syndcast-mind/templates/` |
 | Tests | `.../tests/int/mind-generator.int.spec.ts`, `.../tests/int/corpus-quality.int.spec.ts` |
-| Atlas package | `/home/kento/Repositories/memory-atlas/{bin/atlas.mjs,lib/*,SPEC.md,atlas.config.json,skills/*}` |
+| Atlas package | `~/Repositories/memory-atlas/{bin/atlas.mjs,lib/*,SPEC.md,atlas.config.json,skills/*}` |
 
 No web research (stars/URLs) was required; this is a single-repo pipeline inventory. Sibling products mentioned by owner for later OSS positioning: **agentic-sage**, **token-oracle** (local repos under `~/Repositories/`; not re-surveyed here).
 

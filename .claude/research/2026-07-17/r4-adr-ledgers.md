@@ -143,7 +143,7 @@ From worktree SPEC / init / config:
 
 Single live example observed:
 
-- Path: `/home/kento/Repositories/syndcast/syndcast-mind/reports/2026-07-09-advisor-plans-state-of-the-build.md`
+- Path: `~/Repositories/syndcast/syndcast-mind/reports/2026-07-09-advisor-plans-state-of-the-build.md`
 - Frontmatter matches the memory-atlas contract exactly (`type: report`, `status: snapshot`, `zones`, `covers`, dates).
 - Body role banner: “REPORT. A rear-view snapshot, not a plan… derived from … It commits to nothing and supersedes nothing.”
 - Includes a git commit pin in prose—good practice for observational immutability (not yet required by memory-atlas schema).

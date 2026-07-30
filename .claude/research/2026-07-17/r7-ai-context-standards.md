@@ -210,7 +210,7 @@ Examples of discourse: Karpathy LLM Wiki gist references in blog posts; Obsidian
 | **Agent-driven install** (agentic-sage model) | `AGENTS.md` runbook + doctor skill; non-clobbering installer | Explicit design: back up, skip-if-present, reversible uninstall | **Best analogue for convention upgrades that touch CLAUDE.md / hooks / local config** |
 | **AI codemod / skill “update to latest”** | Agent diffs upstream convention vs local vault + config | Can understand intent, preserve hand-authored zones | **Primary design target for multi-repo fleet maturity** |
 
-**agentic-sage local evidence** (`/home/kento/Repositories/agentic-sage/README.md`):  
+**agentic-sage local evidence** (`~/Repositories/agentic-sage/README.md`):  
 - Universal core vs project adapter split.  
 - Non-clobbering install; surgical uninstall.  
 - “Tell your agent to set it up” via AGENTS.md runbook.  

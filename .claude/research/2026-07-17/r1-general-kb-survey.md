@@ -5,7 +5,7 @@
 **Out of scope:** `visuals/` / presentation layers; closed SaaS without a meaningful public repo; pure LLM frameworks with no KB convention.  
 **Method:** Public GitHub REST API star counts (where rate limits allowed), GitHub page scrapes for stars/descriptions, and secondary web sources. Stars are **approximate as of mid-2026** (this research window). Graphify star counts are flagged as disputed.
 
-**Primary contrast for this report:** [memory-atlas](https://github.com/) (local path: `/home/kento/Repositories/memory-atlas`) — per-repo, Obsidian-compatible vault; zone cards with code-verified `owns.globs`; Map (present) vs Ledger (past); `verifiedAt` freshness; generated `map/index.md`. Spec: `SPEC.md`, README: `README.md`.
+**Primary contrast for this report:** [memory-atlas](https://github.com/) (local path: `~/Repositories/memory-atlas`) — per-repo, Obsidian-compatible vault; zone cards with code-verified `owns.globs`; Map (present) vs Ledger (past); `verifiedAt` freshness; generated `map/index.md`. Spec: `SPEC.md`, README: `README.md`.
 
 ---
 
@@ -162,7 +162,7 @@ These are **conventions**, not feature checklists:
 
 ### 5. Local product context (read-only)
 
-From `/home/kento/Repositories/memory-atlas`:
+From `~/Repositories/memory-atlas`:
 
 - **README / SPEC** already encode several winner conventions: vault not DB; Map vs Ledger; generated index; `verifiedAt`; optional modules not empty by default; CLAUDE.md/AGENTS.md on-ramp.
 - **Gap vs high-star peers for OSS maturity:** public positioning against Diátaxis/ADR/LLM-wiki; first-class **`atlas update`** story for multi-repo fleets; skill packaging comparable to obsidian-wiki/Mem0; clearer boundary vs docs-as-code (publish) and agent memory (belief).

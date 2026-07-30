@@ -54,8 +54,8 @@ Personal / life OS (high visibility, weak code-binding):
 | **ArchitectKB** | Solutions-architect ontology; typed prefixes (`System -`, `ADR -`); Dataview MOCs; Templater; **Claude Code skills + hooks**; freshness/confidence/verification fields; FTS index | **~48★** | https://github.com/DavidROliverBA/ArchitectKB |
 | **mcpvault** | MCP bridge to Obsidian vaults for agents; filters `.obsidian`, `.git`, `node_modules` | niche | https://github.com/bitbonsai/mcpvault |
 | **ralph-vault-skill** | Skill to generate knowledge vaults for project loops | niche | https://github.com/SantanderAI/ralph-vault-skill |
-| **syndcast-mind** (private first implementation) | Full mind: `map/zones`, decisions, specs, plans, tech-debt, bases, templates; zone cards with `owns.globs`, `verifiedAt` | n/a (source of memory-atlas) | `/home/kento/Repositories/syndcast/syndcast-mind` |
-| **memory-atlas dogfood vault** | Slimmed toolkit + `atlas/` vault | n/a | `/home/kento/Repositories/memory-atlas/atlas` |
+| **syndcast-mind** (private first implementation) | Full mind: `map/zones`, decisions, specs, plans, tech-debt, bases, templates; zone cards with `owns.globs`, `verifiedAt` | n/a (source of memory-atlas) | `~/Repositories/syndcast/syndcast-mind` |
+| **memory-atlas dogfood vault** | Slimmed toolkit + `atlas/` vault | n/a | `~/Repositories/memory-atlas/atlas` |
 
 **Takeaway:** “Most starred starter vault” ≠ best model for **per-repo code knowledge**. Stars cluster on life OS. The **ArchitectKB / Dendron / Foam / memory-atlas** lineage is the relevant design space.
 
@@ -337,9 +337,9 @@ Prioritized for: (1) mature conventions now for 5 new minds, (2) later open-sour
 
 ### Sources (local, read-only)
 
-- `/home/kento/Repositories/memory-atlas/atlas/map/index.md`  
-- `/home/kento/Repositories/memory-atlas/atlas/map/zones/cli.md`  
-- `/home/kento/Repositories/memory-atlas/atlas/map/decisions/0003-vault-named-atlas.md`  
-- `/home/kento/Repositories/memory-atlas/docs/ADOPTION.md`  
-- `/home/kento/Repositories/memory-atlas/atlas/templates/*`  
-- `/home/kento/Repositories/syndcast/syndcast-mind/map/zones/*` (structure + zone frontmatter samples)
+- `~/Repositories/memory-atlas/atlas/map/index.md`  
+- `~/Repositories/memory-atlas/atlas/map/zones/cli.md`  
+- `~/Repositories/memory-atlas/atlas/map/decisions/0003-vault-named-atlas.md`  
+- `~/Repositories/memory-atlas/docs/ADOPTION.md`  
+- `~/Repositories/memory-atlas/atlas/templates/*`  
+- `~/Repositories/syndcast/syndcast-mind/map/zones/*` (structure + zone frontmatter samples)
