@@ -363,6 +363,7 @@ Recollection (update + stamp in the same change as the code) is what keeps `veri
 
 - [`SPEC.md`](SPEC.md) — normative vault layout, taxonomy, freshness rule, interop
 - [`docs/ONRAMP.md`](docs/ONRAMP.md) — `atlas wire`, managed CLAUDE.md/AGENTS.md blocks
+- [`docs/COMMANDS.md`](docs/COMMANDS.md) — every CLI verb, flag, exit code, observed output
 - [`docs/CONFIG.md`](docs/CONFIG.md) — `atlas.config.json` reference
 - [`docs/ADOPTION.md`](docs/ADOPTION.md) — brownfield migrate
 - [`docs/recollecting-in-parallel.md`](docs/recollecting-in-parallel.md) — worker/integrator + merge drivers

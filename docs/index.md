@@ -16,6 +16,7 @@ Site: [atlas.muslewski.com](https://atlas.muslewski.com) · npm: [`memory-atlas`
 | Path | For |
 |------|-----|
 | [On-ramp](./ONRAMP.md) | Wire CLAUDE.md / AGENTS.md, SessionStart hooks, skills after `atlas init` |
+| [Command reference](./COMMANDS.md) | Every `atlas` verb: flags, writes, exit codes, observed output |
 | [Adoption](./ADOPTION.md) | Brownfield migrate: existing docs/ADRs/mind → Atlas shape |
 | [Configuration](./CONFIG.md) | `atlas.config.json` field reference |
 | [Containment and honesty](./containment.md) | Write-path realpath checks; exit codes; index regenerate vs text-merge |
