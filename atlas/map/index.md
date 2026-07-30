@@ -27,7 +27,7 @@ _none_
 ## Ledger
 
 - specs: 2 (approved 2)
-- decisions: 9 (accepted 6 · active 3)
+- decisions: 10 (accepted 7 · active 3)
 
 ### Recent
 
