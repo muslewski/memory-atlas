@@ -1,0 +1,331 @@
+{
+  "target": "0.5.3",
+  "results": [
+    {
+      "name": "7-liceum-bydgoszcz",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "agentic-sage",
+      "ok": true,
+      "steps": [
+        "package.json pin ^0.5.3 → 0.5.3",
+        "pm=npm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "agentic-sage-site",
+      "ok": true,
+      "steps": [
+        "package.json pin ^0.5.3 → 0.5.3",
+        "pm=npm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "delieta",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "eve",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "eventizer",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "green-ui-kit",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "grzybniety",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm",
+        "install warn: all\".  You may change the global store location by running \"pnpm config set store-dir <dir> --global\". (This error may happen if the node_modules was installed with a different major version of pnpm) ",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "hermes",
+      "ok": true,
+      "steps": [
+        "package.json pin ^0.5.3 → 0.5.3",
+        "pm=npm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "llm-armory",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "memory-atlas",
+      "ok": true,
+      "steps": [
+        "package.json pin ∅ → 0.5.3",
+        "pm=npm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ stamped atlasVersion 0.5.2 → 0.5.3 (no migrations)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "mossferry",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "muslewski",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "muslewski-v3",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm",
+        "install warn: all\".  You may change the global store location by running \"pnpm config set store-dir <dir> --global\". (This error may happen if the node_modules was installed with a different major version of pnpm) ",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "nightshift-glow-studio",
+      "ok": true,
+      "steps": [
+        "package.json pin ^0.5.3 → 0.5.3",
+        "pm=npm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "ogrody-kryscar",
+      "ok": true,
+      "steps": [
+        "package.json pin ^0.5.3 → 0.5.3",
+        "pm=npm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "personal-knowledge-base",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "pol-med-v4",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm",
+        "install warn: [ERR_PNPM_PUBLIC_HOIST_PATTERN_DIFF] This modules directory was created using a different public-hoist-pattern value. Run \"pnpm install\" to recreate the modules directory. ",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "scentloop",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm",
+        "install warn: [WARN] The \"pnpm\" field in package.json is no longer read by pnpm. The following keys were ignored: \"pnpm.patchedDependencies\". See https://pnpm.io/settings for the new home of each setting. ",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "status-herald",
+      "ok": true,
+      "steps": [
+        "package.json pin ^0.5.3 → 0.5.3",
+        "pm=npm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "stream-engine",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "syndcast",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "token-oracle",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "work-kb",
+      "ok": true,
+      "steps": [
+        "package.json pin 0.5.3 → 0.5.3",
+        "pm=pnpm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    },
+    {
+      "name": "yours-fairy-tale",
+      "ok": true,
+      "steps": [
+        "package.json pin ^0.5.3 → 0.5.3",
+        "pm=npm",
+        "install ok",
+        "wire exit 0",
+        "migrate: ✓ up to date (atlas 0.5.3)",
+        "gate --strict exit 0: atlas gate: ok"
+      ],
+      "error": null
+    }
+  ],
+  "at": "2026-07-28T13:29:04.996Z"
+}
