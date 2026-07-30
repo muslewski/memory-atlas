@@ -4,8 +4,8 @@ summary: "atlas.config.json's loader: the v1 default shape, a tolerant deep merg
 tags: [config]
 status: active
 created: 2026-07-09
-updated: 2026-07-29
-verifiedAt: 00cc9ec9
+updated: 2026-07-30
+verifiedAt: 67d09307
 owns:
   routes: []
   testids: []
@@ -18,6 +18,8 @@ depends: []
 invariants:
   - rule: "loadConfig never throws — a missing file, invalid JSON, non-object root, unknown key, or wrong-typed value each warn once (to stderr) and fall back to the matching default, recursively"
     enforcedBy: ["test/config.test.mjs"]
+  - rule: "loadConfig refuses non-regular atlas.config.json (FIFO, directory, socket) with one warning and defaults — never blocks forever on a FIFO"
+    enforcedBy: ["test/config.test.mjs", "test/cli-errors.test.mjs"]
 skills: []
 advances: []
 related: []

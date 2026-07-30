@@ -136,11 +136,18 @@ function resolveVault(cwd, stderr) {
  *   config: ReturnType<typeof loadConfig>,
  * } | null}
  */
-export function renderCore(cwd, stderr) {
+/**
+ * @param {string} cwd
+ * @param {{ write: Function }} stderr
+ * @param {{ config?: ReturnType<typeof loadConfig> }} [opts]
+ *   Pass a pre-loaded config to avoid a second loadConfig (and its type-mismatch
+ *   warnings) when the caller already loaded it — e.g. `atlas check`.
+ */
+export function renderCore(cwd, stderr, opts = {}) {
   const located = resolveVault(cwd, stderr)
   if (!located) return null
   const { repoRoot, vaultDir } = located
-  const config = loadConfig(repoRoot)
+  const config = opts.config ?? loadConfig(repoRoot, { stderr })
   const vault = loadVault(vaultDir, config)
   const resolvers = makeResolvers(repoRoot, config.anchors ?? {})
   const result = validate(vault.zones, vault.flows, resolvers, {
@@ -215,7 +222,9 @@ function runCheck(argv, opts) {
   const located = resolveVault(cwd, stderr)
   if (!located) return 1
   const { repoRoot, vaultDir } = located
-  const config = loadConfig(repoRoot)
+  // Single loadConfig for the whole check path — type-mismatch warnings must
+  // emit once, not once per nested load (renderCore used to re-load).
+  const config = loadConfig(repoRoot, { stderr })
   // Owner decision 3: `--strict` does NOT harden staleness. Only the config
   // key `check.strictFreshness: true` turns ⚠ stale into a hard failure.
   // Structural / ownership / lifecycle / corpus (when enabled) are always hard.
@@ -238,7 +247,7 @@ function runCheck(argv, opts) {
 
   let ok = true
 
-  const core = renderCore(cwd, stderr)
+  const core = renderCore(cwd, stderr, { config })
   if (!core) return 1
   const { result, vault } = core
 

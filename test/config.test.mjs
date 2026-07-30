@@ -156,6 +156,17 @@ describe('loadConfig', () => {
     assert.ok(lines.some((l) => l.includes('"enabled" should be a boolean')))
   })
 
+  test('directory or non-file atlas.config.json warns and uses defaults (no hang)', () => {
+    const repo = mkRepo()
+    const cfg = path.join(repo, 'atlas.config.json')
+    // Replace with a directory so isFile() is false
+    fs.mkdirSync(cfg)
+    const { stderr, lines } = silentStderr()
+    const config = loadConfig(repo, { stderr })
+    assert.equal(config.folders.zones, 'map/zones')
+    assert.ok(lines.some((l) => /not a regular file/.test(l)))
+  })
+
   test('enabled: false is surfaced through to the merged config', () => {
     const repo = mkRepo()
     writeConfig(repo, { enabled: false })
