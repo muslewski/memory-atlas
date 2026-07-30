@@ -4,8 +4,8 @@ summary: "Turning the vault's files on disk into the plain note objects the veri
 tags: [vault-io]
 status: active
 created: 2026-07-09
-updated: 2026-07-29
-verifiedAt: 00cc9ec9
+updated: 2026-07-30
+verifiedAt: 67d09307
 owns:
   routes: []
   testids: []
@@ -26,7 +26,9 @@ invariants:
   - rule: "every note under specs/ and plans/ is checked against its type's lifecycle enum and must carry a non-empty summary; violations are reported by path, not thrown"
     enforcedBy: ["test/ledger.test.mjs"]
   - rule: "folders.zones with .. segments is refused — loadVault never indexes zone cards from outside the vault"
-    enforcedBy: ["test/paths-containment.test.mjs"]
+    enforcedBy: ["test/paths-containment.test.mjs", "test/cli-errors.test.mjs"]
+  - rule: "unparseable zone cards, map/zones as a non-directory, and looping zone symlinks throw structured errors consumed as clean CLI lines (no raw Node stack)"
+    enforcedBy: ["test/cli-errors.test.mjs"]
 skills: []
 advances: []
 related: []

@@ -4,8 +4,8 @@ summary: "The atlas command-line entry point: bin/atlas.mjs dispatch plus init/s
 tags: [cli]
 status: active
 created: 2026-07-09
-updated: 2026-07-29
-verifiedAt: 00cc9ec9
+updated: 2026-07-30
+verifiedAt: 67d09307
 owns:
   routes: []
   testids: []
@@ -27,6 +27,7 @@ owns:
     - "test/merge-zone.test.mjs"
     - "test/wire.test.mjs"
     - "test/paths-containment.test.mjs"
+    - "test/cli-errors.test.mjs"
   tools: []
 depends:
   - [[verifier-core]]
@@ -43,6 +44,8 @@ invariants:
     enforcedBy: ["test/merge-index.test.mjs"]
   - rule: "stamp and build refuse path traversal / out-of-vault symlinks — write targets must resolve inside the vault/repo root"
     enforcedBy: ["test/paths-containment.test.mjs", "test/stamp.test.mjs"]
+  - rule: "atlas check loads atlas.config.json once (type-mismatch warnings emit once); build/stamp/check surface EACCES, unparseable zones, ENOTDIR, and ELOOP as one-line CLI errors without a Node stack"
+    enforcedBy: ["test/cli-errors.test.mjs"]
 skills: []
 advances: []
 related: []
