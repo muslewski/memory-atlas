@@ -3,8 +3,8 @@
 **Date:** 2026-07-17  
 **Role:** repo analyst (read-only)  
 **Sources:**  
-- Origin vault: `/home/kento/Repositories/syndcast/syndcast-mind` (+ generator scripts under `syndcast/scripts/`)  
-- Extracted toolkit: `/home/kento/Repositories/memory-atlas` (`main` @ `ade440e` and worktree branch `feat/reports-convention` @ `cce6052`)  
+- Origin vault: `~/Repositories/syndcast/syndcast-mind` (+ generator scripts under `syndcast/scripts/`)  
+- Extracted toolkit: `~/Repositories/memory-atlas` (`main` @ `ade440e` and worktree branch `feat/reports-convention` @ `cce6052`)  
 - **Out of scope:** `syndcast-mind/visuals/` and any presentation layer over Atlas data  
 
 ---
@@ -280,7 +280,7 @@ Already strong: README, SPEC, CONFIG, ONRAMP, ADOPTION, LAUNCH-CHECKLIST, exampl
 | Origin generator scripts | `build-map.ts` 346 LOC; `check-corpus-quality.ts` 164; `corpus-quality.ts` 163; `check-ledger` 79; `mind-status` 47 |
 | Atlas lib+bin | ~2070 LOC across lib/*.mjs + bin |
 | Reports branch commits | `2ee09ce` config → `6877cc7` init → `cce6052` SPEC |
-| Sibling local repos | agentic-sage, token-oracle, status-herald, memory-atlas under `/home/kento/Repositories/` |
+| Sibling local repos | agentic-sage, token-oracle, status-herald, memory-atlas under `~/Repositories/` |
 
 ---
 

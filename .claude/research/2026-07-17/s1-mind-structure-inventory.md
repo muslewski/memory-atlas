@@ -1,6 +1,6 @@
 # S1 — syndcast-mind structural inventory
 
-**Subject:** `/home/kento/Repositories/syndcast/syndcast-mind/`  
+**Subject:** `~/Repositories/syndcast/syndcast-mind/`  
 **Date:** 2026-07-17  
 **Scope:** Full vault structure (note types, naming, frontmatter, wikilinks, MOCs, generated vs hand-written). **`visuals/` is OUT OF SCOPE** for productization (mentioned only as an excluded sibling).  
 **Method:** Read-only filesystem inventory + frontmatter parse of all `*.md` outside `visuals/`. No generators, installs, or git mutations.
@@ -582,10 +582,10 @@ Abbreviated from full-vault parse (top keys only):
 
 ## Appendix B — Key file paths (absolute)
 
-- Vault root: `/home/kento/Repositories/syndcast/syndcast-mind/`
+- Vault root: `~/Repositories/syndcast/syndcast-mind/`
 - Schema contract: `…/map/README.md`
 - Generated index: `…/map/index.md`
 - Templates: `…/templates/*.md`
-- Generator: `/home/kento/Repositories/syndcast/scripts/build-map.ts`
-- Package scripts: `/home/kento/Repositories/syndcast/package.json` (`mind:*`)
-- This report: `/home/kento/Repositories/memory-atlas/.claude/research/2026-07-17/s1-mind-structure-inventory.md`
+- Generator: `~/Repositories/syndcast/scripts/build-map.ts`
+- Package scripts: `~/Repositories/syndcast/package.json` (`mind:*`)
+- This report: `~/Repositories/memory-atlas/.claude/research/2026-07-17/s1-mind-structure-inventory.md`

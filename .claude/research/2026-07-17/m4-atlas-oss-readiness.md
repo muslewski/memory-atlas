@@ -6,9 +6,9 @@ Repos under review:
 
 | Repo | Local path | Public presence (2026-07-17) | Stars (approx) | Registry |
 |---|---|---|---|---|
-| **memory-atlas** | `/home/kento/Repositories/memory-atlas` | **No public GitHub repo** (`https://github.com/muslewski/memory-atlas` → HTTP 404); no `origin` remote; 33 local commits | n/a | npm `memory-atlas` → **E404 (name free)** |
-| **agentic-sage** | `/home/kento/Repositories/agentic-sage` | Public: https://github.com/muslewski/agentic-sage | **~1★** | **npm** `agentic-sage@1.0.0` (~555 downloads last month via npm downloads API); homepage https://sage.muslewski.com/ |
-| **token-oracle** | `/home/kento/Repositories/token-oracle` | Public: https://github.com/muslewski/token-oracle | **~0★** | **PyPI** `token-oracle@0.1.1` (HTTP 200 project page); npm name unused (Python primary; `npm/` is npx shim only) |
+| **memory-atlas** | `~/Repositories/memory-atlas` | **No public GitHub repo** (`https://github.com/muslewski/memory-atlas` → HTTP 404); no `origin` remote; 33 local commits | n/a | npm `memory-atlas` → **E404 (name free)** |
+| **agentic-sage** | `~/Repositories/agentic-sage` | Public: https://github.com/muslewski/agentic-sage | **~1★** | **npm** `agentic-sage@1.0.0` (~555 downloads last month via npm downloads API); homepage https://sage.muslewski.com/ |
+| **token-oracle** | `~/Repositories/token-oracle` | Public: https://github.com/muslewski/token-oracle | **~0★** | **PyPI** `token-oracle@0.1.1` (HTTP 200 project page); npm name unused (Python primary; `npm/` is npx shim only) |
 
 House-style baseline: the **distribution & quality** workstreams siblings already executed — agentic-sage `docs/superpowers/specs/2026-06-30-distribution-and-quality-design.md` and token-oracle `docs/superpowers/specs/2026-06-30-distribution-and-quality-design.md` — plus their live `.github/`, release-please, publish, and hygiene files.
 

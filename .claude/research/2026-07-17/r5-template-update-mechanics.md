@@ -316,11 +316,11 @@ Use an agent (skill-driven “update to latest”) when the change is **semantic
 
 **Local repo analysis (read-only)**
 
-- `/home/kento/Repositories/memory-atlas/docs/ADOPTION.md` — brownfield migration, additive `atlas init`, status enum renames, coexistence, rollback
-- `/home/kento/Repositories/memory-atlas/atlas.config.json` — versioned config, modules, anchors, retrieval, skills, hooks
-- `/home/kento/Repositories/memory-atlas/templates/` — config / notes / routines / vault scaffolds
-- `/home/kento/Repositories/agentic-sage/README.md` — non-clobbering install, upgrade-safe npm package model
-- `/home/kento/Repositories/token-oracle/README.md` — install/run-latest patterns
+- `~/Repositories/memory-atlas/docs/ADOPTION.md` — brownfield migration, additive `atlas init`, status enum renames, coexistence, rollback
+- `~/Repositories/memory-atlas/atlas.config.json` — versioned config, modules, anchors, retrieval, skills, hooks
+- `~/Repositories/memory-atlas/templates/` — config / notes / routines / vault scaffolds
+- `~/Repositories/agentic-sage/README.md` — non-clobbering install, upgrade-safe npm package model
+- `~/Repositories/token-oracle/README.md` — install/run-latest patterns
 
 ## Recommendations for memory-atlas
 

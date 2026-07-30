@@ -1,7 +1,7 @@
 # S3 — syndcast-mind content quality audit
 
 **Subject:** qualitative content audit of `syndcast-mind/` (first real Atlas implementation)  
-**Read-only corpus:** `/home/kento/Repositories/syndcast/syndcast-mind` (app repo checkout `04259489…`, 2026-07-17)  
+**Read-only corpus:** `~/Repositories/syndcast/syndcast-mind` (app repo checkout `04259489…`, 2026-07-17)  
 **Out of scope for porting:** `visuals/` (structure noted only)  
 **Audience:** memory-atlas maturation (conventions, tooling, OSS, multi-repo update mechanism)
 

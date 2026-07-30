@@ -36,51 +36,33 @@ const pkg = JSON.parse(readFileSync(path.join(__dirname, '..', 'package.json'), 
 
 const USAGE = `atlas — code-verified knowledge base for a repository
 
+Zone cards describe regions of the code (owns.globs + verifiedAt). The CLI
+checks, stamps, and rebuilds that vault. Binary: npx atlas, or node bin/atlas.mjs
+in a checkout (the package is not always on PATH).
+
 Usage:
   atlas <command> [options]
 
-Commands:
-  atlas init [--profile code|operator] [--vault name] [--modules a,b]
-                          Scaffold a new Atlas vault (profile defaults modules + glob policy)
-  atlas build             regenerate map/index.md
-  atlas check [--strict] [--report] [--ledger-only]
-                          validate the vault (read-only) — zone claims, ledger, index freshness
-  atlas stamp <slug...>   Re-stamp verifiedAt for reviewed zones (no blanket re-stamp)
-  atlas search <query>    Search vault markdown (rg-first; grep fallback). Portable retrieval floor.
-  atlas status [--hook]   One-line vault health summary (safe as a hook). --hook marks
-                          a SessionStart-hook call site, honoring hooks.sessionStartStatus
-                          in atlas.config.json; a plain human/script call always prints.
-                          Also prints two-tier package-freshness nudges (wired + registry).
-  atlas gate [--strict] [--force]
-                          package freshness only (is the installed memory-atlas current?)
-                          Default mode is warn (exit 0). --strict or
-                          check.packageFreshness.mode=fail → exit 1 on issues.
-                          --force refreshes npm latest (bypasses TTL cache).
-  atlas wire [claude|grok|all|merge-driver] [--write] [--allow-dirty]
-                          Wire SessionStart hooks + managed CLAUDE.md/AGENTS.md on-ramp
-                          blocks (default: all). Idempotent; refuses malformed JSON targets.
-                          merge-driver: report-first install of local git merge drivers for
-                          map/index.md (regenerate) and map/zones/*.md (verifiedAt-only →
-                          unverified). Dry-run unless --write. Refuses a dirty tree unless
-                          --allow-dirty. .gitattributes alone does nothing without local config.
-  atlas merge-index <base> <ours> <theirs> <marker-size> <path>
-                          Git merge-driver entrypoint — regenerate map/index.md (do not call by hand)
-  atlas merge-zone <base> <ours> <theirs> <marker-size> <path>
-                          Git merge-driver entrypoint — stamp-only zone conflicts → unverified
-  atlas doctor [--strict] wiring inventory (are hooks/skills/adapters installed?)
-                          --strict exits 1 when package-freshness issues are present.
-  atlas migrate [--write] [--json]
-                          Apply pending versioned migrations (dry-run by default; --write to apply)
-  atlas adopt [--write] [--json]
-                          Normalize an existing (brownfield) vault + adoption report
-  atlas routine [name]    Print a maintenance-routine prompt (no name: list available)
-  atlas visuals [init|status|dev|preview] ...
-                          Scaffold vault visuals/ content tree, peer status, or
-                          spawn memory-atlas-visuals (install the companion to use
-                          dev/preview)
-  atlas telemetry [status|report|dump|clear|on|off]
-                          Local debug telemetry (OFF by default). Fleet: enable
-                          with \`atlas telemetry on\` or ATLAS_TELEMETRY=1.
+Primary commands:
+  atlas init [--vault name]   Scaffold a vault (default: <repo-dirname>-atlas)
+  atlas check                 Validate the vault (read-only; never writes)
+  atlas stamp <slug...>       Set verifiedAt to HEAD for reviewed zones only
+  atlas build                 Regenerate map/index.md from zone cards
+  atlas status                One-line vault health (safe as a SessionStart hook)
+  atlas search <query>        Search vault markdown (rg-first; grep fallback)
+  atlas doctor                Wiring + lockfile + package-freshness inventory
+
+Happy path (git repo with ≥1 commit):
+  npm i -D memory-atlas
+  npx atlas init --vault atlas
+  npx atlas check
+  # → atlas check: ok  (empty vault is valid; seed zones next)
+
+Full command reference (every verb, flag, exit code, real output):
+  docs/COMMANDS.md
+
+Also: wire · gate · migrate · adopt · routine · visuals · telemetry
+  merge-index · merge-zone  (git merge-driver entrypoints — do not call by hand)
 
 Options:
   --help, -h        Show this help

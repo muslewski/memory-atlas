@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-17  
 **Role:** repo analyst (read-only)  
-**Scope:** memory-atlas (`/home/kento/Repositories/memory-atlas`) update path for already-adopted repos; grounded in package layout, SPEC, CLI, and the first implementation (syndcast-mind). Visuals/ out of scope.  
+**Scope:** memory-atlas (`~/Repositories/memory-atlas`) update path for already-adopted repos; grounded in package layout, SPEC, CLI, and the first implementation (syndcast-mind). Visuals/ out of scope.  
 **Web/sibling notes:** GitHub API star counts for `muslewski/*` were unavailable this session (unauthenticated rate limit). Package is still pre-publish (local `0.1.0`; `docs/LAUNCH-CHECKLIST.md` still treats GitHub/npm as owner steps). Copier update model cited from public docs ([copier updating](https://copier.readthedocs.io/en/stable/updating/)).
 
 ---
@@ -122,7 +122,7 @@ From `docs/ONRAMP.md` install flow + zone `agent-onramp`:
 **Historical motivation (advisor plan 004):** navigation skill was “hand-copied into five repos and drifted into five distinct versions.” Extraction to the package fixed the *source of truth* for new installs; it did **not** ship a reconvergence path for old copies.
 
 **Live drift sample (syndcast):**  
-`/home/kento/Repositories/syndcast/.claude/skills/writing-for-retrieval/SKILL.md` **differs** from package `skills/writing-for-retrieval/SKILL.md`. Syndcast also has mind-specific skills (`navigating-syndcast`, `mind-skin`, `nav-retrieval`) outside the three portable skills — legitimate local extensions that must not be tombstoned (recollection skill already says vendored third-party skills are not Atlas projections).
+`~/Repositories/syndcast/.claude/skills/writing-for-retrieval/SKILL.md` **differs** from package `skills/writing-for-retrieval/SKILL.md`. Syndcast also has mind-specific skills (`navigating-syndcast`, `mind-skin`, `nav-retrieval`) outside the three portable skills — legitimate local extensions that must not be tombstoned (recollection skill already says vendored third-party skills are not Atlas projections).
 
 ### 4. How an already-adopted repo receives improvements **today** (step-by-step reality)
 
@@ -151,7 +151,7 @@ Assume a greenfield adopter after ONRAMP (or dogfood `atlas/` + local package).
 
 ### 5. First implementation (syndcast-mind) as the future fleet worst case
 
-Path: `/home/kento/Repositories/syndcast/syndcast-mind/` (visuals/ ignored per task).
+Path: `~/Repositories/syndcast/syndcast-mind/` (visuals/ ignored per task).
 
 | memory-atlas expectation | syndcast today |
 |---|---|

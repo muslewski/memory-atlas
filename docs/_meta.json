@@ -15,24 +15,36 @@
       "href": "ADOPTION.md"
     },
     {
-      "title": "Configuration",
-      "href": "CONFIG.md"
-    },
-    {
-      "title": "Visuals companion",
-      "href": "VISUALS.md"
+      "title": "Containment and honesty",
+      "href": "containment.md"
     },
     {
       "title": "Recollecting in parallel",
       "href": "recollecting-in-parallel.md"
     },
     {
-      "title": "CI recipe",
-      "href": "CI.md"
+      "title": "Command reference",
+      "href": "COMMANDS.md"
+    },
+    {
+      "title": "Configuration",
+      "href": "CONFIG.md"
+    },
+    {
+      "title": "Troubleshooting",
+      "href": "troubleshooting.md"
     },
     {
       "title": "Works with",
       "href": "works-with.md"
+    },
+    {
+      "title": "Visuals companion",
+      "href": "VISUALS.md"
+    },
+    {
+      "title": "CI recipe",
+      "href": "CI.md"
     }
   ]
 }
